@@ -9,6 +9,10 @@ export default function Preloader() {
     const [contentVisible, setContentVisible] = useState(true);
 
     useEffect(() => {
+        if (typeof document === 'undefined') return;
+
+        const previousBodyOverflow = document.body.style.overflow;
+
         // 1. Lock Body Scroll
         document.body.style.overflow = 'hidden';
 
@@ -21,25 +25,28 @@ export default function Preloader() {
         // Remove the whole component from DOM after curtains finish opening
         const exitTimer = setTimeout(() => {
             setIsLoading(false);
-            document.body.style.overflow = 'unset';
+            document.body.style.overflow = previousBodyOverflow;
         }, 4200);
 
         return () => {
             clearTimeout(contentTimer);
             clearTimeout(exitTimer);
-            document.body.style.overflow = 'unset';
+            document.body.style.overflow = previousBodyOverflow;
         };
     }, []);
 
     return (
         <AnimatePresence mode="wait">
             {isLoading && (
-                <div className="fixed inset-0 z-[9999] flex flex-col pointer-events-none">
+                <div
+                    className="fixed top-0 left-0 right-0 z-[9999] flex flex-col pointer-events-none overflow-hidden"
+                    style={{ height: '100dvh', minHeight: '100vh' }}
+                >
 
                     {/* --- LAYER 1: THE CURTAINS (Seamless Monolith) --- */}
                     {/* Top Curtain - No visible border initially */}
                     <motion.div
-                        className="relative w-full h-1/2 bg-[#111111]"
+                        className="relative w-full flex-1 bg-[#111111]"
                         initial={{ y: 0 }}
                         exit={{
                             y: '-100%',
@@ -61,7 +68,7 @@ export default function Preloader() {
 
                     {/* Bottom Curtain - No visible border initially */}
                     <motion.div
-                        className="relative w-full h-1/2 bg-[#111111]"
+                        className="relative w-full flex-1 bg-[#111111]"
                         initial={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{
