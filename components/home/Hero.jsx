@@ -31,6 +31,32 @@ export default function Hero() {
   useEffect(() => {
     const firstVideo = videoRefs.current[0];
 
+    // Mobile-specific video play handler
+    const attemptVideoPlay = async (video) => {
+      if (!video) return;
+      
+      try {
+        // Reset video to start
+        video.currentTime = 0;
+        
+        // Attempt to play
+        await video.play();
+      } catch (err) {
+        console.log('Video play attempt:', err.name);
+        
+        // For mobile devices, try again after a short delay
+        if (err.name === 'NotAllowedError' || err.name === 'AbortError') {
+          setTimeout(async () => {
+            try {
+              await video.play();
+            } catch (retryErr) {
+              console.log('Video retry failed:', retryErr.name);
+            }
+          }, 100);
+        }
+      }
+    };
+
     // Handler for when first video can play through
     const handleFirstVideoReady = () => {
       setVideosLoaded(prev => {
@@ -40,16 +66,7 @@ export default function Hero() {
       });
 
       // Play the first video immediately
-      if (firstVideo) {
-        firstVideo.currentTime = 0;
-        firstVideo.play()
-          .catch(err => {
-            // Silently retry if interrupted by power saving
-            if (err.name === 'AbortError') {
-              setTimeout(() => firstVideo.play().catch(() => { }), 100);
-            }
-          });
-      }
+      attemptVideoPlay(firstVideo);
 
       // Smooth fade-in after a small buffer to ensure smooth start
       setTimeout(() => {
@@ -69,30 +86,45 @@ export default function Hero() {
     // Attach event listeners
     if (firstVideo) {
       firstVideo.addEventListener('canplaythrough', handleFirstVideoReady, { once: true });
+      firstVideo.addEventListener('loadeddata', handleFirstVideoReady, { once: true });
     }
 
     const secondVideo = videoRefs.current[1];
     if (secondVideo) {
       secondVideo.addEventListener('canplaythrough', handleSecondVideoReady, { once: true });
+      secondVideo.addEventListener('loadeddata', handleSecondVideoReady, { once: true });
     }
 
     // Resume playback when tab becomes visible again
     const handleVisibilityChange = () => {
       if (!document.hidden && videoRefs.current[activeSlide]) {
-        videoRefs.current[activeSlide].play().catch(() => { });
+        attemptVideoPlay(videoRefs.current[activeSlide]);
+      }
+    };
+
+    // Handle user interaction to start videos on mobile
+    const handleUserInteraction = () => {
+      if (firstVideo && firstVideo.paused) {
+        attemptVideoPlay(firstVideo);
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('touchstart', handleUserInteraction, { once: true });
+    document.addEventListener('click', handleUserInteraction, { once: true });
 
     return () => {
       if (firstVideo) {
         firstVideo.removeEventListener('canplaythrough', handleFirstVideoReady);
+        firstVideo.removeEventListener('loadeddata', handleFirstVideoReady);
       }
       if (secondVideo) {
         secondVideo.removeEventListener('canplaythrough', handleSecondVideoReady);
+        secondVideo.removeEventListener('loadeddata', handleSecondVideoReady);
       }
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('touchstart', handleUserInteraction);
+      document.removeEventListener('click', handleUserInteraction);
     };
   }, []);
 
@@ -102,19 +134,36 @@ export default function Hero() {
 
     if (!currentVideo) return;
 
-    // Pause all other videos
-    videoRefs.current.forEach((video, index) => {
-      if (video && index !== activeSlide) {
-        video.pause();
-        video.currentTime = 0; // Reset to beginning for next play
-      }
-    });
+    const playCurrentVideo = async () => {
+      try {
+        // Pause all other videos
+        videoRefs.current.forEach((video, index) => {
+          if (video && index !== activeSlide) {
+            video.pause();
+            video.currentTime = 0; // Reset to beginning for next play
+          }
+        });
 
-    // Play the current video from the beginning
-    currentVideo.currentTime = 0;
-    currentVideo.play().catch(err => {
-      console.log('Video play error:', err);
-    });
+        // Play the current video from the beginning
+        currentVideo.currentTime = 0;
+        await currentVideo.play();
+      } catch (err) {
+        console.log('Video play error:', err);
+        
+        // Retry for mobile devices
+        if (err.name === 'NotAllowedError' || err.name === 'AbortError') {
+          setTimeout(async () => {
+            try {
+              await currentVideo.play();
+            } catch (retryErr) {
+              console.log('Video retry failed:', retryErr);
+            }
+          }, 100);
+        }
+      }
+    };
+
+    playCurrentVideo();
 
   }, [activeSlide]);
 
@@ -202,23 +251,42 @@ export default function Hero() {
         >
           {videos.map((video, index) => (
             <SwiperSlide key={`video-${index}`} className="w-full h-full">
-              <video
-                ref={(el) => addVideoRef(el, index)}
-                muted
-                playsInline
-                preload="auto"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  backgroundColor: '#000'
-                }}
-              >
-                <source src={video} type="video/mp4" />
-              </video>
+              <div className="relative w-full h-full">
+                <video
+                  ref={(el) => addVideoRef(el, index)}
+                  muted
+                  playsInline
+                  autoPlay
+                  loop={false}
+                  preload="metadata"
+                  webkit-playsinline="true"
+                  x5-playsinline="true"
+                  x5-video-player-type="h5"
+                  x5-video-player-fullscreen="true"
+                  poster="/intro.png"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    backgroundColor: '#000'
+                  }}
+                >
+                  <source src={video} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+                
+                {/* Fallback background image for mobile */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                  style={{
+                    backgroundImage: 'url(/intro.png)',
+                    zIndex: -1
+                  }}
+                />
+              </div>
             </SwiperSlide>
           ))}
         </Swiper>

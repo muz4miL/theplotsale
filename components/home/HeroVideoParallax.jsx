@@ -68,6 +68,28 @@ export default function HeroVideoParallax() {
     video1.src = videos[0];
     video2.src = videos[1];
 
+    // Mobile-specific video play handler
+    const attemptVideoPlay = async (video) => {
+      if (!video) return;
+      
+      try {
+        await video.play();
+      } catch (err) {
+        console.log('Video play attempt:', err.name);
+        
+        // For mobile devices, try again after a short delay
+        if (err.name === 'NotAllowedError' || err.name === 'AbortError') {
+          setTimeout(async () => {
+            try {
+              await video.play();
+            } catch (retryErr) {
+              console.log('Video retry failed:', retryErr.name);
+            }
+          }, 100);
+        }
+      }
+    };
+
     const handleVideoEnd = () => {
       // Preload next video
       videoIndex = (videoIndex + 1) % videos.length;
@@ -80,7 +102,7 @@ export default function HeroVideoParallax() {
       gsap.to(activeVideo, { opacity: 0, duration: 1.5, ease: 'power2.inOut' });
       gsap.to(inactiveVideo, { opacity: 1, duration: 1.5, ease: 'power2.inOut' });
       
-      inactiveVideo.play().catch(() => {});
+      attemptVideoPlay(inactiveVideo);
       
       // Swap references
       [activeVideo, inactiveVideo] = [inactiveVideo, activeVideo];
@@ -88,15 +110,28 @@ export default function HeroVideoParallax() {
       setCurrentVideoIndex(videoIndex);
     };
 
+    // Handle user interaction to start videos on mobile
+    const handleUserInteraction = () => {
+      if (video1 && video1.paused) {
+        attemptVideoPlay(video1);
+      }
+    };
+
     video1.addEventListener('ended', handleVideoEnd);
     video2.addEventListener('ended', handleVideoEnd);
+    
+    // Add mobile interaction listeners
+    document.addEventListener('touchstart', handleUserInteraction, { once: true });
+    document.addEventListener('click', handleUserInteraction, { once: true });
 
     // Start first video
-    video1.play().catch(() => {});
+    attemptVideoPlay(video1);
 
     return () => {
       video1.removeEventListener('ended', handleVideoEnd);
       video2.removeEventListener('ended', handleVideoEnd);
+      document.removeEventListener('touchstart', handleUserInteraction);
+      document.removeEventListener('click', handleUserInteraction);
     };
   }, []);
 
@@ -206,17 +241,41 @@ export default function HeroVideoParallax() {
         <>
           {/* VIDEO SECTION - Top 60% with Brand Identity Overlay */}
           <div className="relative h-[60vh] w-full overflow-hidden">
-            <div className="absolute inset-0">
+            {/* Fallback background image */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{
+                backgroundImage: 'url(/intro.png)',
+                zIndex: 1
+              }}
+            />
+            
+            <div className="absolute inset-0 z-10">
               <video
                 ref={videoRef}
                 className="h-full w-full object-cover absolute inset-0"
-                autoPlay loop={false} muted playsInline preload="metadata"
+                autoPlay 
+                loop={false} 
+                muted 
+                playsInline 
+                preload="metadata"
+                webkit-playsinline="true"
+                x5-playsinline="true"
+                x5-video-player-type="h5"
+                poster="/intro.png"
                 style={{ transition: 'opacity 1.5s ease-in-out' }}
               />
               <video
                 ref={video2Ref}
                 className="h-full w-full object-cover absolute inset-0"
-                loop={false} muted playsInline preload="none"
+                loop={false} 
+                muted 
+                playsInline 
+                preload="none"
+                webkit-playsinline="true"
+                x5-playsinline="true"
+                x5-video-player-type="h5"
+                poster="/intro.png"
                 style={{ opacity: 0, transition: 'opacity 1.5s ease-in-out' }}
               />
               <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent)' }} />
@@ -259,17 +318,41 @@ export default function HeroVideoParallax() {
         /* ==================== DESKTOP LAYOUT ==================== */
         <>
           <div ref={videoContainerRef} className="absolute z-20 overflow-hidden bg-black/20 w-full h-full right-0 top-0 rounded-none shadow-none">
-            <div className="relative h-full w-full overflow-hidden">
+            {/* Fallback background image */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{
+                backgroundImage: 'url(/intro.png)',
+                zIndex: 1
+              }}
+            />
+            
+            <div className="relative h-full w-full overflow-hidden z-10">
               <video
                 ref={videoRef}
                 className="h-full w-full object-cover absolute inset-0"
-                autoPlay loop={false} muted playsInline preload="metadata"
+                autoPlay 
+                loop={false} 
+                muted 
+                playsInline 
+                preload="metadata"
+                webkit-playsinline="true"
+                x5-playsinline="true"
+                x5-video-player-type="h5"
+                poster="/intro.png"
                 style={{ transition: 'opacity 1.5s ease-in-out' }}
               />
               <video
                 ref={video2Ref}
                 className="h-full w-full object-cover absolute inset-0"
-                loop={false} muted playsInline preload="none"
+                loop={false} 
+                muted 
+                playsInline 
+                preload="none"
+                webkit-playsinline="true"
+                x5-playsinline="true"
+                x5-video-player-type="h5"
+                poster="/intro.png"
                 style={{ opacity: 0, transition: 'opacity 1.5s ease-in-out' }}
               />
               <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(17, 17, 17, 0.9), rgba(17, 17, 17, 0.3), transparent)' }} />
