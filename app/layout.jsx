@@ -22,25 +22,16 @@ const manrope = Manrope({
 
 // The metadata block now correctly follows the font definitions
 export const metadata = {
-  title: "Lavita Services Club",
-  description: "The only Glass-Dome Resort in Swat Valley. 2804 meters above ordinary. Experience the sanctuary in the Hindu Kush mountains.",
-  keywords: "luxury resort, Malam Jabba, Swat Valley, glass dome, mountain resort, Pakistan tourism",
+  title: "The Plot Sale",
+  description: "Premium real estate consultancy. Expert guidance for luxury property investments and land acquisitions.",
+  keywords: "real estate, property investment, land acquisition, luxury properties, plot sale",
 
-  // CORRECTED ICON PATHS (assuming icons are in public/logo/)
+  // Logo and Favicon
   icons: {
-    icon: '/logo/favicon.ico',
-    shortcut: '/logo/favicon-16x16.png',
-    apple: '/logo/apple-touch-icon.png',
-    other: [
-      {
-        rel: 'mask-icon',
-        url: '/logo/safari-pinned-tab.svg',
-        color: '#1a473b'
-      },
-    ],
+    icon: '/newLogo.png',
+    shortcut: '/newLogo.png',
+    apple: '/newLogo.png',
   },
-
-  manifest: '/logo/site.webmanifest',
 };
 
 export default function RootLayout({ children }) {
@@ -48,7 +39,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${playfair.variable} ${manrope.variable}`}>
       <head>
         {/* Preload first hero video for instant playback */}
-        <link rel="preload" href="/hero-videos/hero1.mp4" as="video" type="video/mp4" />
+        <link rel="preload" href="/videos/1.mp4" as="video" type="video/mp4" />
       </head>
       <body className="antialiased">
         <SmoothScroll>

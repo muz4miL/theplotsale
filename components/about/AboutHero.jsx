@@ -49,8 +49,8 @@ export default function AboutHero() {
                     }}
                 >
                     <Image
-                        src="/about/about-hero.png"
-                        alt="Lavita Malam Jabba - Alpine Services Club Exterior"
+                        src="/images/architecture.png"
+                        alt="ThePlotSale - Premium Real Estate Consultancy"
                         fill
                         priority
                         quality={90}
@@ -79,9 +79,9 @@ export default function AboutHero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                    className="text-[10px] md:text-sm tracking-[0.35em] text-[#C89B7B] uppercase font-sans"
+                    className="text-[10px] md:text-sm tracking-[0.35em] text-[#C5A880] uppercase font-sans"
                 >
-                    ESTABLISHED 2025 • HINDU KUSH
+                    PREMIER REAL ESTATE CONSULTANCY
                 </motion.p>
 
                 {/* HEADLINE - Serif Light with Gold Italic Accent */}
@@ -91,8 +91,7 @@ export default function AboutHero() {
                     transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
                     className="text-4xl md:text-8xl font-serif text-white font-light leading-none mt-6 mb-8 text-center"
                 >
-                    A Legacy Above<br />
-                    <span className="font-serif italic font-light text-[#C89B7B]">The Clouds</span>
+                    About Us
                 </motion.h1>
 
                 {/* SUB-HEADLINE - White with opacity, perfect centering */}
@@ -102,7 +101,7 @@ export default function AboutHero() {
                     transition={{ duration: 1.2, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
                     className="text-sm md:text-xl text-white/80 max-w-md md:max-w-2xl text-center leading-relaxed px-4 font-sans font-light"
                 >
-                    30 years of Shelton hospitality meets the 9,200ft summit. The first alpine services club of its kind in Pakistan.
+                    We are not just building homes. We are shaping dreams into addresses.
                 </motion.p>
             </motion.div>
 
@@ -120,7 +119,7 @@ export default function AboutHero() {
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 >
                     <svg
-                        className="w-6 h-6 text-[#C89B7B]"
+                        className="w-6 h-6 text-[#C5A880]"
                         fill="none"
                         strokeWidth="1"
                         viewBox="0 0 24 24"
@@ -135,7 +134,7 @@ export default function AboutHero() {
                 </motion.div>
 
                 {/* Scroll Text */}
-                <p className="text-[9px] tracking-[0.4em] text-[#C89B7B] uppercase mt-2 font-sans">
+                <p className="text-[9px] tracking-[0.4em] text-[#C5A880] uppercase mt-2 font-sans">
                     SCROLL TO DISCOVER
                 </p>
             </motion.div>

@@ -28,7 +28,7 @@ export default function LavitaLifestyle() {
     return (
         <section
             ref={sectionRef}
-            className="relative w-full overflow-hidden bg-[#0D1512] py-16 lg:py-20"
+            className="relative w-full overflow-hidden bg-[#0A0A0A] py-16 lg:py-20"
         >
             {/* Noise Overlay */}
             <div
@@ -50,29 +50,28 @@ export default function LavitaLifestyle() {
                     >
                         {/* Eyebrow */}
                         <div className="mb-6 flex items-center justify-center lg:justify-start gap-3">
-                            <div className="h-[1px] w-10 bg-gradient-to-r from-[#C89B7B] to-transparent" />
-                            <span className="text-[#C89B7B] text-[10px] tracking-[0.35em] uppercase font-medium">
-                                At The Apex of The Hindu Kush
+                            <div className="h-[1px] w-10 bg-gradient-to-r from-[#C5A880] to-transparent" />
+                            <span className="text-[#C5A880] text-[10px] tracking-[0.35em] uppercase font-medium">
+                                Why Choose Us
                             </span>
                         </div>
 
                         {/* Headline */}
                         <h2 className="mb-6">
                             <span className="block text-3xl md:text-5xl lg:text-6xl font-playfair tracking-tight leading-[1] text-white uppercase">
-                                Beyond The
+                                Your Trusted
                             </span>
                             <span className="block text-3xl md:text-5xl lg:text-6xl font-playfair tracking-tight leading-[1] text-white uppercase mt-1">
-                                Residence
+                                Partner
                             </span>
-                            <span className="block text-xl md:text-3xl lg:text-4xl font-playfair italic text-[#C89B7B] mt-4">
-                                Find True Adventure
+                            <span className="block text-xl md:text-3xl lg:text-4xl font-playfair italic text-[#C5A880] mt-4">
+                                In Real Estate
                             </span>
                         </h2>
 
                         {/* Description */}
                         <p className="text-white/75 text-base lg:text-sm font-light leading-relaxed max-w-md mx-auto lg:mx-0 mb-6">
-                            Malam Jabba is Pakistan's largest ski destination. At 9,200ft,
-                            experience world-class winter sports and year-round adventure.
+                            From London to Lahore, we connect you with premium properties and investment opportunities backed by transparency, expertise, and dedication.
                         </p>
 
                         {/* CTA */}
@@ -82,14 +81,14 @@ export default function LavitaLifestyle() {
                             transition={{ duration: 0.6, delay: 0.3 }}
                         >
                             <a
-                                href="/experiences"
-                                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-[#C89B7B]/30 rounded-sm bg-[#C89B7B]/5 hover:bg-[#C89B7B]/10 hover:border-[#C89B7B]/50 transition-colors"
+                                href="/about"
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-[#C5A880]/30 rounded-sm bg-[#C5A880]/5 hover:bg-[#C5A880]/10 hover:border-[#C5A880]/50 transition-colors"
                             >
                                 <span className="text-white text-xs tracking-[0.12em] uppercase font-medium">
-                                    View All Amenities & Activities
+                                    Learn More About Us
                                 </span>
                                 <svg
-                                    className="w-4 h-4 text-[#C89B7B] transition-transform group-hover:translate-x-1"
+                                    className="w-4 h-4 text-[#C5A880] transition-transform group-hover:translate-x-1"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -108,8 +107,8 @@ export default function LavitaLifestyle() {
                         className="lg:col-span-7 relative w-full h-[380px] md:h-[500px] lg:h-[550px] rounded overflow-hidden group/image"
                     >
                         <Image
-                            src="/lifestyle-hero.png"
-                            alt="Malam Jabba Adventure"
+                            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop"
+                            alt="Premium urban architectural facade"
                             fill
                             className="object-cover transition-transform duration-1000 group-hover/image:scale-105"
                             sizes="100vw"
@@ -125,29 +124,29 @@ export default function LavitaLifestyle() {
                         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 hidden lg:flex gap-6 items-center justify-center w-full">
                             {[
                                 {
-                                    label: "ACADEMY",
+                                    label: "TRANSPARENCY",
                                     icon: <Snowflake className="w-5 h-5" strokeWidth={1.5} />
                                 },
                                 {
-                                    label: "THE HEARTH",
+                                    label: "EXPERTISE",
                                     icon: <Coffee className="w-5 h-5" strokeWidth={1.5} />
                                 },
                                 {
-                                    label: "WELLNESS",
+                                    label: "INTEGRITY",
                                     icon: <Waves className="w-5 h-5" strokeWidth={1.5} />
                                 },
                                 {
-                                    label: "HERITAGE",
+                                    label: "DEDICATION",
                                     icon: <Landmark className="w-5 h-5" strokeWidth={1.5} />
                                 },
                             ].map((item, i) => (
                                 <div key={i} className="group relative cursor-pointer w-20 h-20 flex items-center justify-center">
                                     {/* Glass Diamond Shape */}
-                                    <div className="absolute inset-0 rotate-45 border border-white/20 bg-white/5 backdrop-blur-md shadow-lg transition-all duration-500 group-hover:bg-[#C89B7B]/10 group-hover:border-[#C89B7B]/50 group-hover:shadow-[#C89B7B]/20" />
+                                    <div className="absolute inset-0 rotate-45 border border-white/20 bg-white/5 backdrop-blur-md shadow-lg transition-all duration-500 group-hover:bg-[#C5A880]/10 group-hover:border-[#C5A880]/50 group-hover:shadow-[#C5A880]/20" />
 
                                     {/* Content (No Rotation) */}
                                     <div className="relative z-10 flex flex-col items-center justify-center gap-1.5">
-                                        <div className="text-[#C89B7B] transition-transform duration-300 group-hover:scale-110 group-hover:text-white">
+                                        <div className="text-[#C5A880] transition-transform duration-300 group-hover:scale-110 group-hover:text-white">
                                             {item.icon}
                                         </div>
                                         <span className="text-[9px] tracking-[0.2em] uppercase font-medium text-white/80 transition-colors duration-300 group-hover:text-white">
@@ -167,18 +166,18 @@ export default function LavitaLifestyle() {
                         variants={staggerContainer}
                     >
                         {[
-                            { label: "ACADEMY", sub: "Ski & Snowboard School" },
-                            { label: "THE HEARTH", sub: "Cigar & Coffee Lounge" },
-                            { label: "WELLNESS", sub: "Heated Pool & Spa" },
-                            { label: "HERITAGE", sub: "Swat Cultural Centre" },
+                            { label: "TRANSPARENCY", sub: "Clear & Honest Deals" },
+                            { label: "EXPERTISE", sub: "Market Knowledge" },
+                            { label: "INTEGRITY", sub: "Trust & Accountability" },
+                            { label: "DEDICATION", sub: "Personalized Service" },
                         ].map((item, i) => (
                             <motion.div
                                 key={i}
                                 variants={fadeInUp}
-                                className="bg-white/5 border border-white/10 rounded-sm p-4 backdrop-blur-md hover:border-[#C89B7B]/30 transition"
+                                className="bg-white/5 border border-white/10 rounded-sm p-4 backdrop-blur-md hover:border-[#C5A880]/30 transition"
                             >
                                 <div className="text-center space-y-2">
-                                    <span className="text-[#C89B7B] text-sm font-semibold uppercase tracking-[0.15em]">
+                                    <span className="text-[#C5A880] text-sm font-semibold uppercase tracking-[0.15em]">
                                         {item.label}
                                     </span>
                                     <p className="text-white/60 text-xs">{item.sub}</p>

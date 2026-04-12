@@ -8,29 +8,10 @@ import NavDropdown from './NavDropdown';
 
 const navConfig = [
   { label: 'Home', href: '/' },
-  {
-    label: 'About', href: '/about',
-  },
-  { label: 'Suites & Investment', href: '/suites' },
-  {
-    label: 'Experiences',
-    items: [
-      { label: 'Stargazing Observatory', href: '/#stargazing-observatory' },
-      { label: 'Jeep Forest Ride', href: '/#jeep-forest-ride' },
-      { label: 'Night Skiing', href: '/#night-skiing' },
-      { label: 'Wildlife Sanctuary', href: '/#wildlife-sanctuary' },
-    ],
-  },
-  {
-    label: 'Amenities',
-    items: [
-      { label: 'Wellness Club', href: '/#wellness-club' },
-      { label: 'Panorama Restaurant', href: '/#panorama-restaurant' },
-      { label: 'Kids Play Area', href: '/#kids-play-area' },
-      { label: 'Swat Traditional Centre', href: '/#swat-traditional' },
-    ],
-  },
-  { label: 'Contact', href: '/contact' },
+  { label: 'About Us', href: '/about' },
+  { label: 'Properties', href: '/properties' },
+  { label: 'Projects', href: '/projects' },
+  { label: 'Contact Us', href: '/contact' },
 ];
 
 export default function Navbar() {
@@ -64,22 +45,23 @@ export default function Navbar() {
         }`}
     >
       <div className="mx-auto max-w-[1440px] flex items-center gap-6">
-        <Link href="/" className="flex items-center gap-3 no-underline" aria-label="Lavita Malam Jabba">
+        <Link href="/" className="flex items-center gap-3 no-underline" aria-label="ThePlotSale.com">
           <div className="flex items-center shrink-0">
             <Image
-              src="/logo/logo.png"
-              alt="Lavita"
-              width={35}
-              height={50}
+              src="/newLogo.png"
+              alt="The Plot Sale"
+              width={45}
+              height={45}
               priority
+              className="object-contain"
             />
           </div>
           <div className="flex flex-col leading-none">
             <span className="font-[family-name:var(--font-playfair)] text-[1.05rem] tracking-[0.35em] uppercase text-[var(--text-light)]">
-              Lavita
+              ThePlotSale
             </span>
-            <span className="font-[family-name:var(--font-manrope)] text-[0.55rem] tracking-[0.35em] uppercase text-[#c89b7b]">
-              Malam Jabba
+            <span className="font-[family-name:var(--font-manrope)] text-[0.55rem] tracking-[0.35em] uppercase text-[#C5A880]">
+              .com
             </span>
           </div>
         </Link>
@@ -100,7 +82,7 @@ export default function Navbar() {
               <Link
                 key={item.label}
                 href={item.href}
-                className="font-[family-name:var(--font-manrope)] text-[0.78rem] tracking-[0.18em] uppercase text-[rgba(245,245,245,0.85)] no-underline transition-colors duration-300 hover:text-[#c89b7b]"
+                className="font-[family-name:var(--font-manrope)] text-[0.78rem] tracking-[0.18em] uppercase text-[rgba(245,245,245,0.85)] no-underline transition-colors duration-300 hover:text-[#C5A880]"
               >
                 {item.label}
               </Link>
@@ -111,14 +93,14 @@ export default function Navbar() {
         <div className="hidden xl:block">
           <Link
             href="/reserve"
-            className="inline-flex items-center justify-center px-10 py-[0.9rem] bg-[#c89b7b] text-[#0f2522] font-[family-name:var(--font-manrope)] text-[0.78rem] font-semibold tracking-[0.25em] uppercase rounded-full border border-[#c89b7b] transition-all duration-300 hover:bg-transparent hover:text-[#c89b7b]"
+            className="inline-flex items-center justify-center px-10 py-[0.9rem] bg-[#C5A880] text-[#111111] font-[family-name:var(--font-manrope)] text-[0.78rem] font-semibold tracking-[0.25em] uppercase rounded-full border border-[#C5A880] transition-all duration-300 hover:bg-transparent hover:text-[#C5A880]"
           >
-            Explore Membership
+            Book Appointment
           </Link>
         </div>
 
         <button
-          className="ml-auto lg:hidden flex w-11 h-11 items-center justify-center border border-[rgba(200,155,123,0.4)] rounded-xl bg-transparent text-[#c89b7b] cursor-pointer"
+          className="ml-auto lg:hidden flex w-11 h-11 items-center justify-center border border-[rgba(197,168,128,0.4)] rounded-xl bg-transparent text-[#C5A880] cursor-pointer"
           onClick={toggleDrawer}
           aria-label="Toggle navigation menu"
         >
@@ -133,15 +115,15 @@ export default function Navbar() {
       />
 
       <aside
-        className={`fixed top-0 right-0 bottom-0 w-[min(360px,85vw)] bg-[#05110e] text-[#f5f5f5] z-55 flex flex-col p-6 gap-6 border-l border-[rgba(200,155,123,0.2)] transition-transform duration-[350ms] ease-out ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed top-0 right-0 bottom-0 w-[min(360px,85vw)] bg-[#05110e] text-[#f5f5f5] z-55 flex flex-col p-6 gap-6 border-l border-[rgba(197,168,128,0.2)] transition-transform duration-[350ms] ease-out ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
         <div className="flex items-center justify-between">
           <p className="tracking-[0.3em] text-xs uppercase text-[rgba(245,245,245,0.7)]">
-            Lavita Navigation
+            The Plot Sale Navigation
           </p>
           <button
-            className="w-9 h-9 rounded-full border border-[rgba(200,155,123,0.3)] bg-transparent text-[#c89b7b] flex items-center justify-center cursor-pointer"
+            className="w-9 h-9 rounded-full border border-[rgba(197,168,128,0.3)] bg-transparent text-[#C5A880] flex items-center justify-center cursor-pointer"
             aria-label="Close menu"
             onClick={closeDrawer}
           >
@@ -191,9 +173,9 @@ export default function Navbar() {
           <Link
             href="/reserve"
             onClick={closeDrawer}
-            className="block w-full text-center p-4 rounded-full bg-[#c89b7b] text-[#05110e] font-[family-name:var(--font-manrope)] tracking-[0.2em] uppercase text-[0.85rem]"
+            className="block w-full text-center p-4 rounded-full bg-[#C5A880] text-[#05110e] font-[family-name:var(--font-manrope)] tracking-[0.2em] uppercase text-[0.85rem]"
           >
-            Explore Membership
+            Book Appointment
           </Link>
         </div>
       </aside>

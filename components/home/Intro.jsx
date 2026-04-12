@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Leaf, Building2, Telescope } from 'lucide-react';
+import { BarChart3, Building2, Handshake } from 'lucide-react';
 import Image from 'next/image';
 
 export default function Intro() {
@@ -60,15 +60,15 @@ export default function Intro() {
   };
 
   const features = [
-    { icon: Leaf, label: 'Vertical Gardens' },
-    { icon: Building2, label: 'Mini Museum' },
-    { icon: Telescope, label: 'Stargazing Observatory' }
+    { icon: Building2, label: 'Development' },
+    { icon: Handshake, label: 'Management' },
+    { icon: BarChart3, label: 'Investment' }
   ];
 
   return (
     <section
       ref={sectionRef}
-      className="relative w-full overflow-x-hidden bg-[#0D1512] min-h-[85vh] flex items-center justify-center py-12 lg:py-16"
+      className="relative w-full overflow-x-hidden bg-[#0A0A0A] min-h-[85vh] flex items-center justify-center py-12 lg:py-16"
     >
 
       <div
@@ -100,8 +100,8 @@ export default function Intro() {
                 variants={imageVariant}
               >
                 <Image
-                  src="/intro.png"
-                  alt="Lavita Malam Jabba Location Map"
+                  src="/images/architecture.png"
+                  alt="Modern real estate development"
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
@@ -129,14 +129,14 @@ export default function Intro() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
                 <div className="relative z-10 text-center space-y-2">
-                  <p className="text-[0.65rem] tracking-[0.4em] uppercase text-[#C89B7B] font-medium">
-                    Malam Jabba, PK
+                  <p className="text-[0.65rem] tracking-[0.4em] uppercase text-[#C5A880] font-medium">
+                    DUAL PRESENCE
                   </p>
                   <p className="text-2xl lg:text-3xl text-white italic">
-                    9,200ft
+                    London &amp; Lahore
                   </p>
                   <p className="text-[0.6rem] tracking-[0.3em] uppercase text-white/50">
-                    Elevation
+                    OPERATING LOCATIONS
                   </p>
                 </div>
               </div>
@@ -153,8 +153,8 @@ export default function Intro() {
               variants={textVariants}
               className="flex justify-center lg:justify-start"
             >
-              <p className="text-[#C89B7B] text-xs tracking-[0.4em] uppercase opacity-60">
-                Powered by Lavita Developments
+              <p className="text-[#C5A880] text-xs tracking-[0.4em] uppercase opacity-60">
+                TRACK RECORD &amp; EXPERTISE
               </p>
             </motion.div>
 
@@ -165,9 +165,9 @@ export default function Intro() {
               variants={textVariants}
             >
               <h2 className="text-3xl md:text-4xl lg:text-5xl text-white leading-[1.1]">
-                A Legacy of
+                Built on
                 <br />
-                <span className="italic text-white/90 text-[1.1em]">Leisure & Luxury</span>
+                <span className="italic text-white/90 text-[1.1em]">Trust &amp; Performance</span>
               </h2>
             </motion.div>
 
@@ -178,7 +178,7 @@ export default function Intro() {
               variants={textVariants}
             >
               <p className="text-white/80 text-base font-light leading-relaxed max-w-full lg:max-w-xl mx-auto lg:mx-0">
-                More than a destination, Lavita is a community. Nestled in the breathtaking Swat Valley, we offer a curated lifestyle for those who seek the extraordinary. From world-class skiing to executive networking, Lavita is the region's only fully-serviced mountain club.
+                At ThePlotSale, we believe in shaping dreams into addresses. We stand at the intersection of promise and possibility, connecting developers and end users through seamless real estate solutions. Whether it&rsquo;s property development, management, or investment planning, we deliver opportunities that reflect dedication, creativity, and transparency.
               </p>
             </motion.div>
 
@@ -202,8 +202,8 @@ export default function Intro() {
                       ease: [0.16, 1, 0.3, 1],
                     }}
                   >
-                    <div className="w-9 h-9 rotate-45 border border-white/10 flex items-center justify-center group-hover:border-[#C89B7B]/40 transition-all duration-300 shrink-0">
-                      <feature.icon className="w-4 h-4 text-[#C89B7B] -rotate-45" strokeWidth={1.5} />
+                    <div className="w-9 h-9 rotate-45 border border-white/10 flex items-center justify-center group-hover:border-[#C5A880]/40 transition-all duration-300 shrink-0">
+                      <feature.icon className="w-4 h-4 text-[#C5A880] -rotate-45" strokeWidth={1.5} />
                     </div>
                     <span className="text-white/70 text-sm font-medium">
                       {feature.label}
@@ -220,8 +220,8 @@ export default function Intro() {
               variants={textVariants}
               className="pt-3"
             >
-              <p className="hidden md:block text-[#C89B7B] text-xl md:text-2xl italic opacity-60">
-                The Lavita Experience
+              <p className="hidden md:block text-[#C5A880] text-xl md:text-2xl italic opacity-60">
+                Core Expertise
               </p>
             </motion.div>
 

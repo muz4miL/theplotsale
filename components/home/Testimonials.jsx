@@ -8,12 +8,9 @@ export default function Testimonials() {
     const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
     const testimonialsData = [
-        { name: 'Ayesha Malik', title: 'Lifestyle Member', quote: '"The Lavita Club isn\'t just a destination, it\'s a lifestyle. Access to the exclusive ski slopes and the heated infinity pool makes membership essential for winter sports lovers."' },
-        { name: 'Ahmed Khan', title: 'Founding Member', quote: '"The seamless integration of The Hearth lounge and the slopes is brilliant. It\'s the perfect place to unwind with a cigar after a day on the powder. Proud to be a member."' },
-        { name: 'Emily Chen', title: 'Corporate Member', quote: '"Using the Executive Business Hub at 9,200ft gave my team a fresh perspective. The perfect balance of business and leisure services."' },
-        { name: 'Hassan Ali', title: 'Elite Member', quote: '"I joined for the skiing, but I stay for the community. The networking at the cigar lounge is as valuable as the amenities are luxurious."' },
-        { name: 'Fatima Siddiqui', title: 'Club Member', quote: '"The Heritage Centre adds such a unique layer to the club. It\'s not just about luxury; it\'s about connecting with the rich history of Swat."' },
-        { name: 'Zain Abbas', title: 'Member', quote: '"As an architect, I appreciate the glass-dome structure. As a member, I appreciate the privacy and the impeccable service at the Wellness Club."' },
+        { name: 'Recent Investor', title: 'Property Investor', quote: '"ThePlotSale has consistently exceeded my expectations. Their professionalism, market insights, and ongoing support have made each investment experience smooth and rewarding."' },
+        { name: 'Frequent Buyer', title: 'Repeat Client', quote: '"As a frequent buyer, ThePlotSale has been my trusted partner. They understand my needs, offer great options, and make the process smooth and stress-free."' },
+        { name: 'First-Time Buyer', title: 'New Homeowner', quote: '"As a first-time buyer, I was nervous about picking the right plot. ThePlotSale guided me through every step with patience and honesty, and now I feel confident in my investment."' },
     ];
 
     // Duplicate for infinite scroll effect
@@ -35,7 +32,7 @@ export default function Testimonials() {
     return (
         <section
             ref={sectionRef}
-            className="relative w-full overflow-hidden bg-[#0D1512] py-12 lg:py-16"
+            className="relative w-full overflow-hidden bg-[#0A0A0A] py-12 lg:py-16"
         >
             {/* Noise Texture Overlay */}
             <div
@@ -55,11 +52,11 @@ export default function Testimonials() {
                 >
                     {/* Eyebrow - Matching LavitaLifestyle Style */}
                     <div className="mb-6 flex items-center justify-center gap-3">
-                        <div className="h-[1px] w-10 bg-gradient-to-r from-transparent to-[#C89B7B]" />
-                        <span className="text-[#C89B7B] text-[10px] tracking-[0.35em] uppercase font-medium">
-                            Member Experiences
+                        <div className="h-[1px] w-10 bg-gradient-to-r from-transparent to-[#C5A880]" />
+                        <span className="text-[#C5A880] text-[10px] tracking-[0.35em] uppercase font-medium">
+                            Client Experiences
                         </span>
-                        <div className="h-[1px] w-10 bg-gradient-to-r from-[#C89B7B] to-transparent" />
+                        <div className="h-[1px] w-10 bg-gradient-to-r from-[#C5A880] to-transparent" />
                     </div>
 
                     {/* Main Title */}
@@ -71,7 +68,7 @@ export default function Testimonials() {
 
                     {/* Subtext */}
                     <p className="text-white/60 text-sm md:text-base font-light mb-0 max-w-2xl mx-auto">
-                        Reflections from our distinguished members.
+                        Trusted by investors and homeowners across London and Lahore.
                     </p>
                 </motion.div>
             </div>
@@ -97,12 +94,12 @@ export default function Testimonials() {
                         {topRowTestimonials.map((testimonial, index) => (
                             <div
                                 key={`top-${index}`}
-                                className="flex-shrink-0 w-[360px] bg-white/5 backdrop-blur-md border border-white/10 rounded-sm p-5 hover:border-[#C89B7B]/30 transition-all duration-300"
+                                className="flex-shrink-0 w-[360px] bg-white/5 backdrop-blur-md border border-white/10 rounded-sm p-5 hover:border-[#C5A880]/30 transition-all duration-300"
                             >
                                 {/* Avatar Placeholder */}
                                 <div className="flex items-center gap-4 mb-4">
-                                    <div className="w-12 h-12 rounded-full bg-[#C89B7B]/20 border border-[#C89B7B]/30 flex items-center justify-center">
-                                        <span className="text-[#C89B7B] text-lg font-semibold font-[family-name:var(--font-playfair)]">
+                                    <div className="w-12 h-12 rounded-full bg-[#C5A880]/20 border border-[#C5A880]/30 flex items-center justify-center">
+                                        <span className="text-[#C5A880] text-lg font-semibold font-[family-name:var(--font-playfair)]">
                                             {testimonial.name.charAt(0)}
                                         </span>
                                     </div>
@@ -144,12 +141,12 @@ export default function Testimonials() {
                         {bottomRowTestimonials.map((testimonial, index) => (
                             <div
                                 key={`bottom-${index}`}
-                                className="flex-shrink-0 w-[360px] bg-white/5 backdrop-blur-md border border-white/10 rounded-sm p-5 hover:border-[#C89B7B]/30 transition-all duration-300"
+                                className="flex-shrink-0 w-[360px] bg-white/5 backdrop-blur-md border border-white/10 rounded-sm p-5 hover:border-[#C5A880]/30 transition-all duration-300"
                             >
                                 {/* Avatar Placeholder */}
                                 <div className="flex items-center gap-4 mb-4">
-                                    <div className="w-12 h-12 rounded-full bg-[#C89B7B]/20 border border-[#C89B7B]/30 flex items-center justify-center">
-                                        <span className="text-[#C89B7B] text-lg font-semibold font-[family-name:var(--font-playfair)]">
+                                    <div className="w-12 h-12 rounded-full bg-[#C5A880]/20 border border-[#C5A880]/30 flex items-center justify-center">
+                                        <span className="text-[#C5A880] text-lg font-semibold font-[family-name:var(--font-playfair)]">
                                             {testimonial.name.charAt(0)}
                                         </span>
                                     </div>

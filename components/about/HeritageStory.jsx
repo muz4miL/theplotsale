@@ -6,22 +6,22 @@ import Image from 'next/image';
 
 const heritageData = [
     {
-        year: '1985',
-        title: 'Stewards of the Valley',
-        body: 'For over three decades, the Shelton Group has been the defining name in Swat\'s hospitality. From the bustling streets of Mingora to the quiet peaks, we have hosted generations with the warmth of Pashtun culture.',
-        image: '/about/heritage.png', // Origin/Land
+        year: '2020',
+        title: 'Foundation of Trust',
+        body: 'ThePlotSale was established with a clear mission: to bridge the gap between developers and homeowners through transparent, integrity-driven real estate solutions across London and Lahore.',
+        image: '/about/heritage.png',
     },
     {
-        year: '2024',
-        title: 'Reviving the Services Club',
-        body: 'Lavita is not a hotel. It is a return to the era of the Services Club—exclusive sanctuaries built for privacy, protocol, and community. Modeled after the historic clubs of Peshawar, this is a place of belonging.',
-        image: '/about/heritage2.png', // Hospitality interior
+        year: '2022',
+        title: 'Expanding Horizons',
+        body: 'Our portfolio grew to include landmark projects like Airport City Sialkot, Siddique City, and premium developments in Hounslow, establishing us as a trusted name in cross-border real estate consultancy.',
+        image: '/about/heritage2.png',
     },
     {
         year: '2025',
-        title: 'Architecture Against the Odds',
-        body: 'Constructing a triple-glazed glass dome at 9,200ft was deemed impossible. Designed by HMI Architects, Lavita stands as an engineering marvel, suspended between the rock and the sky.',
-        image: '/about/heritage3.png', // Architecture/Final result
+        title: 'Cultivating Futures',
+        body: 'Today, we stand as a premier consultancy committed to quality in every detail and dedication in every project. We don\'t just sell properties—we help people find spaces they\'re proud to call home.',
+        image: '/about/heritage3.png',
     },
 ];
 
@@ -48,14 +48,14 @@ const HeritageBlock = ({ data, index, activeIndex, onActivate }) => {
                 {/* Timeline Indicator */}
                 <div className="absolute left-0 top-0 bottom-0 w-px">
                     <motion.div
-                        className="absolute left-0 top-0 bottom-0 w-px bg-[#C89B7B]"
+                        className="absolute left-0 top-0 bottom-0 w-px bg-[#C5A880]"
                         initial={{ scaleY: 0 }}
                         animate={{ scaleY: isInView ? 1 : 0 }}
                         transition={{ duration: 0.6, ease: 'easeOut' }}
                         style={{ transformOrigin: 'top' }}
                     />
                     <motion.div
-                        className="absolute left-[-3px] top-1/2 -translate-y-1/2 w-[7px] h-[7px] rounded-full bg-[#C89B7B]"
+                        className="absolute left-[-3px] top-1/2 -translate-y-1/2 w-[7px] h-[7px] rounded-full bg-[#C5A880]"
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{
                             scale: isInView ? 1.2 : 0,
@@ -77,7 +77,7 @@ const HeritageBlock = ({ data, index, activeIndex, onActivate }) => {
                     >
                         {/* Year Label */}
                         <motion.p
-                            className="font-sans text-sm lg:text-base text-[#C89B7B] tracking-[0.3em] mb-6 lg:mb-8"
+                            className="font-sans text-sm lg:text-base text-[#C5A880] tracking-[0.3em] mb-6 lg:mb-8"
                             animate={{
                                 opacity: isInView ? 1 : 0.5
                             }}
@@ -107,7 +107,7 @@ const HeritageBlock = ({ data, index, activeIndex, onActivate }) => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
             >
                 {/* Year Badge */}
-                <span className="inline-block text-xs font-serif text-[#C89B7B] border border-[#C89B7B]/30 px-3 py-1 rounded-full mb-4">
+                <span className="inline-block text-xs font-serif text-[#C5A880] border border-[#C5A880]/30 px-3 py-1 rounded-full mb-4">
                     {data.year}
                 </span>
 
@@ -187,7 +187,7 @@ export default function HeritageStory() {
     const sectionRefs = useRef([]);
 
     return (
-        <section className="relative bg-[#0D1512] py-20 lg:py-32">
+        <section className="relative bg-[#0A0A0A] py-20 lg:py-32">
             <div className="container mx-auto px-6 lg:px-12">
                 {/* Section Header */}
                 <motion.div
@@ -197,11 +197,11 @@ export default function HeritageStory() {
                     viewport={{ once: true, margin: '-100px' }}
                     transition={{ duration: 0.6 }}
                 >
-                    <p className="font-sans text-sm lg:text-base text-[#C89B7B] tracking-[0.3em] mb-4">
-                        OUR LEGACY
+                    <p className="font-sans text-sm lg:text-base text-[#C5A880] tracking-[0.3em] mb-4">
+                        OUR STORY
                     </p>
                     <h2 className="font-serif text-4xl lg:text-5xl xl:text-6xl text-white font-light">
-                        A Heritage of Excellence
+                        Our Journey of Excellence
                     </h2>
                 </motion.div>
 

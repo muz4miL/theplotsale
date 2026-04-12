@@ -7,24 +7,24 @@ import Image from 'next/image';
 const philosophyData = [
     {
         id: 1,
-        title: "Silence as a Service",
-        subtitle: "THE SANCTUARY",
-        description: "In a noisy world, Lavita offers the rarest luxury: quiet. Our suites are designed as private retreats, insulated from the elements, opening only to the valley views.",
-        image: "/about/philosophy1.png", // The Sanctuary Image
+        title: "Our Mission",
+        subtitle: "EMPOWERING BUYERS",
+        description: "Empower buyers with premier Real estate opportunities through transparent deals, expert guidance, and personalized service.",
+        image: "/about/philosophy1.png",
     },
     {
         id: 2,
-        title: "Alpine Gastronomy",
-        subtitle: "THE TABLE",
-        description: "The warmth of a stone hearth and the aroma of fresh roasting coffee. Our culinary philosophy brings the heart of Peshawar’s hospitality to the peaks of the North.",
-        image: "/about/philosophy2.png", // The Table Image
+        title: "Our Vision",
+        subtitle: "SHAPING COMMUNITIES",
+        description: "To be the region's most trusted platform for plot ownership—shaping sustainable communities and enabling dreams through innovation and integrity.",
+        image: "/about/philosophy2.png",
     },
     {
         id: 3,
-        title: "Curated Adventure",
-        subtitle: "THE WILD",
-        description: "From private ski instructors to guided treks in the Hindu Kush. We don't just host you; we guide you through the mountains.",
-        image: "/about/philosophy3.png", // The Wild Image
+        title: "Our Values",
+        subtitle: "INTEGRITY FIRST",
+        description: "We act with integrity in every decision and interaction, ensuring honesty, accountability, and trust are always foundational.",
+        image: "/about/philosophy3.png",
     }
 ];
 
@@ -41,7 +41,7 @@ export default function ClubPhilosophy() {
     const x = useTransform(scrollYProgress, [0, 1], ["1%", "-65%"]);
 
     return (
-        <section ref={targetRef} className="relative bg-[#0D1512] text-white">
+        <section ref={targetRef} className="relative bg-[#0A0A0A] text-white">
 
             {/* ================= DESKTOP LAYOUT (Horizontal Scroll) ================= */}
             <div className="hidden lg:block h-[300vh] relative">
@@ -51,15 +51,15 @@ export default function ClubPhilosophy() {
                     <motion.div style={{ x }} className="flex gap-12 pl-24 pr-24">
                         {/* Intro Text Block (First item in scroll) */}
                         <div className="min-w-[400px] flex flex-col justify-center">
-                            <p className="font-sans text-sm text-[#C89B7B] tracking-[0.3em] mb-6">
-                                THE PHILOSOPHY
+                            <p className="font-sans text-sm text-[#C5A880] tracking-[0.3em] mb-6">
+                                OUR PRINCIPLES
                             </p>
                             <h2 className="font-serif text-6xl font-light leading-tight mb-8">
-                                The Art of <br />
-                                <span className="italic text-[#C89B7B]">Living Well</span>
+                                What Drives <br />
+                                <span className="italic text-[#C5A880]">Our Work</span>
                             </h2>
                             <p className="font-sans text-lg text-gray-300 leading-relaxed max-w-sm">
-                                Beyond the architecture lies the experience. A collection of moments curated for those who seek depth in their travels.
+                                Our mission, vision, and values guide every project we undertake and every relationship we build.
                             </p>
                         </div>
 
@@ -77,7 +77,7 @@ export default function ClubPhilosophy() {
 
                                 {/* Content */}
                                 <div className="absolute bottom-0 left-0 p-10 w-full">
-                                    <p className="font-sans text-xs text-[#C89B7B] tracking-[0.25em] mb-3 uppercase">
+                                    <p className="font-sans text-xs text-[#C5A880] tracking-[0.25em] mb-3 uppercase">
                                         {item.subtitle}
                                     </p>
                                     <h3 className="font-serif text-3xl mb-4 text-white">
@@ -96,11 +96,11 @@ export default function ClubPhilosophy() {
             {/* ================= MOBILE LAYOUT (Swipe Carousel) ================= */}
             <div className="lg:hidden py-24 px-6">
                 <div className="mb-12">
-                    <p className="font-sans text-xs text-[#C89B7B] tracking-[0.3em] mb-4 text-center">
-                        THE PHILOSOPHY
+                    <p className="font-sans text-xs text-[#C5A880] tracking-[0.3em] mb-4 text-center">
+                        OUR PRINCIPLES
                     </p>
                     <h2 className="font-serif text-4xl text-center font-light">
-                        The Art of <br /><span className="italic text-[#C89B7B]">Living Well</span>
+                        What Drives <br /><span className="italic text-[#C5A880]">Our Work</span>
                     </h2>
                 </div>
 
@@ -117,7 +117,7 @@ export default function ClubPhilosophy() {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
 
                             <div className="absolute bottom-0 left-0 p-8 w-full">
-                                <p className="font-sans text-[10px] text-[#C89B7B] tracking-[0.25em] mb-2 uppercase">
+                                <p className="font-sans text-[10px] text-[#C5A880] tracking-[0.25em] mb-2 uppercase">
                                     {item.subtitle}
                                 </p>
                                 <h3 className="font-serif text-2xl mb-3 text-white">

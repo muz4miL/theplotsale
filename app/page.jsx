@@ -1,6 +1,7 @@
 // app/page.jsx
 import HeroVideoParallax from '@/components/home/HeroVideoParallax';
 import Intro from '@/components/home/Intro';
+import Properties from '@/components/home/Properties';
 import LavitaLifestyle from '@/components/home/LavitaLifestyle';
 import Testimonials from '@/components/home/Testimonials';
 import BentoGrid from '@/components/home/BentoGrid';
@@ -11,9 +12,10 @@ export default function Home() {
     <main>
       <HeroVideoParallax />
       <Intro />
+      <Properties />
+      <BentoGrid />
       <LavitaLifestyle />
       <Testimonials />
-      <BentoGrid />
       <HomeContact />
 
     </main>

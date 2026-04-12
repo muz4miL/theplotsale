@@ -8,6 +8,7 @@ export default function HeroVideoParallax() {
   // All refs
   const sectionRef = useRef(null);
   const videoRef = useRef(null);
+  const video2Ref = useRef(null);
   const overlayRef = useRef(null);
   const revealRef = useRef(null);
   const revealSubRef = useRef(null);
@@ -20,8 +21,15 @@ export default function HeroVideoParallax() {
   const eleganceRef = useRef(null);
   const goldDividerRef = useRef(null);
 
-  // State for mobile/desktop
+  // State for mobile/desktop and video transitions
   const [isMobile, setIsMobile] = useState(false);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  
+  const videos = [
+    '/videos/1.mp4',
+    '/videos/2.mp4',
+    '/videos/3.mp4'
+  ];
 
   // Check if mobile on mount and resize
   useEffect(() => {
@@ -42,6 +50,54 @@ export default function HeroVideoParallax() {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Seamless video transition logic
+  useEffect(() => {
+    const video1 = videoRef.current;
+    const video2 = video2Ref.current;
+    if (!video1 || !video2) return;
+
+    let activeVideo = video1;
+    let inactiveVideo = video2;
+    let videoIndex = 0;
+
+    // Set initial states
+    video1.style.opacity = '1';
+    video2.style.opacity = '0';
+    video1.src = videos[0];
+    video2.src = videos[1];
+
+    const handleVideoEnd = () => {
+      // Preload next video
+      videoIndex = (videoIndex + 1) % videos.length;
+      const nextVideoIndex = (videoIndex + 1) % videos.length;
+      
+      inactiveVideo.src = videos[nextVideoIndex];
+      inactiveVideo.load();
+      
+      // Crossfade
+      gsap.to(activeVideo, { opacity: 0, duration: 1.5, ease: 'power2.inOut' });
+      gsap.to(inactiveVideo, { opacity: 1, duration: 1.5, ease: 'power2.inOut' });
+      
+      inactiveVideo.play().catch(() => {});
+      
+      // Swap references
+      [activeVideo, inactiveVideo] = [inactiveVideo, activeVideo];
+      
+      setCurrentVideoIndex(videoIndex);
+    };
+
+    video1.addEventListener('ended', handleVideoEnd);
+    video2.addEventListener('ended', handleVideoEnd);
+
+    // Start first video
+    video1.play().catch(() => {});
+
+    return () => {
+      video1.removeEventListener('ended', handleVideoEnd);
+      video2.removeEventListener('ended', handleVideoEnd);
+    };
   }, []);
 
   // GSAP animations - DESKTOP ONLY
@@ -79,7 +135,7 @@ export default function HeroVideoParallax() {
           width: '45vw', height: '75vh', right: '4%', top: '12.5%',
           borderRadius: '32px',
           border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '0 60px 120px -30px rgba(0, 0, 0, 0.9), 0 0 60px rgba(200, 155, 123, 0.1) inset',
+          boxShadow: '0 60px 120px -30px rgba(0, 0, 0, 0.9), 0 0 60px rgba(197, 168, 128, 0.1) inset',
           duration: 1, ease: 'power2.inOut',
         }, 0);
       }
@@ -91,7 +147,7 @@ export default function HeroVideoParallax() {
 
       // 4. Luxury label appears
       if (luxuryLabelRef.current) {
-        tl.fromTo(luxuryLabelRef.current, { x: -40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: 'power2.out' }, 0.5);
+        tl.fromTo(luxuryLabelRef.current, { x: -40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: 'power2.out' }, 0.4);
       }
 
       // 5. Content reveal sequence
@@ -99,17 +155,17 @@ export default function HeroVideoParallax() {
         tl.to(revealRef.current, { opacity: 1, duration: 0.1 }, 0.6);
       }
 
-      // "A VISION OF" label appears FIRST
+      // "PREMIER REAL ESTATE CONSULTANCY" label appears FIRST
       if (visionLabelRef.current) {
         tl.fromTo(visionLabelRef.current, { opacity: 0, y: 20, filter: 'blur(4px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.5, ease: 'power2.out' }, 0.7);
       }
 
-      // "Timeless" word appears SECOND (slower, more graceful)
+      // "Aspirations into" word appears SECOND
       if (timelessRef.current) {
         tl.fromTo(timelessRef.current, { opacity: 0, y: 50, clipPath: 'inset(0 0 100% 0)' }, { opacity: 1, y: 0, clipPath: 'inset(0 0 0 0)', duration: 1.2, ease: 'power2.out' }, 0.8);
       }
 
-      // "Architecture" word appears THIRD (slower, more graceful)
+      // "Foundations" word appears THIRD
       if (eleganceRef.current) {
         tl.fromTo(eleganceRef.current, { opacity: 0, y: 50, clipPath: 'inset(0 0 100% 0)' }, { opacity: 1, y: 0, clipPath: 'inset(0 0 0 0)', duration: 1.2, ease: 'power2.out' }, 1.1);
       }
@@ -139,29 +195,11 @@ export default function HeroVideoParallax() {
     return () => ctx.revert();
   }, [isMobile]);
 
-  // Video autoplay fix
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    const playVideo = async () => {
-      try {
-        video.muted = true;
-        await video.play();
-      } catch (err) {
-        console.log('Autoplay prevented:', err);
-      }
-    };
-    playVideo();
-    if (!isMobile && video) {
-      gsap.fromTo(video, { opacity: 0 }, { opacity: 1, duration: 1.5, ease: 'power2.inOut' });
-    }
-  }, [isMobile]);
-
   return (
     <section
       ref={sectionRef}
       className={`relative ${isMobile ? 'h-auto min-h-screen flex flex-col' : 'h-screen w-full overflow-hidden'} text-white`}
-      style={{ background: 'linear-gradient(to bottom right, #0B1C19, #0A1613, #050F0D)' }}
+      style={{ background: 'linear-gradient(to bottom right, #111111, #0A0A0A, #050505)' }}
     >
       {/* ==================== MOBILE LAYOUT ==================== */}
       {isMobile ? (
@@ -171,12 +209,16 @@ export default function HeroVideoParallax() {
             <div className="absolute inset-0">
               <video
                 ref={videoRef}
-                className="h-full w-full object-cover"
-                autoPlay loop muted playsInline preload="auto"
-              >
-                <source src="/hero-videos/hero1.mp4" type="video/mp4" />
-                <source src="https://cdn.coverr.co/videos/coverr-sunrise-over-the-sea-9163/1080p.mp4" type="video/mp4" />
-              </video>
+                className="h-full w-full object-cover absolute inset-0"
+                autoPlay loop={false} muted playsInline preload="metadata"
+                style={{ transition: 'opacity 1.5s ease-in-out' }}
+              />
+              <video
+                ref={video2Ref}
+                className="h-full w-full object-cover absolute inset-0"
+                loop={false} muted playsInline preload="none"
+                style={{ opacity: 0, transition: 'opacity 1.5s ease-in-out' }}
+              />
               <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent)' }} />
             </div>
 
@@ -184,33 +226,31 @@ export default function HeroVideoParallax() {
             <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
               <div className="mb-4">
                 <span className="text-[10px] tracking-[0.3em] text-white/90 font-sans uppercase font-light" style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.8)' }}>
-                  THE PREMIER MOUNTAIN CLUB OF THE NORTH
+                  PREMIER REAL ESTATE CONSULTANCY
                 </span>
               </div>
               <h1 className="text-3xl font-serif font-light text-white mb-2" style={{ textShadow: '0 4px 16px rgba(0, 0, 0, 0.9)' }}>
-                Lavita Services Club
+                Cultivating Futures
               </h1>
-              <p className="text-xl italic font-serif text-[#C89B7B] font-light" style={{ textShadow: '0 4px 16px rgba(0, 0, 0, 0.9)' }}>
-                An Exclusive Legacy in the North
+              <p className="text-xl italic font-serif text-[#C5A880] font-light" style={{ textShadow: '0 4px 16px rgba(0, 0, 0, 0.9)' }}>
+                We are not just building homes. We are shaping dreams into addresses.
               </p>
             </div>
           </div>
 
-
-
           {/* ARCHITECTURE STORY - Bottom Section */}
-          <div className="flex-1 flex flex-col justify-center items-center px-6 py-24" style={{ backgroundColor: '#0D1512' }}>
+          <div className="flex-1 flex flex-col justify-center items-center px-6 py-24" style={{ backgroundColor: '#0A0A0A' }}>
             <div className="w-full max-w-md text-center">
-              <div className="h-[1px] w-24 mb-6 mx-auto" style={{ background: 'linear-gradient(to right, #C89B7B, rgba(200, 155, 123, 0.3))' }} />
+              <div className="h-[1px] w-24 mb-6 mx-auto" style={{ background: 'linear-gradient(to right, #C5A880, rgba(197, 168, 128, 0.3))' }} />
               <div className="mb-4">
-                <span className="text-xs tracking-[0.25em] font-sans uppercase font-light" style={{ color: '#C89B7B' }}>A LANDMARK AT 9,200FT</span>
+                <span className="text-xs tracking-[0.25em] font-sans uppercase font-light" style={{ color: '#C5A880' }}>LONDON • LAHORE</span>
               </div>
               <div className="mb-8">
-                <h2 className="text-3xl font-light font-serif mb-2" style={{ color: '#F2F4F6', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>Sculpted by</h2>
-                <h2 className="text-3xl italic font-light font-serif" style={{ color: '#C89B7B', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>The Sky</h2>
+                <h2 className="text-3xl font-light font-serif mb-2" style={{ color: '#F2F4F6', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>Aspirations into</h2>
+                <h2 className="text-3xl italic font-light font-serif" style={{ color: '#C5A880', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>Foundations</h2>
               </div>
               <p className="font-light font-sans" style={{ color: 'rgba(242, 244, 246, 0.8)', lineHeight: '1.8' }}>
-                Where modern design meets the eternal mountain. Experience Pakistan's first glass-dome sanctuary, redefining the skyline of the Hindu Kush.
+                At ThePlotSale, we are committed to delivering real estate solutions marked by transparency and integrity, bridging developers and homeowners in a trusted partnership. We envision a sustainable future where every property is not just an asset, but a space people are proud to call home.
               </p>
             </div>
           </div>
@@ -222,55 +262,59 @@ export default function HeroVideoParallax() {
             <div className="relative h-full w-full overflow-hidden">
               <video
                 ref={videoRef}
-                className="h-full w-full object-cover"
-                autoPlay loop muted playsInline preload="auto"
-              >
-                <source src="/hero-videos/hero1.mp4" type="video/mp4" />
-                <source src="https://cdn.coverr.co/videos/coverr-sunrise-over-the-sea-9163/1080p.mp4" type="video/mp4" />
-              </video>
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(11, 28, 25, 0.9), rgba(11, 28, 25, 0.3), transparent)' }} />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(11, 28, 25, 0.4), transparent, transparent)' }} />
+                className="h-full w-full object-cover absolute inset-0"
+                autoPlay loop={false} muted playsInline preload="metadata"
+                style={{ transition: 'opacity 1.5s ease-in-out' }}
+              />
+              <video
+                ref={video2Ref}
+                className="h-full w-full object-cover absolute inset-0"
+                loop={false} muted playsInline preload="none"
+                style={{ opacity: 0, transition: 'opacity 1.5s ease-in-out' }}
+              />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(17, 17, 17, 0.9), rgba(17, 17, 17, 0.3), transparent)' }} />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(17, 17, 17, 0.4), transparent, transparent)' }} />
             </div>
           </div>
 
-          <div ref={revealRef} className="absolute left-0 top-0 z-30 flex h-full w-full items-center justify-start pl-[5%] md:pl-[10%] pr-[5%] md:pr-[52%] opacity-0">
+          <div ref={revealRef} className="absolute left-0 top-0 z-30 flex h-full w-full items-center justify-start pl-[5%] md:pl-[10%] pr-[5%] md:pr-[52%] opacity-0 pt-20 md:pt-0">
             <div className="relative w-full max-w-2xl text-left">
 
-              <div ref={luxuryLabelRef} className="mb-12 opacity-0 absolute -top-24 left-0">
+              <div ref={luxuryLabelRef} className="mb-8 md:mb-12 opacity-0">
                 <div className="flex items-center gap-4">
-                  <div className="h-[1px] w-12" style={{ background: 'linear-gradient(to right, #C89B7B, rgba(200, 155, 123, 0.3))' }} />
-                  <span className="text-[10px] tracking-[0.35em] font-sans uppercase font-medium" style={{ color: '#C89B7B' }}>
-                    LAVITA MALAM JABBA
+                  <div className="h-[1px] w-12" style={{ background: 'linear-gradient(to right, #C5A880, rgba(197, 168, 128, 0.3))' }} />
+                  <span className="text-[10px] tracking-[0.35em] font-sans uppercase font-medium" style={{ color: '#C5A880' }}>
+                    THEPLOTSALE
                   </span>
                 </div>
               </div>
 
               <div className="flex flex-col justify-center items-start">
                 <div ref={visionLabelRef} className="mb-6 opacity-0">
-                  <span className="text-xs tracking-[0.25em] font-sans uppercase font-light" style={{ color: '#C89B7B' }}>A LANDMARK AT 9,200FT</span>
+                  <span className="text-xs tracking-[0.25em] font-sans uppercase font-light" style={{ color: '#C5A880' }}>PREMIER REAL ESTATE CONSULTANCY</span>
                 </div>
 
                 <div className="mb-10 overflow-visible pb-4">
                   <h2
                     ref={timelessRef}
-                    className="text-5xl md:text-6xl lg:text-7xl tracking-tight leading-tight font-light font-serif opacity-0 overflow-visible"
+                    className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl tracking-tight leading-[1.15] font-light font-serif opacity-0 overflow-visible"
                     style={{ color: '#F2F4F6', textShadow: '0 4px 20px rgba(0, 0, 0, 0.5)' }}
                   >
-                    Sculpted by
+                    Aspirations into
                   </h2>
                   <h2
                     ref={eleganceRef}
-                    className="text-5xl md:text-6xl lg:text-7xl tracking-tight leading-tight italic font-light font-serif opacity-0 overflow-visible mt-3"
-                    style={{ color: '#C89B7B', textShadow: '0 4px 20px rgba(0, 0, 0, 0.5)' }}
+                    className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl tracking-tight leading-[1.15] italic font-light font-serif opacity-0 overflow-visible mt-2 md:mt-3"
+                    style={{ color: '#C5A880', textShadow: '0 4px 20px rgba(0, 0, 0, 0.5)' }}
                   >
-                    The Sky
+                    Foundations
                   </h2>
                 </div>
 
                 <div
                   ref={goldDividerRef}
                   className="h-[1px] w-20 md:w-24 my-8 md:my-10 opacity-0 transform origin-left scale-x-0"
-                  style={{ background: 'linear-gradient(to right, #C89B7B, rgba(200, 155, 123, 0.3))' }}
+                  style={{ background: 'linear-gradient(to right, #C5A880, rgba(197, 168, 128, 0.3))' }}
                 />
 
                 <p
@@ -278,21 +322,21 @@ export default function HeroVideoParallax() {
                   className="max-w-md text-base md:text-[1.125rem] font-light font-sans opacity-0"
                   style={{ color: 'rgba(242, 244, 246, 0.8)', lineHeight: '1.8', letterSpacing: '0.01em' }}
                 >
-                  Where modern design meets the eternal mountain. Experience Pakistan's first glass-dome sanctuary, redefining the skyline of the Hindu Kush.
+                  At ThePlotSale, we are committed to delivering real estate solutions marked by transparency and integrity, bridging developers and homeowners in a trusted partnership. We envision a sustainable future where every property is not just an asset, but a space people are proud to call home.
                 </p>
 
                 <div className="mt-14 md:mt-20 flex items-center gap-6 group cursor-pointer">
-                  <div className="h-[1px] w-12 transition-all duration-700 ease-out group-hover:w-16" style={{ background: 'linear-gradient(to right, #C89B7B, transparent)' }} />
-                  <span className="text-[10px] tracking-[0.35em] uppercase font-sans font-light transition-all duration-700 ease-out group-hover:translate-x-1 group-hover:tracking-[0.4em]" style={{ color: '#C89B7B' }}>
-                    EXPLORE THE DESIGN
+                  <div className="h-[1px] w-12 transition-all duration-700 ease-out group-hover:w-16" style={{ background: 'linear-gradient(to right, #C5A880, transparent)' }} />
+                  <span className="text-[10px] tracking-[0.35em] uppercase font-sans font-light transition-all duration-700 ease-out group-hover:translate-x-1 group-hover:tracking-[0.4em]" style={{ color: '#C5A880' }}>
+                    DISCOVER OUR CANVAS
                   </span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Seamless Gradient to Next Section - Subtle vignette */}
-          <div className="absolute bottom-0 left-0 right-0 h-56 z-25 pointer-events-none" style={{ background: 'linear-gradient(to bottom, transparent, rgba(13, 21, 18, 0.4), #0D1512)' }} />
+          {/* Seamless Gradient to Next Section */}
+          <div className="absolute bottom-0 left-0 right-0 h-56 z-25 pointer-events-none" style={{ background: 'linear-gradient(to bottom, transparent, rgba(10, 10, 10, 0.4), #0A0A0A)' }} />
 
           {/* Initial Full Screen Overlay - LEFT ALIGNED */}
           <div ref={overlayRef} className="absolute inset-0 z-40 flex flex-col items-start justify-center pointer-events-none pb-12 md:pb-16 pl-[5%] md:pl-[10%]">
@@ -301,32 +345,32 @@ export default function HeroVideoParallax() {
             <div className="text-left px-4 relative z-10 w-full">
               <div className="mb-8 md:mb-10">
                 <span className="text-xs md:text-sm tracking-[0.3em] text-white/90 font-sans uppercase font-light">
-                  THE PREMIER MOUNTAIN CLUB OF THE NORTH
+                  PREMIER REAL ESTATE CONSULTANCY
                 </span>
               </div>
               <h1 className="mb-8 md:mb-10 font-serif text-4xl md:text-6xl lg:text-7xl font-medium leading-[0.9] text-white px-4">
                 <span className="block mb-4 md:mb-6" style={{ textShadow: '0 2px 12px rgba(0, 0, 0, 0.6)' }}>
-                  Lavita Services Club
+                  Cultivating Futures
                 </span>
-                <span className="block italic font-light text-2xl md:text-3xl lg:text-4xl text-[#C89B7B]" style={{ textShadow: '0 4px 20px rgba(0, 0, 0, 0.6)' }}>
-                  An Exclusive Legacy in the North
+                <span className="block italic font-light text-2xl md:text-3xl lg:text-4xl text-[#C5A880]" style={{ textShadow: '0 4px 20px rgba(0, 0, 0, 0.6)' }}>
+                  We are not just building homes. We are shaping dreams into addresses.
                 </span>
               </h1>
               <p className="max-w-xs md:max-w-md text-xs tracking-[0.3em] text-white/80 font-sans uppercase font-light mt-12 md:mt-14" style={{ textShadow: '0 1px 6px rgba(0, 0, 0, 0.5)' }}>
-                9,200FT ELEVATION • HINDU KUSH
+                LONDON • LAHORE
               </p>
             </div>
           </div>
 
-          <div ref={anchorLineRef} className="absolute left-1/2 top-1/2 z-20 h-0 -translate-x-1/2 -translate-y-1/2 opacity-0" style={{ width: '0.5px', background: 'linear-gradient(to bottom, transparent, rgba(200, 155, 123, 0.3), transparent)' }} />
+          <div ref={anchorLineRef} className="absolute left-1/2 top-1/2 z-20 h-0 -translate-x-1/2 -translate-y-1/2 opacity-0" style={{ width: '0.5px', background: 'linear-gradient(to bottom, transparent, rgba(197, 168, 128, 0.3), transparent)' }} />
 
           <div ref={scrollIndicatorRef} className="absolute bottom-8 md:bottom-12 left-1/2 z-50 -translate-x-1/2">
             <div className="flex flex-col items-center">
-              <span className="mb-3 md:mb-4 text-[10px] md:text-xs tracking-[0.25em] md:tracking-[0.3em] font-sans uppercase font-light" style={{ color: '#C89B7B', textShadow: '0 1px 4px rgba(0, 0, 0, 0.5)' }}>
+              <span className="mb-3 md:mb-4 text-[10px] md:text-xs tracking-[0.25em] md:tracking-[0.3em] font-sans uppercase font-light" style={{ color: '#C5A880', textShadow: '0 1px 4px rgba(0, 0, 0, 0.5)' }}>
                 EXPLORE
               </span>
               <div className="relative h-10 md:h-16 overflow-hidden bg-white/10 backdrop-blur-sm" style={{ width: '0.5px' }}>
-                <div className="absolute top-0 h-5 md:h-8 w-full animate-scroll-indicator" style={{ background: 'linear-gradient(to bottom, #C89B7B, transparent)' }} />
+                <div className="absolute top-0 h-5 md:h-8 w-full animate-scroll-indicator" style={{ background: 'linear-gradient(to bottom, #C5A880, transparent)' }} />
               </div>
             </div>
           </div>

@@ -33,13 +33,13 @@ html.lenis body {
 
 :root {
   /* Primary Colors */
-  --midnight-pine: #0B1C19;
+  --luxury-charcoal: #111111;
   --alabaster-mist: #F2F4F6;
-  --brushed-copper: #C89B7B;
-  --deep-emerald: #050F0D;
+  --premium-gold: #C5A880;
+  --deep-black: #1A1A1A;
 
   /* New, Crucial Variables for Flow */
-  --bg-dark-flow: #0D1512;
+  --bg-dark-flow: #0A0A0A;
   /* Specific dark color for seamless transitions */
   --text-refined-white: #EFEFEF;
   /* Elegant off-white for headlines */
@@ -49,7 +49,7 @@ html.lenis body {
   --text-dark: #1A1A1A;
 
   /* Semantic Variables */
-  --background: var(--midnight-pine);
+  --background: var(--luxury-charcoal);
   --foreground: var(--text-light);
 
   /* Font Variables */
@@ -59,11 +59,11 @@ html.lenis body {
 }
 
 @theme inline {
-  /* Alpine Noir Color Palette */
-  --color-midnight-pine: var(--midnight-pine);
+  /* The Plot Sale Color Palette */
+  --color-luxury-charcoal: var(--luxury-charcoal);
   --color-alabaster-mist: var(--alabaster-mist);
-  --color-brushed-copper: var(--brushed-copper);
-  --color-deep-emerald: var(--deep-emerald);
+  --color-premium-gold: var(--premium-gold);
+  --color-deep-black: var(--deep-black);
   --color-bg-dark-flow: var(--bg-dark-flow);
   --color-text-refined-white: var(--text-refined-white);
   --color-text-light: var(--text-light);
@@ -133,22 +133,22 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--midnight-pine);
+  background: var(--luxury-charcoal);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--brushed-copper);
+  background: var(--premium-gold);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #d4a98a;
+  background: #D4AF37;
 }
 
 /* Selection Color */
 ::selection {
-  background: var(--brushed-copper);
-  color: var(--midnight-pine);
+  background: var(--premium-gold);
+  color: var(--luxury-charcoal);
 }
 
 /* Hero Animations */
@@ -229,11 +229,11 @@ body {
 
 /* Luxury Text Effects */
 .text-glow {
-  text-shadow: 0 0 30px rgba(200, 155, 123, 0.3);
+  text-shadow: 0 0 30px rgba(197, 168, 128, 0.3);
 }
 
 .text-gold-gradient {
-  background: linear-gradient(to right, #C89B7B, #E6C7A8);
+  background: linear-gradient(to right, #C5A880, #D4AF37);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -246,10 +246,10 @@ body {
 
 /* Glass Morphism */
 .glass-morphism {
-  background: rgba(15, 37, 34, 0.7);
+  background: rgba(17, 17, 17, 0.7);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(200, 155, 123, 0.1);
+  border: 1px solid rgba(197, 168, 128, 0.1);
 }
 
 /* Ensure descenders don't get cut off */
@@ -262,7 +262,7 @@ body {
 .video-container-luxury {
   box-shadow:
     0 40px 80px -20px rgba(0, 0, 0, 0.8),
-    0 0 60px rgba(200, 155, 123, 0.15) inset;
+    0 0 60px rgba(197, 168, 128, 0.15) inset;
   border-radius: 32px;
 }
 
@@ -286,7 +286,7 @@ body {
 
 /* Focus Styles for Accessibility */
 :focus-visible {
-  outline: 2px solid var(--brushed-copper);
+  outline: 2px solid var(--premium-gold);
   outline-offset: 2px;
 }
 

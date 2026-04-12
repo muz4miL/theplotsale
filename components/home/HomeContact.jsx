@@ -38,7 +38,7 @@ export default function OpenSky() {
       <div
         className="absolute top-0 left-0 right-0 z-10 pointer-events-none h-[90vh]"
         style={{
-          background: 'linear-gradient(to bottom, #0D1512 0%, #0D1512 250px, #020508 100%)'
+          background: 'linear-gradient(to bottom, #0A0A0A 0%, #0A0A0A 250px, #020508 100%)'
         }}
       />
 
@@ -78,19 +78,19 @@ export default function OpenSky() {
         <div className="relative bg-[#050A08]/60 backdrop-blur-xl border border-white/10 rounded-3xl px-8 py-10 md:px-10 md:py-12 text-center shadow-[0_0_50px_rgba(0,0,0,0.5),inset_0_0_20px_rgba(255,255,255,0.02)]">
 
           {/* Bronze Accent Line */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-[1px] bg-gradient-to-r from-transparent via-[#C89B7B] to-transparent" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-[1px] bg-gradient-to-r from-transparent via-[#C5A880] to-transparent" />
 
           {/* Label */}
           <div className="inline-flex items-center gap-2 mb-4">
-            <Star className="w-3 h-3 text-[#C89B7B]" />
-            <span className="text-[#C89B7B] text-[9px] tracking-[0.35em] uppercase font-medium">Concierge Service</span>
-            <Star className="w-3 h-3 text-[#C89B7B]" />
+            <Star className="w-3 h-3 text-[#C5A880]" />
+            <span className="text-[#C5A880] text-[9px] tracking-[0.35em] uppercase font-medium">Concierge Service</span>
+            <Star className="w-3 h-3 text-[#C5A880]" />
           </div>
 
           {/* Elegant Typography */}
           <h2 className="text-3xl md:text-4xl text-white font-playfair font-light leading-tight mb-3">
             Begin Your <br />
-            <span className="italic text-[#C89B7B] opacity-90">Journey</span>
+            <span className="italic text-[#C5A880] opacity-90">Journey</span>
           </h2>
 
           {/* Subtle Description */}
@@ -108,7 +108,7 @@ export default function OpenSky() {
                 name="name"
                 placeholder="Full Name"
                 required
-                className="w-full bg-transparent border-0 border-b border-white/10 focus:border-[#C89B7B] text-white/80 placeholder:text-white/20 px-0 py-2.5 outline-none transition-all duration-500 text-sm font-light tracking-wide"
+                className="w-full bg-transparent border-0 border-b border-white/10 focus:border-[#C5A880] text-white/80 placeholder:text-white/20 px-0 py-2.5 outline-none transition-all duration-500 text-sm font-light tracking-wide"
               />
             </div>
 
@@ -121,7 +121,7 @@ export default function OpenSky() {
                   name="email"
                   placeholder="Email"
                   required
-                  className="w-full bg-transparent border-0 border-b border-white/10 focus:border-[#C89B7B] text-white/80 placeholder:text-white/20 px-0 py-2.5 outline-none transition-all duration-500 text-sm font-light tracking-wide"
+                  className="w-full bg-transparent border-0 border-b border-white/10 focus:border-[#C5A880] text-white/80 placeholder:text-white/20 px-0 py-2.5 outline-none transition-all duration-500 text-sm font-light tracking-wide"
                 />
               </div>
 
@@ -132,7 +132,7 @@ export default function OpenSky() {
                   name="phone"
                   placeholder="Phone"
                   required
-                  className="w-full bg-transparent border-0 border-b border-white/10 focus:border-[#C89B7B] text-white/80 placeholder:text-white/20 px-0 py-2.5 outline-none transition-all duration-500 text-sm font-light tracking-wide"
+                  className="w-full bg-transparent border-0 border-b border-white/10 focus:border-[#C5A880] text-white/80 placeholder:text-white/20 px-0 py-2.5 outline-none transition-all duration-500 text-sm font-light tracking-wide"
                 />
               </div>
             </div>
@@ -144,7 +144,7 @@ export default function OpenSky() {
                 placeholder="Your Message"
                 rows="3"
                 required
-                className="w-full bg-transparent border-0 border-b border-white/10 focus:border-[#C89B7B] text-white/80 placeholder:text-white/20 px-0 py-2.5 outline-none transition-all duration-500 resize-none text-sm font-light tracking-wide"
+                className="w-full bg-transparent border-0 border-b border-white/10 focus:border-[#C5A880] text-white/80 placeholder:text-white/20 px-0 py-2.5 outline-none transition-all duration-500 resize-none text-sm font-light tracking-wide"
               ></textarea>
             </div>
 
@@ -152,12 +152,12 @@ export default function OpenSky() {
             <div className="text-center pt-3">
               <button
                 type="submit"
-                className="group relative px-8 py-3 bg-[#C89B7B]/10 hover:bg-[#C89B7B]/20 border border-[#C89B7B]/30 rounded-sm transition-all duration-500 overflow-hidden"
+                className="group relative px-8 py-3 bg-[#C5A880]/10 hover:bg-[#C5A880]/20 border border-[#C5A880]/30 rounded-sm transition-all duration-500 overflow-hidden"
               >
-                <span className="relative text-[#C89B7B] text-[10px] tracking-[0.25em] uppercase font-semibold group-hover:text-white transition-colors z-10">
+                <span className="relative text-[#C5A880] text-[10px] tracking-[0.25em] uppercase font-semibold group-hover:text-white transition-colors z-10">
                   Send Inquiry
                 </span>
-                <div className="absolute inset-0 bg-[#C89B7B] opacity-0 group-hover:opacity-10 transition-opacity duration-500 z-0" />
+                <div className="absolute inset-0 bg-[#C5A880] opacity-0 group-hover:opacity-10 transition-opacity duration-500 z-0" />
               </button>
             </div>
           </form>

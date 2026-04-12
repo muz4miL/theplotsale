@@ -7,50 +7,42 @@ import Image from 'next/image';
 const experienceItems = [
   {
     id: 1,
-    url: '/amenities/sky-pool-portrait.png',
-    title: 'SKY POOL',
-    label: 'Heated Rooftop Infinity Pool',
-    description: 'Swim among the clouds with 28-30°C water and panoramic mountain views all year round.',
+    url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1000',
+    title: 'AIRPORT CITY',
+    label: 'Sialkot',
+    description: 'Home is Where Your Story Unfolds - Premium residential and commercial development with world-class infrastructure.',
     isPortrait: true,
   },
   {
     id: 2,
-    url: '/amenities/panorama-dining.png',
-    title: 'DINING',
-    label: 'Panorama Restaurant',
-    description: 'Fine dining featuring local specialties and international cuisine with spectacular 360° vistas.',
+    url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000',
+    title: 'CANAL FORT 2',
+    label: 'Lahore',
+    description: 'A Place to Grow, A Place to Belong - Master-planned community offering modern living spaces and family-friendly amenities.',
     isPortrait: false,
   },
   {
     id: 3,
-    url: '/amenities/wellness-vertical.png',
-    title: 'WELLNESS',
-    label: 'Health Club & Spa',
-    description: 'State-of-the-art gym, serene yoga studio, and rejuvenating sauna facilities.',
+    url: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1000',
+    title: 'EXXSN HEIGHTS',
+    label: 'Lahore',
+    description: 'Premium Vertical Development Under Way - Contemporary high-rise living with luxury finishes and panoramic views.',
     isPortrait: true,
   },
   {
     id: 4,
-    url: '/amenities/kids-zone.png',
-    title: 'FAMILY',
-    label: 'Kids Activity Zone',
-    description: 'A safe, supervised world of fun with VR gaming, indoor playgrounds, and storytelling nights.',
-    isPortrait: false,
-  },
-  {
-    id: 5,
     url: '/amenities/events-vertical.png',
-    title: 'EVENTS',
-    label: 'Celebrations & Bonfires',
-    description: 'Memorable events with scenic backdrops, from traditional Attan nights to corporate retreats.',
+    title: 'PEARL GARDEN',
+    label: 'Lahore',
+    description: 'Premium Vertical Development Under Way - Elegant residential towers designed for sophisticated urban living.',
     isPortrait: true,
   },
   {
-    id: 6,
-    url: '/amenities/adventure.png',
-    title: 'ADVENTURE',
-    label: 'Alpine Exploration',
-    description: 'Thrilling outdoor experiences including guided trekking, wildlife viewing, and seasonal winter sports.',
+    id: 5,
+    url: '/amenities/kids-zone.png',
+    title: 'SIDDIQUE CITY',
+    label: 'Lahore',
+    description: 'Elevated Living, Grounded in Comfort - Sustainable community development with green spaces and modern infrastructure.',
     isPortrait: false,
   },
 ];
@@ -63,7 +55,7 @@ function DesktopExperience({ targetRef, scrollYProgress, x }) {
   return (
     <section
       ref={targetRef}
-      className="relative bg-[#0D1512] hidden md:block"
+      className="relative bg-[#0A0A0A] hidden md:block"
       style={{ height: '500vh' }}
     >
       {/* Sticky Container */}
@@ -92,13 +84,13 @@ function DesktopExperience({ targetRef, scrollYProgress, x }) {
         {/* Section Header - Top Left */}
         <div className="absolute top-12 left-8 md:left-16 lg:left-24 z-30">
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-[1px] w-10 bg-gradient-to-r from-[#C89B7B] to-transparent" />
-            <span className="text-[#C89B7B] text-[10px] tracking-[0.35em] uppercase font-medium">
-              Club Privileges
+            <div className="h-[1px] w-10 bg-gradient-to-r from-[#C5A880] to-transparent" />
+            <span className="text-[#C5A880] text-[10px] tracking-[0.35em] uppercase font-medium">
+              Our Portfolio
             </span>
           </div>
           <h2 className="font-playfair text-3xl md:text-4xl font-light tracking-tight text-white/90">
-            Curated Experiences
+            Track Record & Expertise
           </h2>
         </div>
 
@@ -157,11 +149,11 @@ function DesktopExperience({ targetRef, scrollYProgress, x }) {
                       className="object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
                       sizes={isPortrait ? "(max-width: 768px) 30vw, 320px" : "(max-width: 768px) 45vw, 500px"}
                     />
-                    <div className="absolute inset-0 border border-white/10 group-hover:border-[#C89B7B]/20 transition-colors duration-700" />
+                    <div className="absolute inset-0 border border-white/10 group-hover:border-[#C5A880]/20 transition-colors duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-100 group-hover:opacity-100 transition-opacity duration-700" />
                     <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
                       <div className="mb-2">
-                        <span className="text-[#C89B7B] group-hover:text-[#D4AF8A] text-[10px] tracking-[0.25em] uppercase font-medium transition-colors duration-500">
+                        <span className="text-[#C5A880] group-hover:text-[#D4AF8A] text-[10px] tracking-[0.25em] uppercase font-medium transition-colors duration-500">
                           {item.label}
                         </span>
                       </div>
@@ -185,7 +177,7 @@ function DesktopExperience({ targetRef, scrollYProgress, x }) {
             </span>
             <div className="relative w-20 h-[1px] bg-white/10">
               <motion.div
-                className="absolute inset-y-0 left-0 bg-[#C89B7B]"
+                className="absolute inset-y-0 left-0 bg-[#C5A880]"
                 style={{
                   width: useTransform(scrollYProgress, [0, 1], ["0%", "100%"]),
                 }}
@@ -222,7 +214,7 @@ function MobileExperience() {
   }, []);
 
   return (
-    <section className="relative bg-[#0D1512] md:hidden min-h-screen flex flex-col">
+    <section className="relative bg-[#0A0A0A] md:hidden min-h-screen flex flex-col">
       {/* Static Background */}
       <div className="absolute inset-0">
         <Image
@@ -247,14 +239,14 @@ function MobileExperience() {
       {/* Section Header - Centered */}
       <div className="relative z-20 pt-12 pb-8 px-6 flex flex-col items-center text-center">
         <div className="flex items-center gap-3 mb-3">
-          <div className="h-[1px] w-8 bg-gradient-to-r from-transparent via-[#C89B7B] to-[#C89B7B]" />
-          <span className="text-[#C89B7B] text-[9px] tracking-[0.35em] uppercase font-medium">
-            Club Privileges
+          <div className="h-[1px] w-8 bg-gradient-to-r from-transparent via-[#C5A880] to-[#C5A880]" />
+          <span className="text-[#C5A880] text-[9px] tracking-[0.35em] uppercase font-medium">
+            Our Portfolio
           </span>
-          <div className="h-[1px] w-8 bg-gradient-to-l from-transparent via-[#C89B7B] to-[#C89B7B]" />
+          <div className="h-[1px] w-8 bg-gradient-to-l from-transparent via-[#C5A880] to-[#C5A880]" />
         </div>
         <h2 className="font-playfair text-2xl font-light tracking-tight text-white/90">
-          Curated Experiences
+          Track Record & Expertise
         </h2>
       </div>
 
@@ -275,7 +267,7 @@ function MobileExperience() {
               style={{ width: '80vw' }}
             >
               {/* Magazine-Style Card */}
-              <div className="flex flex-col bg-[#0D1512]/60 backdrop-blur-sm rounded-sm overflow-hidden border border-white/5">
+              <div className="flex flex-col bg-[#0A0A0A]/60 backdrop-blur-sm rounded-sm overflow-hidden border border-white/5">
 
                 {/* Image Container - Clean, No Overlays */}
                 <div className="relative h-[40vh] overflow-hidden">
@@ -289,17 +281,17 @@ function MobileExperience() {
                 </div>
 
                 {/* Text Container - Below Image */}
-                <div className="bg-[#0D1512] p-6 space-y-4">
+                <div className="bg-[#0A0A0A] p-6 space-y-4">
                   {/* Title */}
                   <h3 className="font-playfair text-3xl font-light text-white/90 tracking-tight">
                     {item.title}
                   </h3>
 
                   {/* Separator Line */}
-                  <div className="h-[1px] w-12 bg-[#C89B7B]/60" />
+                  <div className="h-[1px] w-12 bg-[#C5A880]/60" />
 
                   {/* Label */}
-                  <span className="block text-[#C89B7B] text-[10px] tracking-[0.25em] uppercase font-medium">
+                  <span className="block text-[#C5A880] text-[10px] tracking-[0.25em] uppercase font-medium">
                     {item.label}
                   </span>
 
@@ -325,7 +317,7 @@ function MobileExperience() {
           {/* Thin Luxury Line Indicator */}
           <div className="relative w-32 h-[1px] bg-white/10">
             <motion.div
-              className="absolute inset-y-0 left-0 bg-[#C89B7B]"
+              className="absolute inset-y-0 left-0 bg-[#C5A880]"
               animate={{
                 width: `${((currentIndex + 1) / experienceItems.length) * 100}%`,
               }}
@@ -354,7 +346,7 @@ export default function HorizontalScrollCarousel() {
     target: targetRef,
   });
 
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-130%"]);
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-85%"]);
 
   useEffect(() => {
     setIsMounted(true);
