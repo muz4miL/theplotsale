@@ -128,7 +128,7 @@ export default function Preloader() {
 
                                         {/* B. The Logo Centerpiece - Perfectly Centered */}
                                         <motion.div
-                                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48"
+                                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
                                             initial={{ opacity: 0, scale: 0.9, filter: 'blur(12px)' }}
                                             animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
                                             transition={{
@@ -140,8 +140,9 @@ export default function Preloader() {
                                             <Image
                                                 src="/newLogo.png"
                                                 alt="The Plot Sale Logo"
-                                                fill
-                                                className="object-contain drop-shadow-2xl"
+                                                width={128}
+                                                height={128}
+                                                className="object-contain drop-shadow-2xl w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48"
                                                 priority
                                             />
 

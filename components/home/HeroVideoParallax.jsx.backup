@@ -24,7 +24,7 @@ export default function HeroVideoParallax() {
 
   // State for mobile/desktop and video transitions
   const [isMobile, setIsMobile] = useState(false);
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [isClient, setIsClient] = useState(false);
   
   const videos = [
     '/videos/1.mp4',
@@ -34,6 +34,7 @@ export default function HeroVideoParallax() {
 
   // Check if mobile on mount and resize
   useEffect(() => {
+    setIsClient(true);
     const checkMobile = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
@@ -53,8 +54,10 @@ export default function HeroVideoParallax() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Seamless video transition logic
+  // Seamless video transition logic - DESKTOP ONLY
   useEffect(() => {
+    if (isMobile) return; // Skip video logic for mobile
+    
     const video1 = videoRef.current;
     const video2 = video2Ref.current;
     if (!video1 || !video2) return;
@@ -107,23 +110,10 @@ export default function HeroVideoParallax() {
       
       // Swap references
       [activeVideo, inactiveVideo] = [inactiveVideo, activeVideo];
-      
-      setCurrentVideoIndex(videoIndex);
-    };
-
-    // Handle user interaction to start videos on mobile
-    const handleUserInteraction = () => {
-      if (video1 && video1.paused) {
-        attemptVideoPlay(video1);
-      }
     };
 
     video1.addEventListener('ended', handleVideoEnd);
     video2.addEventListener('ended', handleVideoEnd);
-    
-    // Add mobile interaction listeners
-    document.addEventListener('touchstart', handleUserInteraction, { once: true });
-    document.addEventListener('click', handleUserInteraction, { once: true });
 
     // Start first video
     attemptVideoPlay(video1);
@@ -131,10 +121,8 @@ export default function HeroVideoParallax() {
     return () => {
       video1.removeEventListener('ended', handleVideoEnd);
       video2.removeEventListener('ended', handleVideoEnd);
-      document.removeEventListener('touchstart', handleUserInteraction);
-      document.removeEventListener('click', handleUserInteraction);
     };
-  }, []);
+  }, [isMobile]);
 
   // GSAP animations - DESKTOP ONLY
   useEffect(() => {
@@ -231,14 +219,23 @@ export default function HeroVideoParallax() {
     return () => ctx.revert();
   }, [isMobile]);
 
+  // SSR/hydration guard
+  if (!isClient) {
+    return <div style={{ height: '100vh', background: '#0A0A0A' }} />;
+  }
+
+  // Early return for mobile — use simple dedicated mobile component
+  if (isMobile) {
+    return <SimpleMobileHero />;
+  }
+
   return (
     <section
       ref={sectionRef}
-      className={`relative ${isMobile ? 'h-auto min-h-screen flex flex-col' : 'h-screen w-full overflow-hidden'} text-white`}
+      className="relative h-screen w-full overflow-hidden text-white"
       style={{ background: 'linear-gradient(to bottom right, #111111, #0A0A0A, #050505)' }}
     >
-      {/* ==================== MOBILE LAYOUT ==================== */}
-      {isMobile ? (
+      {/* ==================== DESKTOP LAYOUT ==================== */}
         <>
           {/* VIDEO SECTION - Top 60% with Brand Identity Overlay */}
           <div className="relative h-[60vh] w-full overflow-hidden">
