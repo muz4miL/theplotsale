@@ -56,6 +56,13 @@ html.lenis body {
   --font-cormorant: 'Cormorant Garamond', serif;
   --font-manrope: 'Manrope', sans-serif;
   --font-playfair: 'Playfair Display', serif;
+
+  /* Unified motion + interaction tokens */
+  --ease-luxury: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 220ms;
+  --duration-base: 420ms;
+  --duration-slow: 700ms;
 }
 
 @theme inline {
@@ -241,7 +248,57 @@ body {
 
 /* Smooth Transitions */
 .transition-luxury {
-  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--duration-base) var(--ease-luxury);
+}
+
+.lux-nav-link {
+  position: relative;
+}
+
+.lux-nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.45rem;
+  height: 1px;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--duration-base) var(--ease-luxury);
+  background: linear-gradient(to right, transparent, #C5A880, transparent);
+}
+
+.lux-nav-link:hover::after,
+.lux-nav-link.is-active::after {
+  transform: scaleX(1);
+}
+
+.lux-button {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform var(--duration-fast) var(--ease-luxury),
+    box-shadow var(--duration-fast) var(--ease-luxury),
+    background-color var(--duration-fast) var(--ease-smooth),
+    color var(--duration-fast) var(--ease-smooth);
+}
+
+.lux-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.34) 50%, transparent 80%);
+  transform: translateX(-130%);
+  transition: transform 650ms var(--ease-luxury);
+}
+
+.lux-button:hover::before {
+  transform: translateX(130%);
+}
+
+.lux-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(197, 168, 128, 0.3);
 }
 
 /* Glass Morphism */

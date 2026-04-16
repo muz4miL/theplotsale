@@ -18,7 +18,7 @@ export async function PATCH(request, { params }) {
         $set: {
           name: body.name?.trim(),
           detail: body.detail?.trim() || '',
-          logoUrl: body.logoUrl?.trim(),
+          logoUrl: typeof body.logoUrl === 'string' ? body.logoUrl.trim() : '',
           sortOrder: Number.isFinite(Number(body.sortOrder)) ? Number(body.sortOrder) : 0,
           isActive: typeof body.isActive === 'boolean' ? body.isActive : true,
         },

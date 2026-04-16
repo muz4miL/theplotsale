@@ -14,7 +14,7 @@ const marqueeLogoSchema = new mongoose.Schema(
     },
     logoUrl: {
       type: String,
-      required: [true, 'Logo URL is required'],
+      default: '',
       trim: true,
     },
     sortOrder: {

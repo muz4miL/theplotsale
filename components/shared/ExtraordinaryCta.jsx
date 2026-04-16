@@ -83,7 +83,7 @@ export default function ExtraordinaryCta() {
             <motion.div variants={liftFade}>
               <Link
                 href="/contact"
-                className="mt-8 inline-flex w-full items-center justify-center rounded-sm bg-[#f97316] px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-all duration-300 hover:translate-y-[-1px] hover:bg-[#ea580c] hover:shadow-[0_10px_28px_rgba(249,115,22,0.4)] sm:w-auto sm:px-8"
+                className="lux-button mt-8 inline-flex w-full items-center justify-center rounded-sm bg-[#f97316] px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-all duration-300 hover:bg-[#ea580c] hover:shadow-[0_10px_28px_rgba(249,115,22,0.4)] sm:w-auto sm:px-8"
               >
                 Start your project
               </Link>

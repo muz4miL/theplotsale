@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import ListingLogo from '@/components/ListingLogo';
+import { MARQUEE_DEFAULT_BRANDS } from '@/lib/marquee-defaults';
 
-const fallbackItems = [
-  { name: 'The Plot Sale', detail: 'Luxury Real Estate Advisory', logo: '' },
-  { name: 'Lavita Signature', detail: 'Premium Project Curation', logo: '' },
-  { name: 'Private Client Desk', detail: 'Cross-Border Investment Access', logo: '' },
-];
+const fallbackItems = MARQUEE_DEFAULT_BRANDS.map((item) => ({
+  name: item.name,
+  detail: item.detail,
+  logo: item.logoUrl || '',
+}));
 
 function MarqueeCard({ item }) {
   return (
@@ -38,7 +39,7 @@ export default function LuxuryLogoMarquee() {
         const mapped = (result?.data || []).map((item) => ({
           name: item.name,
           detail: item.detail || 'Trusted Brand Partner',
-          logo: item.logoUrl,
+          logo: item.logoUrl || '',
         }));
 
         if (mapped.length > 0) {

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import MarqueeLogo from '@/models/MarqueeLogo';
+import { MARQUEE_DEFAULT_BRANDS } from '@/lib/marquee-defaults';
 
 export async function GET() {
   try {
@@ -9,11 +10,24 @@ export async function GET() {
       .sort({ sortOrder: 1, createdAt: -1 })
       .lean();
 
+    const usingDefaults = logos.length === 0;
+    const payload = usingDefaults
+      ? MARQUEE_DEFAULT_BRANDS.map((item, index) => ({
+          _id: `default-${index}`,
+          name: item.name,
+          detail: item.detail,
+          logoUrl: item.logoUrl,
+          sortOrder: index,
+          isActive: true,
+        }))
+      : logos;
+
     return NextResponse.json(
       {
         success: true,
-        count: logos.length,
-        data: logos,
+        count: payload.length,
+        usingDefaults,
+        data: payload,
       },
       { status: 200 }
     );

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import NavDropdown from './NavDropdown';
 
@@ -15,6 +16,7 @@ const navConfig = [
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -84,7 +86,7 @@ export default function Navbar() {
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-[60] px-[clamp(1.5rem,4vw,3rem)] transition-all duration-[350ms] ease-out border-b ${isScrolled
-          ? 'bg-[rgba(15,37,34,0.85)] backdrop-blur-[18px] border-b-[rgba(255,255,255,0.08)] py-[0.85rem]'
+          ? 'bg-[rgba(10,16,15,0.85)] backdrop-blur-[18px] border-b-[rgba(255,255,255,0.08)] py-[0.85rem] shadow-[0_10px_35px_rgba(0,0,0,0.35)]'
           : 'border-b-transparent py-5'
           }`}
       >
@@ -126,7 +128,10 @@ export default function Navbar() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className="font-[family-name:var(--font-manrope)] text-[0.78rem] tracking-[0.18em] uppercase text-[rgba(245,245,245,0.85)] no-underline transition-colors duration-300 hover:text-[#C5A880]"
+                  className={`lux-nav-link font-[family-name:var(--font-manrope)] text-[0.78rem] tracking-[0.18em] uppercase no-underline transition-colors duration-300 ${pathname === item.href
+                    ? 'is-active text-[#C5A880]'
+                    : 'text-[rgba(245,245,245,0.85)] hover:text-[#C5A880]'
+                    }`}
                 >
                   {item.label}
                 </Link>
@@ -137,7 +142,7 @@ export default function Navbar() {
           <div className="hidden xl:block">
             <Link
               href="/reserve"
-              className="inline-flex items-center justify-center px-10 py-[0.9rem] bg-[#C5A880] text-[#111111] font-[family-name:var(--font-manrope)] text-[0.78rem] font-semibold tracking-[0.25em] uppercase rounded-full border border-[#C5A880] transition-all duration-300 hover:bg-transparent hover:text-[#C5A880]"
+              className="lux-button inline-flex items-center justify-center px-10 py-[0.9rem] bg-[#C5A880] text-[#111111] font-[family-name:var(--font-manrope)] text-[0.78rem] font-semibold tracking-[0.25em] uppercase rounded-full border border-[#C5A880] hover:bg-transparent hover:text-[#C5A880]"
             >
               Book Appointment
             </Link>
@@ -193,7 +198,7 @@ export default function Navbar() {
           {navConfig.map((item) => (
             <div
               key={item.label}
-              className="border border-[rgba(255,255,255,0.05)] rounded-2xl py-4 px-5 bg-[rgba(255,255,255,0.02)]"
+              className="border border-[rgba(255,255,255,0.08)] rounded-2xl py-4 px-5 bg-[rgba(255,255,255,0.03)] transition-colors duration-300 hover:border-[rgba(197,168,128,0.35)]"
             >
               <div className="flex items-center justify-between font-[family-name:var(--font-playfair)] text-base uppercase tracking-[0.15em]">
                 <p>{item.label}</p>
@@ -219,7 +224,7 @@ export default function Navbar() {
                   <Link
                     href={item.href}
                     onClick={closeDrawer}
-                    className="font-[family-name:var(--font-manrope)] text-[0.9rem] text-[rgba(245,245,245,0.85)] no-underline hover:text-[#c89b7b]"
+                    className="font-[family-name:var(--font-manrope)] text-[0.9rem] text-[rgba(245,245,245,0.85)] no-underline transition-all duration-300 hover:translate-x-1 hover:text-[#c89b7b]"
                   >
                     {item.label}
                   </Link>
@@ -232,7 +237,7 @@ export default function Navbar() {
           <Link
             href="/reserve"
             onClick={closeDrawer}
-            className="block w-full text-center p-4 rounded-full bg-[#C5A880] text-[#05110e] font-[family-name:var(--font-manrope)] tracking-[0.2em] uppercase text-[0.85rem]"
+            className="lux-button block w-full text-center p-4 rounded-full bg-[#C5A880] text-[#05110e] font-[family-name:var(--font-manrope)] tracking-[0.2em] uppercase text-[0.85rem]"
           >
             Book Appointment
           </Link>

@@ -22,6 +22,8 @@ const initialForm = {
 
 export default function MarqueeControlPage() {
   const [rows, setRows] = useState([]);
+  const [usingDefaults, setUsingDefaults] = useState(false);
+  const [dbCount, setDbCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mode, setMode] = useState('create');
@@ -32,8 +34,14 @@ export default function MarqueeControlPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [progressLabel, setProgressLabel] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isSeeding, setIsSeeding] = useState(false);
 
-  const rowCountLabel = useMemo(() => `${rows.length} marquee logos configured`, [rows.length]);
+  const rowCountLabel = useMemo(() => {
+    if (usingDefaults) {
+      return `${dbCount} in database · ${rows.length} shown on homepage (built-in placeholders until you add or seed)`;
+    }
+    return `${dbCount} marquee logo${dbCount === 1 ? '' : 's'} in database`;
+  }, [dbCount, rows.length, usingDefaults]);
 
   function formatFileSize(bytes) {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -58,14 +66,36 @@ export default function MarqueeControlPage() {
   async function fetchRows() {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/admin/marquee-logos', { cache: 'no-store' });
+      const res = await fetch('/api/admin/marquee-logos', { credentials: 'include', cache: 'no-store' });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || 'Failed to fetch marquee logos.');
+      setUsingDefaults(!!data.usingDefaults);
+      setDbCount(typeof data.count === 'number' ? data.count : (data.data || []).filter((r) => !r.isBuiltInDefault).length);
       setRows(data.data || []);
     } catch (fetchError) {
       setError(fetchError.message || 'Failed to fetch marquee logos.');
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function seedDefaults() {
+    setError('');
+    setStatus('');
+    setIsSeeding(true);
+    try {
+      const res = await fetch('/api/admin/marquee-logos', {
+        method: 'PUT',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || 'Seed failed.');
+      setStatus(data.message || 'Defaults seeded.');
+      await fetchRows();
+    } catch (seedError) {
+      setError(seedError.message || 'Seed failed.');
+    } finally {
+      setIsSeeding(false);
     }
   }
 
@@ -130,7 +160,7 @@ export default function MarqueeControlPage() {
     setError('');
     setStatus('');
     try {
-      const res = await fetch(`/api/admin/marquee-logos/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/marquee-logos/${id}`, { method: 'DELETE', credentials: 'include' });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || 'Delete failed.');
       setStatus('Marquee logo deleted successfully.');
@@ -157,6 +187,7 @@ export default function MarqueeControlPage() {
       const method = mode === 'create' ? 'POST' : 'PATCH';
       const res = await fetch(url, {
         method,
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
@@ -182,12 +213,33 @@ export default function MarqueeControlPage() {
             <p className="mt-2 text-sm text-neutral-400">Manage floating premium logos shown on the home marquee.</p>
             <p className="mt-3 text-xs uppercase tracking-[0.2em] text-[#C5A880]">{rowCountLabel}</p>
           </div>
-          <button type="button" onClick={openCreateModal} className="inline-flex items-center gap-2 rounded-xl border border-[#C5A880]/70 bg-[#C5A880]/15 px-4 py-2 text-sm font-semibold text-[#C5A880] transition-colors hover:bg-[#C5A880]/25">
-            <Plus className="h-4 w-4" />
-            Add Logo
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            {usingDefaults ? (
+              <button
+                type="button"
+                onClick={seedDefaults}
+                disabled={isSeeding}
+                className="inline-flex items-center gap-2 rounded-xl border border-emerald-400/50 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-emerald-200 transition-colors hover:bg-emerald-400/20 disabled:opacity-60"
+              >
+                {isSeeding ? 'Seeding…' : 'Copy defaults to database'}
+              </button>
+            ) : null}
+            <button type="button" onClick={openCreateModal} className="inline-flex items-center gap-2 rounded-xl border border-[#C5A880]/70 bg-[#C5A880]/15 px-4 py-2 text-sm font-semibold text-[#C5A880] transition-colors hover:bg-[#C5A880]/25">
+              <Plus className="h-4 w-4" />
+              Add Logo
+            </button>
+          </div>
         </div>
       </header>
+
+      {usingDefaults ? (
+        <div className="rounded-2xl border border-amber-400/35 bg-amber-400/10 px-4 py-3 text-sm text-amber-100/95">
+          <p className="font-medium text-amber-50">Homepage is using built-in placeholder brands</p>
+          <p className="mt-1 text-amber-100/80">
+            The moving marquee you see on the live site matches the rows below, but they are not stored in MongoDB yet. Use &quot;Copy defaults to database&quot; to turn them into real records you can edit and delete, or add your own logos with &quot;Add Logo&quot;.
+          </p>
+        </div>
+      ) : null}
 
       <section className="overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-black/20 backdrop-blur-md shadow-[0_22px_46px_rgba(0,0,0,0.35)]">
         <div className="overflow-x-auto">
@@ -204,22 +256,45 @@ export default function MarqueeControlPage() {
             </thead>
             <tbody className="divide-y divide-white/10">
               {isLoading ? <tr><td colSpan={6} className="px-6 py-8 text-center text-sm text-neutral-400">Loading marquee logos...</td></tr> : null}
-              {!isLoading && rows.length === 0 ? <tr><td colSpan={6} className="px-6 py-8 text-center text-sm text-neutral-400">No marquee logos found.</td></tr> : null}
+              {!isLoading && rows.length === 0 ? <tr><td colSpan={6} className="px-6 py-8 text-center text-sm text-neutral-400">No marquee logos in the database.</td></tr> : null}
               {rows.map((row) => (
                 <tr key={row._id} className="text-sm text-neutral-200 transition-all hover:bg-white/[0.04]">
-                  <td className="px-6 py-4"><img src={row.logoUrl} alt={row.name} className="h-14 w-14 rounded-lg border border-white/10 bg-black/30 object-contain p-1" /></td>
+                  <td className="px-6 py-4"><img src={row.logoUrl || '/newLogo.png'} alt={row.name} className="h-14 w-14 rounded-lg border border-white/10 bg-black/30 object-contain p-1" /></td>
                   <td className="px-6 py-4 font-medium text-white">{row.name}</td>
                   <td className="px-6 py-4 text-neutral-300">{row.detail || '-'}</td>
                   <td className="px-6 py-4 text-neutral-300">{row.sortOrder ?? 0}</td>
                   <td className="px-6 py-4">
-                    <span className={`rounded-full border px-3 py-1 text-xs ${row.isActive ? 'border-emerald-300/40 bg-emerald-300/10 text-emerald-200' : 'border-neutral-500/40 bg-neutral-500/10 text-neutral-300'}`}>
-                      {row.isActive ? 'Active' : 'Hidden'}
-                    </span>
+                    <div className="flex flex-col gap-1.5">
+                      <span className={`inline-flex w-fit rounded-full border px-3 py-1 text-xs ${row.isActive ? 'border-emerald-300/40 bg-emerald-300/10 text-emerald-200' : 'border-neutral-500/40 bg-neutral-500/10 text-neutral-300'}`}>
+                        {row.isActive ? 'Active' : 'Hidden'}
+                      </span>
+                      {row.isBuiltInDefault ? (
+                        <span className="inline-flex w-fit rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 text-[10px] uppercase tracking-[0.15em] text-amber-100">
+                          Built-in · not in DB
+                        </span>
+                      ) : null}
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <button type="button" onClick={() => openEditModal(row)} className="rounded-lg border border-white/15 bg-black/30 p-2 text-neutral-300 transition-colors hover:border-[#C5A880]/70 hover:text-[#C5A880]"><Pencil className="h-4 w-4" /></button>
-                      <button type="button" onClick={() => setDeleteTarget(row)} className="rounded-lg border border-white/15 bg-black/30 p-2 text-neutral-300 transition-colors hover:border-red-400/70 hover:text-red-300"><Trash2 className="h-4 w-4" /></button>
+                      <button
+                        type="button"
+                        disabled={row.isBuiltInDefault}
+                        title={row.isBuiltInDefault ? 'Seed defaults to database first to edit this row' : 'Edit'}
+                        onClick={() => openEditModal(row)}
+                        className="rounded-lg border border-white/15 bg-black/30 p-2 text-neutral-300 transition-colors hover:border-[#C5A880]/70 hover:text-[#C5A880] disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={row.isBuiltInDefault}
+                        title={row.isBuiltInDefault ? 'Not stored in database' : 'Delete'}
+                        onClick={() => setDeleteTarget(row)}
+                        className="rounded-lg border border-white/15 bg-black/30 p-2 text-neutral-300 transition-colors hover:border-red-400/70 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -245,7 +320,7 @@ export default function MarqueeControlPage() {
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
-            <input value={form.logoUrl} onChange={(e) => setForm({ ...form, logoUrl: e.target.value })} required placeholder="Transparent logo URL (PNG/WebP/SVG)" className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+            <input value={form.logoUrl} onChange={(e) => setForm({ ...form, logoUrl: e.target.value })} placeholder="Transparent logo URL (optional — initials used if empty)" className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
             <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#C5A880]/50 bg-[#C5A880]/10 px-4 py-3 text-xs text-[#E4D3B4]">
               <UploadCloud className="h-4 w-4" />
               Upload High-Quality Logo
