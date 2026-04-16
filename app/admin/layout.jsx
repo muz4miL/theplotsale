@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { BarChart3, Building2, Home, LogOut, Newspaper, Sparkles } from 'lucide-react';
 
 const navItems = [
@@ -15,7 +16,34 @@ const navItems = [
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState('');
   const isLoginPage = pathname === '/admin/login';
+
+  async function handleSignOut() {
+    if (isSigningOut) return;
+    setIsSigningOut(true);
+    setSignOutError('');
+    try {
+      const res = await fetch('/api/admin/logout', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        setSignOutError(data.message || 'Could not sign out. Try again.');
+        return;
+      }
+      router.push('/admin/login');
+      router.refresh();
+    } catch {
+      setSignOutError('Network error. Check your connection and try again.');
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
 
   if (isLoginPage) {
     return <>{children}</>;
@@ -65,14 +93,19 @@ export default function AdminLayout({ children }) {
           })}
         </nav>
 
-        <div className="mt-8 border-t border-white/10 pt-6">
-          <Link
-            href="/admin/login"
-            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-black/35 px-4 py-3 text-sm font-medium text-neutral-300 transition-colors hover:border-[#C5A880]/60 hover:text-[#C5A880]"
+        <div className="mt-8 border-t border-white/10 pt-6 space-y-2">
+          {signOutError ? (
+            <p className="rounded-lg border border-red-400/40 bg-red-400/10 px-3 py-2 text-xs text-red-200">{signOutError}</p>
+          ) : null}
+          <button
+            type="button"
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-black/35 px-4 py-3 text-sm font-medium text-neutral-300 transition-colors hover:border-[#C5A880]/60 hover:text-[#C5A880] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <LogOut className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            Lock Console
-          </Link>
+            {isSigningOut ? 'Signing out…' : 'Sign out'}
+          </button>
         </div>
       </aside>
 
