@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
+import SafeListingImage from '@/components/shared/SafeListingImage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, MapPin, Maximize2 } from 'lucide-react';
 import ListingLogo from '@/components/ListingLogo';
@@ -21,14 +21,15 @@ export default function PakistanProjectsPage() {
       try {
         const response = await fetch('/api/projects', { cache: 'no-store' });
         const data = await response.json();
-        
-        if (data.success) {
+
+        if (response.ok && data.success) {
           setProjects(data.data);
         } else {
-          setError('Failed to load projects');
+          const apiMessage = data?.message || data?.error || 'Failed to load projects';
+          setError(apiMessage);
         }
       } catch (err) {
-        setError('An error occurred while fetching projects');
+        setError('Unable to connect to project service. Please try again shortly.');
         console.error('Error fetching projects:', err);
       } finally {
         setLoading(false);
@@ -47,8 +48,13 @@ export default function PakistanProjectsPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-400 text-lg">{error}</p>
+        <div className="mx-4 max-w-2xl rounded-2xl border border-[#C5A880]/30 bg-white/5 p-8 text-center backdrop-blur-md">
+          <p className="text-xs uppercase tracking-[0.3em] text-[#C5A880]">Projects Service Notice</p>
+          <p className="mt-4 text-red-300 text-lg">Unable to load live projects right now.</p>
+          <p className="mt-3 text-sm text-white/70">{error}</p>
+          <p className="mt-4 text-xs text-white/50">
+            If this is production, verify Vercel environment variables and MongoDB network access.
+          </p>
         </div>
       </div>
     );
@@ -157,11 +163,8 @@ function ProjectCard({ project, index }) {
       <div className="relative h-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-black/35 backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:border-[#C5A880]/50 hover:shadow-[0_24px_48px_rgba(0,0,0,0.38)]">
           {/* Wide Format Image */}
           <div className="relative h-80 overflow-hidden">
-            <Image
-              src={
-                project.mainImage ||
-                'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop'
-              }
+            <SafeListingImage
+              src={project.mainImage}
               alt={project.title}
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-700"

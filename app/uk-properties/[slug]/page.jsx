@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
+import SafeListingImage from '@/components/shared/SafeListingImage';
 import { motion } from 'framer-motion';
 import { Bed, Bath, Maximize, MapPin, ArrowLeft, X } from 'lucide-react';
 import ListingLogo from '@/components/ListingLogo';
@@ -94,7 +94,7 @@ export default function PropertyDetailPage() {
 
       {/* Hero Image */}
       <section className="relative h-screen">
-        <Image
+        <SafeListingImage
           src={property.mainImage}
           alt={property.title}
           fill
@@ -192,7 +192,7 @@ export default function PropertyDetailPage() {
                       setLightboxOpen(true);
                     }}
                   >
-                    <Image
+                    <SafeListingImage
                       src={image}
                       alt={`${property.title} - Image ${index + 1}`}
                       fill
@@ -267,7 +267,7 @@ function Lightbox({ images, currentIndex, onClose, onNavigate }) {
       </button>
 
       <div className="relative w-full max-w-6xl aspect-video" onClick={(e) => e.stopPropagation()}>
-        <Image
+        <SafeListingImage
           src={images[currentIndex]}
           alt={`Gallery image ${currentIndex + 1}`}
           fill

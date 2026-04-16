@@ -2,8 +2,8 @@
 
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import Image from 'next/image';
 import { Bed, Bath, Maximize } from 'lucide-react';
+import SafeListingImage from '@/components/shared/SafeListingImage';
 
 const propertiesData = [
     {
@@ -129,7 +129,7 @@ export default function Properties() {
                         >
                             {/* Property Image */}
                             <div className="relative w-full aspect-[4/3] overflow-hidden">
-                                <Image
+                                <SafeListingImage
                                     src={property.image}
                                     alt={property.title}
                                     fill

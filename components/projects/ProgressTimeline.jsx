@@ -1,8 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 import { Calendar } from 'lucide-react';
+import SafeListingImage from '@/components/shared/SafeListingImage';
 
 export default function ProgressTimeline({ progressUpdates }) {
   if (!progressUpdates || progressUpdates.length === 0) {
@@ -91,7 +91,7 @@ function TimelineItem({ update, index }) {
                   />
                 ) : (
                   <>
-                    <Image
+                    <SafeListingImage
                       src={url}
                       alt={`${update.title} - Image ${mediaIndex + 1}`}
                       fill

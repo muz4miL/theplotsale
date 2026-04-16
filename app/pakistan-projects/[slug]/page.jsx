@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
+import SafeListingImage from '@/components/shared/SafeListingImage';
 import { motion } from 'framer-motion';
 import { MapPin, Maximize2, ArrowLeft, FileText } from 'lucide-react';
 import ProgressTimeline from '@/components/projects/ProgressTimeline';
@@ -94,8 +94,8 @@ export default function ProjectDetailPage() {
 
       {/* Hero Image */}
       <section className="relative h-screen">
-        <Image
-          src={project.mainImage || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop'}
+        <SafeListingImage
+          src={project.mainImage}
           alt={project.title}
           fill
           priority
@@ -196,7 +196,7 @@ export default function ProjectDetailPage() {
                 <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
                   {imageGallery.map((url) => (
                     <div key={url} className="relative h-44 overflow-hidden rounded-xl border border-white/10">
-                      <Image src={url} alt={project.title} fill className="object-cover" sizes="33vw" />
+                      <SafeListingImage src={url} alt={project.title} fill className="object-cover" sizes="33vw" />
                     </div>
                   ))}
                 </div>

@@ -1,8 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 import { Bed, Bath, Maximize, MapPin } from 'lucide-react';
+import SafeListingImage from '@/components/shared/SafeListingImage';
 import ExtraordinaryCta from '@/components/shared/ExtraordinaryCta';
 
 const properties = [
@@ -122,7 +122,7 @@ export default function PropertiesPage() {
             >
               {/* Image Container */}
               <div className="relative h-[320px] overflow-hidden">
-                <Image
+                <SafeListingImage
                   src={property.image}
                   alt={property.title}
                   fill

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
+import SafeListingImage from '@/components/shared/SafeListingImage';
 import { motion } from 'framer-motion';
 import { Bed, Bath, Maximize, ArrowUpRight } from 'lucide-react';
 import ListingLogo from '@/components/ListingLogo';
@@ -121,7 +121,7 @@ function PropertyCard({ property }) {
       <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-black/35 backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:border-[#C5A880]/55 hover:shadow-[0_24px_48px_rgba(0,0,0,0.35)]">
         {/* Image */}
         <div className="relative h-64 overflow-hidden">
-          <Image
+          <SafeListingImage
             src={property.mainImage}
             alt={property.title}
             fill

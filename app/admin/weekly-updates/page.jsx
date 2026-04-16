@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { Clock3, Film, PlayCircle } from 'lucide-react';
 import AddProgressForm from '@/components/admin/AddProgressForm';
+import { LISTING_IMAGE_FALLBACK, resolveListingImageSrc } from '@/lib/listing-images';
 
 export default function WeeklyUpdatesPage() {
   const [recentUploads, setRecentUploads] = useState([]);
@@ -75,9 +76,12 @@ export default function WeeklyUpdatesPage() {
             >
               <div className="relative">
                 <img
-                  src={item.mediaUrls[0] || 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=900&auto=format&fit=crop'}
+                  src={resolveListingImageSrc(item.mediaUrls[0], LISTING_IMAGE_FALLBACK)}
                   alt={item.title}
                   className="h-44 w-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = LISTING_IMAGE_FALLBACK;
+                  }}
                 />
                 <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-md border border-white/20 bg-black/60 px-2 py-1 text-xs text-white">
                   <Clock3 className="h-3.5 w-3.5" />
