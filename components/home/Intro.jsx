@@ -1,13 +1,15 @@
 'use client';
 
 import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { LuxurySectionOrbs } from '@/components/shared/LuxuryMotionAccents';
 import { BarChart3, Building2, Handshake } from 'lucide-react';
 import Image from 'next/image';
 
 export default function Intro() {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+  const prefersReducedMotion = useReducedMotion();
 
   const curtainVariant = {
     hidden: { scaleX: 1 },
@@ -70,6 +72,7 @@ export default function Intro() {
       ref={sectionRef}
       className="relative w-full overflow-x-hidden bg-[#0A0A0A] min-h-[85vh] flex items-center justify-center py-12 lg:py-16"
     >
+      <LuxurySectionOrbs />
 
       <div
         className="absolute inset-0 opacity-[0.015] pointer-events-none mix-blend-overlay"
@@ -202,9 +205,20 @@ export default function Intro() {
                       ease: [0.16, 1, 0.3, 1],
                     }}
                   >
-                    <div className="w-9 h-9 rotate-45 border border-white/10 flex items-center justify-center group-hover:border-[#C5A880]/40 transition-all duration-300 shrink-0">
-                      <feature.icon className="w-4 h-4 text-[#C5A880] -rotate-45" strokeWidth={1.5} />
-                    </div>
+                    <motion.div
+                      className="shrink-0"
+                      animate={prefersReducedMotion || !isInView ? {} : { y: [0, -5, 0] }}
+                      transition={{
+                        duration: 4.5 + index * 0.4,
+                        repeat: Infinity,
+                        ease: 'easeInOut',
+                        delay: index * 0.2,
+                      }}
+                    >
+                      <div className="w-9 h-9 rotate-45 border border-white/10 flex items-center justify-center group-hover:border-[#C5A880]/40 transition-all duration-300">
+                        <feature.icon className="w-4 h-4 text-[#C5A880] -rotate-45" strokeWidth={1.5} />
+                      </div>
+                    </motion.div>
                     <span className="text-white/70 text-sm font-medium">
                       {feature.label}
                     </span>

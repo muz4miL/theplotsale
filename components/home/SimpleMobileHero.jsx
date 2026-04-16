@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
+import { LuxurySkylineGlyph } from '@/components/shared/LuxuryMotionAccents';
 
 const VIDEOS = ['/videos/1.mp4', '/videos/2.mp4', '/videos/3.mp4'];
 
@@ -165,6 +166,10 @@ export default function SimpleMobileHero() {
 
         {/* Gradient Overlay */}
         <div className="absolute inset-0 z-15 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+        <div className="pointer-events-none absolute bottom-[5.5rem] right-3 z-[16] opacity-25">
+          <LuxurySkylineGlyph className="h-10 w-28" />
+        </div>
 
         {/* Brand Identity Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-6 z-20">

@@ -1,39 +1,59 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import Lenis from 'lenis';
+
+function shouldSkipLenis() {
+  if (typeof window === 'undefined') return true;
+  // Touch / coarse pointer: native scroll avoids Lenis crashes on iOS Safari and keeps UX natural.
+  const coarse =
+    window.matchMedia?.('(pointer: coarse)').matches ||
+    window.matchMedia?.('(hover: none)').matches ||
+    'ontouchstart' in window ||
+    (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0);
+  return Boolean(coarse);
+}
 
 export default function SmoothScroll({ children }) {
   const lenisRef = useRef(null);
 
   useEffect(() => {
-    // Initialize Lenis with luxury settings
-    const lenis = new Lenis({
-      duration: 1.2,        // Longer duration for more luxurious feel
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Custom easing for smooth deceleration
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      smoothWheel: true,
-      wheelMultiplier: 1,   // Adjust scroll speed (lower = slower, more deliberate)
-      smoothTouch: false,   // Keep touch scrolling native for better mobile UX
-      touchMultiplier: 2,
-      infinite: false,
-    });
-
-    lenisRef.current = lenis;
-
-    // Request animation frame loop
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
+    if (shouldSkipLenis()) {
+      return undefined;
     }
 
-    requestAnimationFrame(raf);
+    let rafId;
+    try {
+      const lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: 'vertical',
+        gestureOrientation: 'vertical',
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        smoothTouch: false,
+        touchMultiplier: 2,
+        infinite: false,
+      });
 
-    // Cleanup
-    return () => {
-      lenis.destroy();
-    };
+      lenisRef.current = lenis;
+
+      function raf(time) {
+        lenis.raf(time);
+        rafId = requestAnimationFrame(raf);
+      }
+
+      rafId = requestAnimationFrame(raf);
+
+      return () => {
+        if (rafId) cancelAnimationFrame(rafId);
+        lenis.destroy();
+        lenisRef.current = null;
+      };
+    } catch (e) {
+      console.warn('Lenis init skipped:', e?.message || e);
+      return undefined;
+    }
   }, []);
 
   return <>{children}</>;

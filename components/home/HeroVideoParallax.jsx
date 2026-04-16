@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import SimpleMobileHero from './SimpleMobileHero';
+import { LuxurySkylineGlyph } from '@/components/shared/LuxuryMotionAccents';
 
 export default function HeroVideoParallax() {
   // All refs
@@ -374,6 +375,10 @@ export default function HeroVideoParallax() {
           </div>
 
           <div ref={anchorLineRef} className="absolute left-1/2 top-1/2 z-20 h-0 -translate-x-1/2 -translate-y-1/2 opacity-0" style={{ width: '0.5px', background: 'linear-gradient(to bottom, transparent, rgba(197, 168, 128, 0.3), transparent)' }} />
+
+          <div className="pointer-events-none absolute bottom-28 right-5 z-[45] hidden opacity-[0.28] lg:block xl:right-10">
+            <LuxurySkylineGlyph className="h-14 w-36" />
+          </div>
 
           <div ref={scrollIndicatorRef} className="absolute bottom-8 md:bottom-12 left-1/2 z-50 -translate-x-1/2">
             <div className="flex flex-col items-center">

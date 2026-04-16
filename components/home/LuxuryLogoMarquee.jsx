@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import ListingLogo from '@/components/ListingLogo';
 import { MARQUEE_DEFAULT_BRANDS } from '@/lib/marquee-defaults';
+import { LuxuryEdgeShimmer, LuxurySectionOrbs } from '@/components/shared/LuxuryMotionAccents';
 
 const fallbackItems = MARQUEE_DEFAULT_BRANDS.map((item) => ({
   name: item.name,
@@ -56,9 +57,11 @@ export default function LuxuryLogoMarquee() {
 
   return (
     <section className="relative overflow-hidden border-y border-white/10 bg-neutral-950 py-14">
-      <div className="mx-auto mb-10 max-w-7xl px-6 text-center">
+      <LuxurySectionOrbs />
+      <div className="relative mx-auto mb-10 max-w-7xl px-6 text-center">
         <p className="text-[10px] uppercase tracking-[0.5em] text-[#C5A880]">Global Confidence Layer</p>
         <h3 className="mt-3 text-2xl font-semibold text-white md:text-3xl">Trusted by Elite Property Networks</h3>
+        <LuxuryEdgeShimmer className="mx-auto mt-6 max-w-xs md:max-w-sm" />
       </div>
 
       <div className="relative">

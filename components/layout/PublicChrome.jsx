@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { Navbar, Footer } from '@/components/layout';
 import Preloader from '@/components/Preloader';
 import SmoothScroll from '@/components/SmoothScroll';
+import { LuxuryGlobalAmbient } from '@/components/shared/LuxuryMotionAccents';
 
 export default function PublicChrome({ children }) {
   const pathname = usePathname();
@@ -17,7 +18,8 @@ export default function PublicChrome({ children }) {
     <SmoothScroll>
       <Preloader />
       <Navbar />
-      <main>{children}</main>
+      <LuxuryGlobalAmbient />
+      <main className="relative z-10">{children}</main>
       <Footer />
     </SmoothScroll>
   );

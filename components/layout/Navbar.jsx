@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
-import NavDropdown from './NavDropdown';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 
 const navConfig = [
   { label: 'Home', href: '/' },
@@ -15,13 +15,39 @@ const navConfig = [
   { label: 'Contact Us', href: '/contact' },
 ];
 
+function isNavActive(href, pathname) {
+  if (!pathname) return false;
+  if (href === '/') return pathname === '/';
+  if (href === '/properties') {
+    return pathname.startsWith('/properties') || pathname.startsWith('/uk-properties');
+  }
+  if (href === '/projects') {
+    return pathname === '/projects' || pathname.startsWith('/pakistan-projects');
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+const drawerLinkVariants = {
+  closed: { opacity: 0, x: 28 },
+  open: (i) => ({
+    opacity: 1,
+    x: 0,
+    transition: {
+      delay: 0.08 + i * 0.055,
+      duration: 0.45,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  }),
+};
+
 export default function Navbar() {
   const pathname = usePathname();
+  const prefersReducedMotion = useReducedMotion();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 32);
+    const handleScroll = () => setIsScrolled(window.scrollY > 24);
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -80,89 +106,134 @@ export default function Navbar() {
   const toggleDrawer = () => setIsDrawerOpen((prev) => !prev);
   const closeDrawer = () => setIsDrawerOpen(false);
 
-
+  const pillTransition = prefersReducedMotion
+    ? { duration: 0.2 }
+    : { type: 'spring', stiffness: 420, damping: 34, mass: 0.85 };
 
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-[60] px-[clamp(1.5rem,4vw,3rem)] transition-all duration-[350ms] ease-out border-b ${isScrolled
-          ? 'bg-[rgba(10,16,15,0.85)] backdrop-blur-[18px] border-b-[rgba(255,255,255,0.08)] py-[0.85rem] shadow-[0_10px_35px_rgba(0,0,0,0.35)]'
-          : 'border-b-transparent py-5'
-          }`}
+        className={`fixed top-0 left-0 right-0 z-[60] px-[clamp(1.25rem,3.5vw,2.75rem)] transition-[padding,background,border,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          isScrolled
+            ? 'border-b border-white/[0.09] bg-[rgba(6,10,9,0.88)] py-3 shadow-[0_12px_40px_rgba(0,0,0,0.45)] supports-[backdrop-filter]:backdrop-blur-xl'
+            : 'border-b border-transparent bg-gradient-to-b from-black/55 via-black/20 to-transparent py-4 supports-[backdrop-filter]:backdrop-blur-[6px] lg:py-5'
+        }`}
       >
-        <div className="mx-auto max-w-[1440px] flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-3 no-underline" aria-label="ThePlotSale.com">
-            <div className="flex items-center shrink-0">
+        <div
+          className={`pointer-events-none absolute bottom-0 left-[8%] right-[8%] h-px bg-gradient-to-r from-transparent via-[#C5A880]/35 to-transparent transition-opacity duration-500 ${
+            isScrolled ? 'opacity-100' : 'opacity-40'
+          }`}
+          aria-hidden
+        />
+
+        <div className="relative mx-auto flex max-w-[1440px] items-center gap-4 lg:gap-6">
+          <Link
+            href="/"
+            className="group flex items-center gap-2.5 no-underline sm:gap-3"
+            aria-label="The Plot Sale home"
+          >
+            <div className="relative flex shrink-0 items-center">
+              <span className="absolute -inset-1 rounded-full bg-[#C5A880]/0 opacity-0 blur-md transition-all duration-500 group-hover:bg-[#C5A880]/15 group-hover:opacity-100" />
               <Image
                 src="/newLogo.png"
-                alt="The Plot Sale"
-                width={45}
-                height={45}
+                alt=""
+                width={44}
+                height={44}
                 priority
-                className="object-contain"
+                className="relative object-contain transition-transform duration-500 group-hover:scale-[1.03]"
               />
             </div>
-            <div className="flex flex-col leading-none">
-              <span className="font-[family-name:var(--font-playfair)] text-[1.05rem] tracking-[0.35em] uppercase text-[var(--text-light)]">
+            <div className="hidden flex-col leading-none sm:flex">
+              <span className="font-[family-name:var(--font-playfair)] text-[0.95rem] tracking-[0.32em] text-[var(--text-light)] transition-colors group-hover:text-white sm:text-[1.02rem]">
                 ThePlotSale
               </span>
-              <span className="font-[family-name:var(--font-manrope)] text-[0.55rem] tracking-[0.35em] uppercase text-[#C5A880]">
+              <span className="font-[family-name:var(--font-manrope)] text-[0.5rem] tracking-[0.38em] text-[#C5A880] sm:text-[0.55rem]">
                 .com
               </span>
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-11 ml-auto">
+          {/* Desktop — pill rail + sliding active indicator */}
+          <nav
+            className="ml-auto hidden items-center gap-0.5 rounded-full border border-white/[0.08] bg-black/25 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] supports-[backdrop-filter]:backdrop-blur-md lg:flex"
+            aria-label="Primary"
+          >
             {navConfig.map((item) => {
-              if (item.items) {
-                return (
-                  <NavDropdown
-                    key={item.label}
-                    title={item.label}
-                    items={item.items}
-                  />
-                );
-              }
-
+              const active = isNavActive(item.href, pathname);
               return (
                 <Link
-                  key={item.label}
+                  key={item.href}
                   href={item.href}
-                  className={`lux-nav-link font-[family-name:var(--font-manrope)] text-[0.78rem] tracking-[0.18em] uppercase no-underline transition-colors duration-300 ${pathname === item.href
-                    ? 'is-active text-[#C5A880]'
-                    : 'text-[rgba(245,245,245,0.85)] hover:text-[#C5A880]'
-                    }`}
+                  className={`relative rounded-full px-3.5 py-2.5 no-underline outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-[#C5A880]/50 xl:px-4 xl:py-2.5 ${
+                    active ? 'text-[#f5f0e6]' : 'text-[rgba(245,245,245,0.72)] hover:text-white'
+                  }`}
                 >
-                  {item.label}
+                  {active ? (
+                    <motion.span
+                      layoutId="navbar-active-pill"
+                      className="absolute inset-0 rounded-full border border-[#C5A880]/45 bg-[#C5A880]/[0.14] shadow-[0_0_24px_rgba(197,168,128,0.12)]"
+                      transition={pillTransition}
+                      aria-hidden
+                    />
+                  ) : null}
+                  <span className="relative z-10 font-[family-name:var(--font-manrope)] text-[0.68rem] font-medium uppercase tracking-[0.16em] xl:text-[0.72rem] xl:tracking-[0.18em]">
+                    {item.label.replace(/ /g, '\u00A0')}
+                  </span>
                 </Link>
               );
             })}
           </nav>
 
-          <div className="hidden xl:block">
+          <div className="hidden lg:block">
             <Link
-              href="/reserve"
-              className="lux-button inline-flex items-center justify-center px-10 py-[0.9rem] bg-[#C5A880] text-[#111111] font-[family-name:var(--font-manrope)] text-[0.78rem] font-semibold tracking-[0.25em] uppercase rounded-full border border-[#C5A880] hover:bg-transparent hover:text-[#C5A880]"
+              href="/contact"
+              className="lux-button inline-flex items-center justify-center rounded-full border border-[#C5A880] bg-[#C5A880] px-7 py-2.5 font-[family-name:var(--font-manrope)] text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-[#111111] transition-colors hover:bg-transparent hover:text-[#C5A880] xl:px-9 xl:py-[0.85rem] xl:text-[0.74rem] xl:tracking-[0.25em]"
             >
-              Book Appointment
+              Book appointment
             </Link>
           </div>
 
           <button
-            className="ml-auto lg:hidden flex w-11 h-11 items-center justify-center border border-[rgba(197,168,128,0.4)] rounded-xl bg-transparent text-[#C5A880] cursor-pointer"
+            type="button"
+            className="ml-auto flex h-11 w-11 items-center justify-center rounded-full border border-[#C5A880]/35 bg-black/30 text-[#C5A880] shadow-[0_4px_24px_rgba(0,0,0,0.25)] transition-all duration-300 hover:border-[#C5A880]/55 hover:bg-[#C5A880]/10 lg:hidden"
             onClick={toggleDrawer}
-            aria-label="Toggle navigation menu"
+            aria-label={isDrawerOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isDrawerOpen}
             aria-controls="mobile-navigation-drawer"
           >
-            {isDrawerOpen ? <X size={22} /> : <Menu size={22} />}
+            <AnimatePresence mode="wait" initial={false}>
+              {isDrawerOpen ? (
+                <motion.span
+                  key="close"
+                  initial={{ opacity: 0, rotate: -90 }}
+                  animate={{ opacity: 1, rotate: 0 }}
+                  exit={{ opacity: 0, rotate: 90 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex"
+                >
+                  <X size={20} strokeWidth={1.75} />
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="open"
+                  initial={{ opacity: 0, rotate: 90 }}
+                  animate={{ opacity: 1, rotate: 0 }}
+                  exit={{ opacity: 0, rotate: -90 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex"
+                >
+                  <Menu size={20} strokeWidth={1.75} />
+                </motion.span>
+              )}
+            </AnimatePresence>
           </button>
         </div>
       </header>
 
       <div
-        className={`fixed inset-0 bg-[rgba(0,0,0,0.45)] z-[70] transition-opacity duration-300 ${isDrawerOpen ? 'opacity-100 visible pointer-events-auto' : 'opacity-0 invisible pointer-events-none'
-          }`}
+        className={`fixed inset-0 z-[70] bg-black/55 transition-[opacity,backdrop-filter] duration-300 supports-[backdrop-filter]:backdrop-blur-sm ${
+          isDrawerOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+        }`}
         onClick={closeDrawer}
         aria-hidden={!isDrawerOpen}
       />
@@ -173,74 +244,79 @@ export default function Navbar() {
         aria-modal="true"
         aria-label="Site navigation"
         aria-hidden={!isDrawerOpen}
-        className={`fixed top-0 right-0 h-[100dvh] max-h-[100dvh] w-[min(360px,85vw)] bg-[#05110e] text-[#f5f5f5] z-[80] flex flex-col gap-6 border-l border-[rgba(197,168,128,0.2)] overflow-hidden transition-transform duration-[350ms] ease-out ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'
-          }`}
+        className={`fixed top-0 right-0 z-[80] flex h-[100dvh] max-h-[100dvh] w-[min(400px,92vw)] flex-col border-l border-[#C5A880]/20 bg-[#030706]/95 text-[#f5f5f5] shadow-[-24px_0_60px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] supports-[backdrop-filter]:backdrop-blur-2xl ${
+          isDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
         style={{
-          paddingTop: 'max(1.5rem, env(safe-area-inset-top))',
-          paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom) + 1rem))',
+          paddingTop: 'max(1.25rem, env(safe-area-inset-top))',
+          paddingBottom: 'max(1.25rem, calc(env(safe-area-inset-bottom) + 0.75rem))',
           paddingLeft: '1.5rem',
           paddingRight: '1.5rem',
         }}
       >
-        <div className="flex items-center justify-between">
-          <p className="tracking-[0.3em] text-xs uppercase text-[rgba(245,245,245,0.7)]">
-            The Plot Sale Navigation
-          </p>
+        <div className="flex items-center justify-between border-b border-white/[0.06] pb-5">
+          <div>
+            <p className="font-playfair text-lg tracking-wide text-white">Menu</p>
+            <p className="mt-0.5 font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.3em] text-[#C5A880]/80">
+              The Plot Sale
+            </p>
+          </div>
           <button
-            className="w-9 h-9 rounded-full border border-[rgba(197,168,128,0.3)] bg-transparent text-[#C5A880] flex items-center justify-center cursor-pointer"
+            type="button"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-white/80 transition-colors hover:border-[#C5A880]/50 hover:text-[#C5A880]"
             aria-label="Close menu"
             onClick={closeDrawer}
           >
-            <X size={20} />
+            <X size={18} strokeWidth={1.75} />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto overscroll-contain flex flex-col gap-4">
-          {navConfig.map((item) => (
-            <div
-              key={item.label}
-              className="border border-[rgba(255,255,255,0.08)] rounded-2xl py-4 px-5 bg-[rgba(255,255,255,0.03)] transition-colors duration-300 hover:border-[rgba(197,168,128,0.35)]"
-            >
-              <div className="flex items-center justify-between font-[family-name:var(--font-playfair)] text-base uppercase tracking-[0.15em]">
-                <p>{item.label}</p>
-                {item.items && (
-                  <span className="font-[family-name:var(--font-manrope)] text-[0.65rem] tracking-[0.3em] text-[rgba(200,155,123,0.8)]">
-                    Explore
-                  </span>
-                )}
-              </div>
-              <div className="flex flex-col mt-3 gap-2">
-                {item.items ? (
-                  item.items.map((child) => (
-                    <Link
-                      key={child.label}
-                      href={child.href}
-                      onClick={closeDrawer}
-                      className="font-[family-name:var(--font-manrope)] text-[0.9rem] text-[rgba(245,245,245,0.85)] no-underline hover:text-[#c89b7b]"
-                    >
-                      {child.label}
-                    </Link>
-                  ))
-                ) : (
-                  <Link
-                    href={item.href}
-                    onClick={closeDrawer}
-                    className="font-[family-name:var(--font-manrope)] text-[0.9rem] text-[rgba(245,245,245,0.85)] no-underline transition-all duration-300 hover:translate-x-1 hover:text-[#c89b7b]"
-                  >
+
+        <nav className="flex flex-1 flex-col overflow-y-auto overscroll-contain py-2" aria-label="Mobile primary">
+          {navConfig.map((item, i) => {
+            const active = isNavActive(item.href, pathname);
+            return (
+              <motion.div
+                key={item.href}
+                custom={i}
+                initial="closed"
+                animate={isDrawerOpen ? 'open' : 'closed'}
+                variants={drawerLinkVariants}
+              >
+                <Link
+                  href={item.href}
+                  onClick={closeDrawer}
+                  className={`group relative block border-b border-white/[0.06] py-5 pl-4 no-underline transition-colors ${
+                    active ? 'text-white' : 'text-white/65 hover:text-white'
+                  }`}
+                >
+                  <span
+                    className={`absolute left-0 top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-full bg-[#C5A880] transition-opacity duration-300 ${
+                      active ? 'opacity-100' : 'opacity-0 group-hover:opacity-40'
+                    }`}
+                  />
+                  <span className="block font-playfair text-[1.35rem] font-light leading-tight tracking-tight sm:text-2xl">
                     {item.label}
-                  </Link>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div>
+                  </span>
+                  <span className="mt-1 block font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.28em] text-[#C5A880]/50">
+                    {active ? 'Current' : 'View'}
+                  </span>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </nav>
+
+        <div className="border-t border-white/[0.06] pt-5">
           <Link
-            href="/reserve"
+            href="/contact"
             onClick={closeDrawer}
-            className="lux-button block w-full text-center p-4 rounded-full bg-[#C5A880] text-[#05110e] font-[family-name:var(--font-manrope)] tracking-[0.2em] uppercase text-[0.85rem]"
+            className="lux-button flex w-full items-center justify-center rounded-full border border-[#C5A880] bg-[#C5A880] py-3.5 font-[family-name:var(--font-manrope)] text-[11px] font-semibold uppercase tracking-[0.22em] text-[#111111] hover:bg-[#d4b896]"
           >
-            Book Appointment
+            Book appointment
           </Link>
+          <p className="mt-3 text-center font-[family-name:var(--font-manrope)] text-[10px] text-white/35">
+            London · Lahore
+          </p>
         </div>
       </aside>
     </>

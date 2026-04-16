@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import SafeListingImage from '@/components/shared/SafeListingImage';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, MapPin, Maximize2 } from 'lucide-react';
-import ListingLogo from '@/components/ListingLogo';
 import ExtraordinaryCta from '@/components/shared/ExtraordinaryCta';
+import ProjectListingCard from '@/components/projects/ProjectListingCard';
+import FeaturedExxensSpotlight, {
+  pickFeaturedExxensProject,
+} from '@/components/projects/FeaturedExxensSpotlight';
 
 const TABS = ['Completed', 'Current', 'Upcoming'];
 
@@ -39,7 +40,15 @@ export default function PakistanProjectsPage() {
     fetchProjects();
   }, []);
 
-  const filteredProjects = projects.filter(project => project.status === activeTab);
+  const featuredProject = pickFeaturedExxensProject(projects);
+  const filteredProjects = projects.filter((project) => project.status === activeTab);
+  const gridProjects = filteredProjects.filter(
+    (p) => !featuredProject || String(p.slug) !== String(featuredProject.slug)
+  );
+  const flagshipIsSoleListingInTab =
+    Boolean(featuredProject) &&
+    filteredProjects.length > 0 &&
+    gridProjects.length === 0;
 
   if (loading) {
     return <LoadingSkeleton />;
@@ -61,46 +70,62 @@ export default function PakistanProjectsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-12 px-6">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-12"
-          >
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-              Pakistan Projects
-            </h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Explore premium master-planned communities and luxury developments
-            </p>
-          </motion.div>
+    <div className="min-h-screen bg-[#030706]">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(197,168,128,0.06),transparent)]" />
 
+      {/* Hero Section */}
+      <section className="relative px-5 pb-16 pt-32 sm:px-8 lg:px-10">
+        <div className="relative mx-auto max-w-[1200px]">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+            className={`text-center ${featuredProject ? 'mb-10 lg:mb-12' : 'mb-14 lg:mb-16'}`}
+          >
+            <p className="mb-5 font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.42em] text-[#C5A880]/90">
+              Portfolio
+            </p>
+            <h1 className="font-playfair text-[clamp(2.5rem,6vw,4rem)] font-light leading-[1.05] text-white">
+              Pakistan <span className="italic text-[#e8dcc4]">developments</span>
+            </h1>
+            <p className="mx-auto mt-5 max-w-xl font-[family-name:var(--font-manrope)] text-sm font-light leading-relaxed text-white/50 sm:text-base">
+              Master-planned communities and signature builds — curated for international and domestic capital.
+            </p>
+            <div className="mx-auto mt-8 h-px w-24 bg-gradient-to-r from-transparent via-[#C5A880]/50 to-transparent" />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Full-bleed flagship — scroll-linked parallax (Exxens by slug or title) */}
+      {featuredProject ? <FeaturedExxensSpotlight project={featuredProject} /> : null}
+
+      <section className="relative px-5 pb-16 sm:px-8 lg:px-10">
+        <div className="relative mx-auto max-w-[1200px]">
           {/* Tab Interface */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex justify-center mb-16"
+            transition={{ duration: 0.8, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-12 flex justify-center lg:mb-14"
           >
-            <div className="inline-flex bg-white/5 backdrop-blur-md rounded-2xl p-2 border border-white/10">
+            <div className="inline-flex rounded-full border border-white/[0.09] bg-black/30 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] supports-[backdrop-filter]:backdrop-blur-md">
               {TABS.map((tab) => (
                 <button
                   key={tab}
+                  type="button"
                   onClick={() => setActiveTab(tab)}
-                  className="relative px-8 py-3 rounded-xl font-semibold transition-colors duration-300"
+                  className="relative rounded-full px-6 py-2.5 font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.22em] transition-colors sm:px-8 sm:py-3 sm:text-[11px]"
                 >
                   {activeTab === tab && (
                     <motion.div
-                      layoutId="activeTab"
-                      className="absolute inset-0 bg-[#C5A880] rounded-xl"
-                      transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                      layoutId="projectsTabPill"
+                      className="absolute inset-0 rounded-full bg-[#C5A880] shadow-[0_8px_24px_rgba(197,168,128,0.2)]"
+                      transition={{ type: 'spring', stiffness: 400, damping: 32 }}
                     />
                   )}
-                  <span className={`relative z-10 ${activeTab === tab ? 'text-black' : 'text-gray-400 hover:text-white'}`}>
+                  <span
+                    className={`relative z-10 ${activeTab === tab ? 'text-[#111111]' : 'text-white/45 hover:text-white/85'}`}
+                  >
                     {tab}
                   </span>
                 </button>
@@ -112,21 +137,37 @@ export default function PakistanProjectsPage() {
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             >
-              {filteredProjects.length === 0 ? (
-                <div className="text-center py-20">
-                  <div className="inline-block p-8 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
-                    <p className="text-gray-400 text-lg">No {activeTab.toLowerCase()} projects available at the moment.</p>
-                  </div>
+              {flagshipIsSoleListingInTab ? (
+                <div className="py-20 text-center">
+                  <p className="font-playfair text-xl italic text-white/55">
+                    This phase is led by the flagship above.
+                  </p>
+                  <p className="mx-auto mt-3 max-w-md font-[family-name:var(--font-manrope)] text-sm text-white/40">
+                    Scroll the scene for the full reveal, or open the dossier directly.
+                  </p>
+                  <Link
+                    href={`/pakistan-projects/${featuredProject.slug}`}
+                    className="mt-8 inline-flex items-center gap-2 font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.28em] text-[#C5A880] underline-offset-4 hover:underline"
+                  >
+                    Open dossier
+                  </Link>
+                </div>
+              ) : gridProjects.length === 0 ? (
+                <div className="py-24 text-center">
+                  <p className="font-playfair text-xl italic text-white/50">No {activeTab.toLowerCase()} listings yet.</p>
+                  <p className="mx-auto mt-3 max-w-md font-[family-name:var(--font-manrope)] text-sm text-white/35">
+                    Check another phase or contact concierge for off-market opportunities.
+                  </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                  {filteredProjects.map((project, index) => (
-                    <ProjectCard key={project._id} project={project} index={index} />
+                <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-x-10 lg:gap-y-12">
+                  {gridProjects.map((project, index) => (
+                    <ProjectListingCard key={project._id} project={project} index={index} />
                   ))}
                 </div>
               )}
@@ -139,119 +180,27 @@ export default function PakistanProjectsPage() {
   );
 }
 
-function ProjectCard({ project, index }) {
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Completed':
-        return 'bg-green-500/20 text-green-400 border-green-500/30';
-      case 'Current':
-        return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-      case 'Upcoming':
-        return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
-      default:
-        return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
-    }
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="group relative"
-    >
-      <div className="relative h-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-black/35 backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:border-[#C5A880]/50 hover:shadow-[0_24px_48px_rgba(0,0,0,0.38)]">
-          {/* Wide Format Image */}
-          <div className="relative h-80 overflow-hidden">
-            <SafeListingImage
-              src={project.mainImage}
-              alt={project.title}
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-700"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-
-            <div className="absolute left-4 top-4">
-              <ListingLogo src={project.primaryLogo} name={project.title} />
-            </div>
-            
-            {/* Status Badge */}
-            <div className={`absolute top-4 right-4 px-4 py-2 rounded-full border backdrop-blur-md ${getStatusColor(project.status)}`}>
-              <span className="font-bold text-sm">{project.status}</span>
-            </div>
-
-            {/* Title Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-6">
-              <h3 className="text-3xl font-bold text-white mb-2 group-hover:text-[#C5A880] transition-colors">
-                {project.title}
-              </h3>
-              <div className="flex items-center text-gray-300 mb-2">
-                <MapPin className="w-4 h-4 mr-2 text-[#C5A880]" />
-                <span>{project.location}</span>
-              </div>
-              {project.totalArea && (
-                <div className="flex items-center text-gray-300">
-                  <Maximize2 className="w-4 h-4 mr-2 text-[#C5A880]" />
-                  <span>{project.totalArea}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="p-6">
-            <p className="text-gray-400 mb-4 line-clamp-3">
-              {project.description}
-            </p>
-
-            {project.paymentPlan && (
-              <div className="mb-6 p-4 bg-white/5 rounded-lg border border-white/10">
-                <p className="text-sm text-gray-500 mb-1">Payment Plan</p>
-                <p className="text-white font-semibold">{project.paymentPlan}</p>
-              </div>
-            )}
-
-            {/* View Details Button */}
-            <Link
-              href={`/pakistan-projects/${project.slug}`}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 py-3 font-semibold text-white transition-all duration-300 hover:border-[#C5A880] hover:bg-[#C5A880] hover:text-black group-hover:shadow-lg group-hover:shadow-[#C5A880]/20"
-            >
-              View Project Details
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-          </div>
-      </div>
-    </motion.div>
-  );
-}
-
 function LoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-black">
-      <section className="relative pt-32 pb-12 px-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Header Skeleton */}
-          <div className="text-center mb-12">
-            <div className="h-16 w-96 bg-white/5 rounded-lg mx-auto mb-6 animate-pulse" />
-            <div className="h-6 w-[600px] bg-white/5 rounded-lg mx-auto animate-pulse" />
+    <div className="min-h-screen bg-[#030706]">
+      <section className="relative px-5 pt-32 pb-16 sm:px-8">
+        <div className="mx-auto max-w-[1200px]">
+          <div className="mb-14 text-center">
+            <div className="mx-auto mb-5 h-3 w-24 animate-pulse rounded-full bg-white/10" />
+            <div className="mx-auto h-12 max-w-md animate-pulse rounded bg-white/10" />
+            <div className="mx-auto mt-4 h-4 w-2/3 max-w-lg animate-pulse rounded bg-white/5" />
           </div>
-
-          {/* Tabs Skeleton */}
-          <div className="flex justify-center mb-16">
-            <div className="h-14 w-96 bg-white/5 rounded-2xl animate-pulse" />
+          <div className="mb-14 flex justify-center">
+            <div className="h-12 w-72 animate-pulse rounded-full bg-white/10" />
           </div>
-
-          {/* Grid Skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
             {[1, 2].map((i) => (
-              <div key={i} className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden">
-                <div className="h-80 bg-white/10 animate-pulse" />
-                <div className="p-6 space-y-4">
-                  <div className="h-6 bg-white/10 rounded animate-pulse" />
-                  <div className="h-4 bg-white/10 rounded w-3/4 animate-pulse" />
-                  <div className="h-20 bg-white/10 rounded animate-pulse" />
-                  <div className="h-12 bg-white/10 rounded animate-pulse" />
+              <div key={i} className="overflow-hidden rounded-[2px] border border-white/10 bg-white/[0.03]">
+                <div className="h-[340px] animate-pulse bg-white/10" />
+                <div className="space-y-3 p-6">
+                  <div className="h-4 w-full animate-pulse rounded bg-white/10" />
+                  <div className="h-4 w-4/5 animate-pulse rounded bg-white/5" />
+                  <div className="h-10 w-full animate-pulse rounded bg-white/5" />
                 </div>
               </div>
             ))}

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { LuxurySectionOrbs, LuxurySkylineGlyph } from '@/components/shared/LuxuryMotionAccents';
 
 const sectionVariants = {
   hidden: { opacity: 0 },
@@ -48,6 +49,11 @@ export default function ExtraordinaryCta() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-black/85" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(249,115,22,0.22),transparent_42%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_50%,rgba(255,255,255,0.06),transparent_36%)]" />
+
+        <LuxurySectionOrbs className="z-[1]" />
+        <div className="pointer-events-none absolute right-4 top-20 z-[15] hidden opacity-30 sm:block md:right-10 md:top-24">
+          <LuxurySkylineGlyph className="h-12 w-[7.5rem] md:h-14 md:w-36" />
+        </div>
 
         <motion.div
           className="relative z-10 mx-auto flex min-h-[420px] max-w-6xl items-center px-4 py-16 sm:px-6 md:min-h-[460px] md:px-10 md:py-20"

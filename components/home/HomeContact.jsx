@@ -1,167 +1,293 @@
 'use client';
 
-import { Star } from 'lucide-react';
+import { useRef, useState } from 'react';
+import Image from 'next/image';
+import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
+import { CheckCircle2, Star } from 'lucide-react';
 
-// Pre-defined star positions and animation durations to avoid hydration mismatch
-const starPositions = [
-  { left: 5, top: 12, duration: 5.2 }, { left: 15, top: 8, duration: 4.8 }, { left: 25, top: 22, duration: 6.3 },
-  { left: 35, top: 5, duration: 3.7 }, { left: 45, top: 18, duration: 5.9 }, { left: 55, top: 3, duration: 4.1 },
-  { left: 65, top: 25, duration: 6.7 }, { left: 75, top: 10, duration: 5.4 }, { left: 85, top: 20, duration: 3.9 },
-  { left: 95, top: 7, duration: 4.6 }, { left: 10, top: 35, duration: 6.1 }, { left: 20, top: 42, duration: 5.8 },
-  { left: 30, top: 30, duration: 4.3 }, { left: 40, top: 48, duration: 6.5 }, { left: 50, top: 38, duration: 3.5 },
-  { left: 60, top: 45, duration: 5.1 }, { left: 70, top: 32, duration: 4.9 }, { left: 80, top: 50, duration: 6.8 },
-  { left: 90, top: 40, duration: 5.6 }, { left: 3, top: 55, duration: 3.3 }, { left: 12, top: 62, duration: 4.4 },
-  { left: 22, top: 58, duration: 6.2 }, { left: 32, top: 68, duration: 5.7 }, { left: 42, top: 52, duration: 3.8 },
-  { left: 52, top: 72, duration: 4.7 }, { left: 62, top: 60, duration: 6.4 }, { left: 72, top: 78, duration: 5.3 },
-  { left: 82, top: 65, duration: 3.6 }, { left: 92, top: 70, duration: 4.5 }, { left: 8, top: 82, duration: 6.9 },
-  { left: 18, top: 88, duration: 5.5 }, { left: 28, top: 75, duration: 3.4 }, { left: 38, top: 92, duration: 4.2 },
-  { left: 48, top: 85, duration: 6.6 }, { left: 58, top: 95, duration: 5.0 }, { left: 68, top: 80, duration: 3.2 },
-  { left: 78, top: 90, duration: 4.0 }, { left: 88, top: 77, duration: 6.0 }, { left: 98, top: 88, duration: 5.2 },
-  { left: 2, top: 15, duration: 4.8 }, { left: 97, top: 28, duration: 6.3 }, { left: 7, top: 47, duration: 3.7 },
-  { left: 93, top: 55, duration: 5.9 }, { left: 17, top: 73, duration: 4.1 }, { left: 87, top: 33, duration: 6.7 },
-  { left: 27, top: 95, duration: 5.4 }, { left: 77, top: 4, duration: 3.9 }, { left: 47, top: 67, duration: 4.6 },
-  { left: 67, top: 15, duration: 6.1 },
-];
+/** Moody architecture / dusk — generous crop for scroll zoom without edges showing */
+const CONTACT_HERO_IMAGE =
+  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2400&q=85';
 
-export default function OpenSky() {
-  const handleSubmit = (e) => {
+export default function HomeContact() {
+  const sectionRef = useRef(null);
+  const reduceMotion = useReducedMotion();
+  const [status, setStatus] = useState('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'end start'],
+  });
+
+  const imageScale = useTransform(
+    scrollYProgress,
+    [0, 1],
+    reduceMotion ? [1, 1] : [1.02, 1.14]
+  );
+
+  const leftTextOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.12, 0.42, 0.68, 0.92],
+    [0, 1, 1, 0.75, 0]
+  );
+  const leftTextY = useTransform(scrollYProgress, [0, 0.18, 0.5, 0.85], [56, 0, 0, -48]);
+
+  const cardOpacity = useTransform(scrollYProgress, [0.08, 0.22, 0.55, 0.88], [0, 1, 1, 0.92]);
+  const cardY = useTransform(scrollYProgress, [0.08, 0.24, 0.55, 0.9], [40, 0, 0, -28]);
+
+  async function handleSubmit(e) {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log('Form submitted');
-  };
+    if (status === 'loading') return;
+    setErrorMessage('');
+    setStatus('loading');
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const payload = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      message: formData.get('message'),
+      website: formData.get('website'),
+    };
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.success) {
+        setErrorMessage(data.message || 'Could not send your request. Please try again.');
+        setStatus('idle');
+        return;
+      }
+
+      setStatus('success');
+      form.reset();
+    } catch {
+      setErrorMessage('Network error. Check your connection and try again.');
+      setStatus('idle');
+    }
+  }
 
   return (
-    <section className="relative min-h-[85vh] flex items-center justify-center px-4 py-16 overflow-hidden bg-[#020508] -mt-2">
-
-      {/* 1. SEAMLESS FLOW GRADIENT - Deep Push Technique */}
-      {/* Solid green for first 250px (covers seam completely), then slow imperceptible fade to space black */}
+    <section
+      id="concierge"
+      ref={sectionRef}
+      className="relative -mt-2 scroll-mt-28 overflow-hidden bg-[#060a09]"
+      aria-labelledby="home-contact-heading"
+    >
+      {/* Seamless blend from previous section */}
       <div
-        className="absolute top-0 left-0 right-0 z-10 pointer-events-none h-[90vh]"
-        style={{
-          background: 'linear-gradient(to bottom, #0A0A0A 0%, #0A0A0A 250px, #020508 100%)'
-        }}
+        className="pointer-events-none absolute inset-x-0 top-0 z-20 h-32 bg-gradient-to-b from-[#0A0A0A] to-transparent"
+        aria-hidden
       />
 
-      {/* 2. ATMOSPHERIC BACKGROUND (The "Nebula" Glow) */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1a2e35]/20 via-[#020508] to-[#020508]" />
-      </div>
-
-      {/* 3. PREMIUM STAR FIELD */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        {starPositions.map((pos, i) => {
-          // Varied star sizes and opacities for depth
-          const size = i % 3 === 0 ? 'w-[2px] h-[2px]' : 'w-[1px] h-[1px]';
-          const opacity = i % 2 === 0 ? 'opacity-40' : 'opacity-80';
-          const animation = i % 5 === 0 ? 'animate-pulse' : '';
-
-          return (
-            <div
-              key={i}
-              className={`absolute bg-white rounded-full ${size} ${opacity} ${animation}`}
-              style={{
-                left: `${pos.left}%`,
-                top: `${pos.top}%`,
-                // Occasional "Glow" effect on random stars
-                boxShadow: i % 15 === 0 ? '0 0 10px 2px rgba(255, 255, 255, 0.4)' : 'none',
-                animationDuration: `${pos.duration}s`
-              }}
+      <div className="relative grid min-h-[min(100dvh,960px)] lg:grid-cols-2">
+        {/* —— Left: full-bleed image + scroll zoom —— */}
+        <div className="relative min-h-[48vh] overflow-hidden lg:min-h-[min(100dvh,960px)]">
+          <motion.div
+            className="absolute inset-0 will-change-transform"
+            style={{ scale: imageScale }}
+            initial={false}
+          >
+            <Image
+              src={CONTACT_HERO_IMAGE}
+              alt="Modern luxury architecture at dusk"
+              fill
+              priority={false}
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover object-center"
             />
-          );
-        })}
-        {/* Shooting Star */}
-        <div className="absolute top-1/3 left-[10%] w-[200px] h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-0 animate-[shoot_8s_ease-in-out_infinite]" />
-      </div>
+          </motion.div>
+          <div
+            className="absolute inset-0 bg-gradient-to-br from-black/75 via-black/25 to-black/55"
+            aria-hidden
+          />
+          <div
+            className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-[#060a09]/90 lg:to-[#060a09]"
+            aria-hidden
+          />
 
-      {/* 4. THE VIP INVITATION CARD */}
-      <div className="relative z-20 w-full max-w-lg mx-auto">
-        <div className="relative bg-[#050A08]/60 backdrop-blur-xl border border-white/10 rounded-3xl px-8 py-10 md:px-10 md:py-12 text-center shadow-[0_0_50px_rgba(0,0,0,0.5),inset_0_0_20px_rgba(255,255,255,0.02)]">
+          {/* Top-left editorial block */}
+          <motion.div
+            className="absolute left-0 top-0 z-10 max-w-xl px-6 pb-8 pt-24 sm:px-10 sm:pt-28 lg:max-w-lg lg:px-12 lg:pt-32"
+            style={{ opacity: leftTextOpacity, y: leftTextY }}
+          >
+            <p className="font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.4em] text-[#C5A880]/90">
+              The Plot Sale
+            </p>
+            <h2
+              id="home-contact-heading"
+              className="mt-5 font-playfair text-[clamp(1.65rem,4.2vw,2.75rem)] font-light leading-[1.12] tracking-[0.02em] text-white"
+            >
+              <span className="block italic text-white/95">Curated access to</span>
+              <span className="mt-1 block font-normal not-italic tracking-normal text-white">
+                extraordinary property &amp; land
+              </span>
+            </h2>
+            <p className="mt-6 max-w-md font-[family-name:var(--font-manrope)] text-sm font-light leading-relaxed text-white/65">
+              A discreet advisory layer for cross-border buyers and investors. Share your brief — our team responds
+              with precision, not noise.
+            </p>
+          </motion.div>
+        </div>
 
-          {/* Bronze Accent Line */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-[1px] bg-gradient-to-r from-transparent via-[#C5A880] to-transparent" />
+        {/* —— Right: premium contact panel —— */}
+        <div className="relative flex flex-col justify-center bg-[#0a1412] px-6 py-16 sm:px-10 lg:px-14 lg:py-20">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.07]"
+            style={{
+              backgroundImage: `linear-gradient(135deg, transparent 0%, #C5A880 50%, transparent 100%)`,
+            }}
+            aria-hidden
+          />
 
-          {/* Label */}
-          <div className="inline-flex items-center gap-2 mb-4">
-            <Star className="w-3 h-3 text-[#C5A880]" />
-            <span className="text-[#C5A880] text-[9px] tracking-[0.35em] uppercase font-medium">Concierge Service</span>
-            <Star className="w-3 h-3 text-[#C5A880]" />
-          </div>
+          <motion.div
+            className="relative z-10 mx-auto w-full max-w-md"
+            style={{ opacity: cardOpacity, y: cardY }}
+          >
+            <div className="rounded-2xl border border-white/[0.09] bg-[#0d1815]/95 px-7 py-10 shadow-[0_40px_80px_rgba(0,0,0,0.45)] backdrop-blur-md sm:px-9 sm:py-11 md:rounded-3xl">
+              <div className="absolute left-8 right-8 top-0 h-px bg-gradient-to-r from-transparent via-[#C5A880]/50 to-transparent sm:left-9 sm:right-9" />
 
-          {/* Elegant Typography */}
-          <h2 className="text-3xl md:text-4xl text-white font-playfair font-light leading-tight mb-3">
-            Begin Your <br />
-            <span className="italic text-[#C5A880] opacity-90">Journey</span>
-          </h2>
-
-          {/* Subtle Description */}
-          <p className="text-white/50 text-xs md:text-sm font-light leading-relaxed mb-8">
-            Leave us a message. Our team will contact you shortly.
-          </p>
-
-          {/* Ghost Contact Form */}
-          <form onSubmit={handleSubmit} className="space-y-5 text-left">
-
-            {/* Name Field */}
-            <div>
-              <input
-                type="text"
-                name="name"
-                placeholder="Full Name"
-                required
-                className="w-full bg-transparent border-0 border-b border-white/10 focus:border-[#C5A880] text-white/80 placeholder:text-white/20 px-0 py-2.5 outline-none transition-all duration-500 text-sm font-light tracking-wide"
-              />
-            </div>
-
-            {/* Email and Phone Row */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* Email */}
-              <div>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  required
-                  className="w-full bg-transparent border-0 border-b border-white/10 focus:border-[#C5A880] text-white/80 placeholder:text-white/20 px-0 py-2.5 outline-none transition-all duration-500 text-sm font-light tracking-wide"
-                />
-              </div>
-
-              {/* Phone */}
-              <div>
-                <input
-                  type="tel"
-                  name="phone"
-                  placeholder="Phone"
-                  required
-                  className="w-full bg-transparent border-0 border-b border-white/10 focus:border-[#C5A880] text-white/80 placeholder:text-white/20 px-0 py-2.5 outline-none transition-all duration-500 text-sm font-light tracking-wide"
-                />
-              </div>
-            </div>
-
-            {/* Message Field */}
-            <div>
-              <textarea
-                name="message"
-                placeholder="Your Message"
-                rows="3"
-                required
-                className="w-full bg-transparent border-0 border-b border-white/10 focus:border-[#C5A880] text-white/80 placeholder:text-white/20 px-0 py-2.5 outline-none transition-all duration-500 resize-none text-sm font-light tracking-wide"
-              ></textarea>
-            </div>
-
-            {/* Submit Button */}
-            <div className="text-center pt-3">
-              <button
-                type="submit"
-                className="group relative px-8 py-3 bg-[#C5A880]/10 hover:bg-[#C5A880]/20 border border-[#C5A880]/30 rounded-sm transition-all duration-500 overflow-hidden"
-              >
-                <span className="relative text-[#C5A880] text-[10px] tracking-[0.25em] uppercase font-semibold group-hover:text-white transition-colors z-10">
-                  Send Inquiry
+              <div className="mb-6 inline-flex items-center gap-2">
+                <Star className="h-3 w-3 text-[#C5A880]" aria-hidden />
+                <span className="text-[9px] font-medium uppercase tracking-[0.35em] text-[#C5A880]">
+                  Concierge
                 </span>
-                <div className="absolute inset-0 bg-[#C5A880] opacity-0 group-hover:opacity-10 transition-opacity duration-500 z-0" />
-              </button>
-            </div>
-          </form>
+                <Star className="h-3 w-3 text-[#C5A880]" aria-hidden />
+              </div>
 
+              <h3 className="font-playfair text-2xl font-light leading-snug text-white sm:text-3xl">
+                Envision <span className="italic text-[#e8d5b5]">your</span> next move
+              </h3>
+              <p className="mt-3 text-xs font-light leading-relaxed text-white/50 sm:text-sm">
+                Our team will reach out shortly with a tailored follow-up.
+              </p>
+
+              <div className="sr-only" aria-live="polite">
+                {status === 'success' ? 'Your concierge request was sent successfully.' : ''}
+                {errorMessage ? errorMessage : ''}
+              </div>
+
+              {status === 'success' ? (
+                <div className="mt-8 rounded-2xl border border-[#C5A880]/30 bg-[#C5A880]/10 px-6 py-8 text-center">
+                  <CheckCircle2 className="mx-auto h-10 w-10 text-[#C5A880]" aria-hidden />
+                  <p className="mt-4 font-playfair text-lg text-white">Request received</p>
+                  <p className="mt-2 text-sm font-light text-white/65">
+                    Thank you. Our desk will respond with discretion and care.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStatus('idle');
+                      setErrorMessage('');
+                    }}
+                    className="mt-6 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#C5A880] underline-offset-4 hover:underline"
+                  >
+                    Send another message
+                  </button>
+                </div>
+              ) : (
+              <form onSubmit={handleSubmit} className="relative mt-8 space-y-6 text-left" noValidate>
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  className="absolute h-0 w-0 overflow-hidden opacity-0"
+                  aria-hidden="true"
+                />
+                {errorMessage ? (
+                  <p className="rounded-xl border border-red-400/40 bg-red-400/10 px-4 py-3 text-sm text-red-200">
+                    {errorMessage}
+                  </p>
+                ) : null}
+                <div>
+                  <label htmlFor="hc-name" className="sr-only">
+                    Full name
+                  </label>
+                  <input
+                    id="hc-name"
+                    type="text"
+                    name="name"
+                    placeholder="Name"
+                    required
+                    autoComplete="name"
+                    disabled={status === 'loading'}
+                    className="w-full border-0 border-b border-white/15 bg-transparent py-2.5 font-[family-name:var(--font-manrope)] text-sm font-light tracking-wide text-white/90 outline-none transition-colors duration-300 placeholder:text-white/25 focus:border-[#C5A880] disabled:opacity-50"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="hc-email" className="sr-only">
+                      Email
+                    </label>
+                    <input
+                      id="hc-email"
+                      type="email"
+                      name="email"
+                      placeholder="Email"
+                      required
+                      autoComplete="email"
+                      disabled={status === 'loading'}
+                      className="w-full border-0 border-b border-white/15 bg-transparent py-2.5 font-[family-name:var(--font-manrope)] text-sm font-light tracking-wide text-white/90 outline-none transition-colors duration-300 placeholder:text-white/25 focus:border-[#C5A880] disabled:opacity-50"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="hc-phone" className="sr-only">
+                      Phone
+                    </label>
+                    <input
+                      id="hc-phone"
+                      type="tel"
+                      name="phone"
+                      placeholder="Phone"
+                      required
+                      autoComplete="tel"
+                      disabled={status === 'loading'}
+                      className="w-full border-0 border-b border-white/15 bg-transparent py-2.5 font-[family-name:var(--font-manrope)] text-sm font-light tracking-wide text-white/90 outline-none transition-colors duration-300 placeholder:text-white/25 focus:border-[#C5A880] disabled:opacity-50"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="hc-message" className="sr-only">
+                    Message
+                  </label>
+                  <textarea
+                    id="hc-message"
+                    name="message"
+                    placeholder="Your message"
+                    rows={3}
+                    required
+                    disabled={status === 'loading'}
+                    className="w-full resize-none border-0 border-b border-white/15 bg-transparent py-2.5 font-[family-name:var(--font-manrope)] text-sm font-light tracking-wide text-white/90 outline-none transition-colors duration-300 placeholder:text-white/25 focus:border-[#C5A880] disabled:opacity-50"
+                  />
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={status === 'loading'}
+                    className="lux-button w-full rounded-full bg-[#f2ebe3] py-3.5 font-[family-name:var(--font-manrope)] text-[11px] font-semibold uppercase tracking-[0.22em] text-[#0a1412] transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {status === 'loading' ? 'Sending…' : 'Request'}
+                  </button>
+                </div>
+
+                <p className="text-center text-[10px] leading-relaxed text-white/30">
+                  By sending your request, you agree to our approach to privacy — we treat your details with discretion.
+                </p>
+              </form>
+              )}
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>

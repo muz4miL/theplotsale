@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import SafeListingImage from '@/components/shared/SafeListingImage';
 import { motion } from 'framer-motion';
 import { MapPin, Maximize2, ArrowLeft, FileText } from 'lucide-react';
 import ProgressTimeline from '@/components/projects/ProgressTimeline';
 import ListingLogo from '@/components/ListingLogo';
+import ProjectLuxuryShowcase from '@/components/projects/ProjectLuxuryShowcase';
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -73,13 +73,12 @@ export default function ProjectDetailPage() {
   };
 
   const galleryMedia = project.galleryMedia || [];
-  const imageGallery = galleryMedia.filter((url) => !url.includes('/video/upload/'));
   const videoGallery = galleryMedia.filter((url) => url.includes('/video/upload/'));
 
   return (
     <div className="min-h-screen bg-black">
       {/* Back Button */}
-      <div className="fixed top-24 left-6 z-40">
+      <div className="fixed top-24 left-6 z-[100]">
         <Link href="/pakistan-projects">
           <motion.button
             initial={{ opacity: 0, x: -20 }}
@@ -92,48 +91,25 @@ export default function ProjectDetailPage() {
         </Link>
       </div>
 
-      {/* Hero Image */}
-      <section className="relative h-screen">
-        <SafeListingImage
-          src={project.mainImage}
-          alt={project.title}
-          fill
-          priority
-          className="object-cover"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-        
-        {/* Hero Content */}
-        <div className="absolute bottom-0 left-0 right-0 p-12">
-          <div className="max-w-7xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <div className={`inline-block px-6 py-3 rounded-full border backdrop-blur-md mb-6 ${getStatusColor(project.status)}`}>
-                <span className="font-bold text-lg">{project.status}</span>
+      <ProjectLuxuryShowcase project={project} />
+
+      {/* Status + meta strip (below flagship showcase) */}
+      <section className="border-b border-white/10 bg-black px-6 py-8">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <div className={`inline-flex w-fit items-center gap-2 rounded-full border px-4 py-2 backdrop-blur-md ${getStatusColor(project.status)}`}>
+            <span className="text-sm font-bold">{project.status}</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-6 text-sm text-gray-300 sm:text-base">
+            <div className="flex items-center">
+              <MapPin className="mr-2 h-5 w-5 shrink-0 text-[#C5A880]" />
+              {project.location}
+            </div>
+            {project.totalArea ? (
+              <div className="flex items-center">
+                <Maximize2 className="mr-2 h-5 w-5 shrink-0 text-[#C5A880]" />
+                {project.totalArea}
               </div>
-              <div className="mb-6">
-                <ListingLogo src={project.primaryLogo} name={project.title} className="h-16 w-16" imageClassName="p-2" />
-              </div>
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-4">
-                {project.title}
-              </h1>
-              <div className="flex flex-wrap items-center gap-6 text-xl text-gray-300">
-                <div className="flex items-center">
-                  <MapPin className="w-6 h-6 mr-2 text-[#C5A880]" />
-                  {project.location}
-                </div>
-                {project.totalArea && (
-                  <div className="flex items-center">
-                    <Maximize2 className="w-6 h-6 mr-2 text-[#C5A880]" />
-                    {project.totalArea}
-                  </div>
-                )}
-              </div>
-            </motion.div>
+            ) : null}
           </div>
         </div>
       </section>
@@ -183,37 +159,26 @@ export default function ProjectDetailPage() {
             </motion.div>
           )}
 
-          {(imageGallery.length > 0 || videoGallery.length > 0) && (
+          {videoGallery.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               className="mt-12 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md"
             >
-              <h2 className="mb-6 text-3xl font-bold text-white">Project Gallery</h2>
-
-              {imageGallery.length > 0 && (
-                <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-                  {imageGallery.map((url) => (
-                    <div key={url} className="relative h-44 overflow-hidden rounded-xl border border-white/10">
-                      <SafeListingImage src={url} alt={project.title} fill className="object-cover" sizes="33vw" />
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {videoGallery.length > 0 && (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {videoGallery.map((url) => (
-                    <video
-                      key={url}
-                      src={url}
-                      controls
-                      className="h-64 w-full rounded-xl border border-white/10 bg-black/40 object-cover"
-                    />
-                  ))}
-                </div>
-              )}
+              <h2 className="mb-2 text-3xl font-bold text-white">Project film</h2>
+              <p className="mb-6 text-sm text-white/50">Walkthroughs and reels for this development.</p>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {videoGallery.map((url) => (
+                  <video
+                    key={url}
+                    src={url}
+                    controls
+                    playsInline
+                    className="h-64 w-full rounded-xl border border-white/10 bg-black/40 object-cover"
+                  />
+                ))}
+              </div>
             </motion.div>
           )}
 
