@@ -4,13 +4,14 @@ import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Bed, Bath, Maximize } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
+import { useDisplayCurrency } from '@/contexts/DisplayCurrencyContext';
 
 const propertiesData = [
     {
         id: 1,
         title: '3 Bed Semi-Detached Bungalow',
         location: 'Willow Gardens, Hounslow TW3',
-        price: '£595,000',
+        priceGbp: 595000,
         beds: 3,
         baths: 1,
         sqft: 1920,
@@ -20,7 +21,7 @@ const propertiesData = [
         id: 2,
         title: '4 Bed Semi-Detached House',
         location: 'Bassett Gardens, Isleworth TW7',
-        price: '£750,000',
+        priceGbp: 750000,
         beds: 4,
         baths: 3,
         sqft: 1920,
@@ -30,7 +31,7 @@ const propertiesData = [
         id: 3,
         title: '2 Bed Flat',
         location: 'Selbourne Avenue, Hounslow TW3 London',
-        price: '£425,000',
+        priceGbp: 425000,
         beds: 2,
         baths: 2,
         sqft: 1920,
@@ -40,7 +41,7 @@ const propertiesData = [
         id: 4,
         title: '3 Bed Flat',
         location: 'Great West Road, Isleworth TW7',
-        price: '£395,000',
+        priceGbp: 395000,
         beds: 3,
         baths: 1,
         sqft: 1920,
@@ -49,6 +50,7 @@ const propertiesData = [
 ];
 
 export default function Properties() {
+    const { formatPrice } = useDisplayCurrency();
     const sectionRef = useRef(null);
     const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
@@ -140,7 +142,7 @@ export default function Properties() {
                                 {/* Price Badge */}
                                 <div className="absolute top-4 right-4 bg-[#C5A880] text-black px-4 py-2 rounded-sm">
                                     <span className="text-sm font-bold font-[family-name:var(--font-manrope)]">
-                                        {property.price}
+                                        {formatPrice(property.priceGbp, 'GBP')}
                                     </span>
                                 </div>
                             </div>

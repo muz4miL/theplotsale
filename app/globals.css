@@ -111,6 +111,16 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Preloader scroll lock — avoid mutating html.style.height (conflicts with React / Next root) */
+html.preloader-scroll-locked {
+  overflow: hidden !important;
+}
+
+html.preloader-scroll-locked body {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
 /* Touch devices: calmer chrome, no grey tap flash, comfortable body rhythm */
 @media (hover: none) and (pointer: coarse) {
   body {

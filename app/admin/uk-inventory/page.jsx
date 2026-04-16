@@ -6,6 +6,7 @@ import { Pencil, Plus, Trash2, UploadCloud, X } from 'lucide-react';
 import LuxuryModal from '@/components/admin/LuxuryModal';
 import MediaUploadManager from '@/components/admin/MediaUploadManager';
 import { uploadToCloudinary } from '@/lib/cloudinary-upload';
+import { useDisplayCurrency } from '@/contexts/DisplayCurrencyContext';
 
 const initialForm = {
   title: '',
@@ -26,6 +27,7 @@ function slugify(value) {
 }
 
 export default function UkInventoryPage() {
+  const { formatPrice, displayCurrency } = useDisplayCurrency();
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -221,7 +223,7 @@ export default function UkInventoryPage() {
                   <td className="px-6 py-4 text-neutral-300">{row.location}</td>
                   <td className="px-6 py-4">
                     <span className="rounded-full border border-[#C5A880]/40 bg-[#C5A880]/10 px-3 py-1 text-xs text-[#E4D3B4]">
-                      {row.price ? `GBP ${row.price.toLocaleString()}` : 'Price on request'}
+                      {formatPrice(row.price, row.currency === 'PKR' ? 'PKR' : 'GBP')}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -249,7 +251,21 @@ export default function UkInventoryPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required placeholder="Title" className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
             <input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} required placeholder="Location" className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
-            <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Price (optional)" className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+            <div className="space-y-1.5">
+              <input
+                type="number"
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+                placeholder="Price in GBP (optional, stored)"
+                className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none"
+              />
+              {form.price !== '' && Number.isFinite(Number(form.price)) ? (
+                <p className="text-[11px] text-neutral-500">
+                  Preview ({displayCurrency}):{' '}
+                  <span className="font-medium text-[#E4D3B4]">{formatPrice(Number(form.price), 'GBP')}</span>
+                </p>
+              ) : null}
+            </div>
             <input type="number" value={form.areaSqFt} onChange={(e) => setForm({ ...form, areaSqFt: e.target.value })} placeholder="Area sqft (optional)" className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
             <input type="number" value={form.beds} onChange={(e) => setForm({ ...form, beds: e.target.value })} placeholder="Beds (optional)" className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
             <input type="number" value={form.baths} onChange={(e) => setForm({ ...form, baths: e.target.value })} placeholder="Baths (optional)" className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />

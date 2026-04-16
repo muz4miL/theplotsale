@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { BarChart3, Building2, Home, LogOut, Newspaper, Sparkles } from 'lucide-react';
+import CurrencyToggle from '@/components/layout/CurrencyToggle';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: BarChart3 },
@@ -93,7 +94,18 @@ export default function AdminLayout({ children }) {
           })}
         </nav>
 
-        <div className="mt-8 border-t border-white/10 pt-6 space-y-2">
+        <div className="mt-8 rounded-xl border border-white/10 bg-black/40 p-4">
+          <p className="text-[10px] uppercase tracking-[0.28em] text-neutral-500">Display prices</p>
+          <p className="mt-1 text-xs text-neutral-400">Same toggle as the public site (saved in this browser).</p>
+          <div className="mt-3 flex justify-center">
+            <CurrencyToggle />
+          </div>
+          <p className="mt-3 text-[10px] leading-relaxed text-neutral-500">
+            Indicative GBP ↔ PKR. UK inventory is still stored in GBP.
+          </p>
+        </div>
+
+        <div className="mt-6 border-t border-white/10 pt-6 space-y-2">
           {signOutError ? (
             <p className="rounded-lg border border-red-400/40 bg-red-400/10 px-3 py-2 text-xs text-red-200">{signOutError}</p>
           ) : null}

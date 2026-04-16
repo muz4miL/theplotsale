@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Bed, Bath, Maximize, MapPin } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
 import ExtraordinaryCta from '@/components/shared/ExtraordinaryCta';
+import { useDisplayCurrency } from '@/contexts/DisplayCurrencyContext';
 
 const properties = [
   {
@@ -13,7 +14,7 @@ const properties = [
     sqft: '1920',
     beds: 3,
     baths: 1,
-    price: '£595,000',
+    priceGbp: 595000,
     image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80'
   },
   {
@@ -23,7 +24,7 @@ const properties = [
     sqft: '1920',
     beds: 4,
     baths: 3,
-    price: '£750,000',
+    priceGbp: 750000,
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80'
   },
   {
@@ -33,7 +34,7 @@ const properties = [
     sqft: '1920',
     beds: 2,
     baths: 2,
-    price: '£425,000',
+    priceGbp: 425000,
     image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80'
   },
   {
@@ -43,7 +44,7 @@ const properties = [
     sqft: '1920',
     beds: 3,
     baths: 1,
-    price: '£395,000',
+    priceGbp: 395000,
     image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80'
   }
 ];
@@ -72,6 +73,8 @@ const itemVariants = {
 };
 
 export default function PropertiesPage() {
+  const { formatPrice } = useDisplayCurrency();
+
   return (
     <main className="min-h-screen bg-[#0A0A0A] pt-32 pb-20 px-6">
       <div className="max-w-[1400px] mx-auto">
@@ -132,7 +135,7 @@ export default function PropertiesPage() {
                 
                 {/* Price Badge */}
                 <div className="absolute top-4 right-4 bg-[#C5A880] text-[#111111] px-4 py-2 rounded-full">
-                  <span className="font-playfair text-lg font-semibold">{property.price}</span>
+                  <span className="font-playfair text-lg font-semibold">{formatPrice(property.priceGbp, 'GBP')}</span>
                 </div>
               </div>
 

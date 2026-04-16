@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
+import CurrencyToggle from '@/components/layout/CurrencyToggle';
 
 const navConfig = [
   { label: 'Home', href: '/' },
@@ -194,6 +195,12 @@ export default function Navbar() {
             })}
           </nav>
 
+          <div
+            className={`hidden shrink-0 items-center lg:flex ${immersiveNav ? 'drop-shadow-[0_4px_24px_rgba(0,0,0,0.55)]' : ''}`}
+          >
+            <CurrencyToggle />
+          </div>
+
           <div className="hidden lg:block">
             <Link
               href="/contact"
@@ -205,24 +212,29 @@ export default function Navbar() {
             </Link>
           </div>
 
-          <button
-            type="button"
-            className={`ml-auto flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-full border border-[#C5A880]/35 text-[#C5A880] shadow-[0_4px_24px_rgba(0,0,0,0.25)] transition-all duration-300 hover:border-[#C5A880]/55 hover:bg-[#C5A880]/10 active:scale-[0.96] lg:hidden ${
-              immersiveNav ? 'bg-black/50 backdrop-blur-md' : 'bg-black/30'
-            }`}
-            onClick={toggleDrawer}
-            aria-label={isDrawerOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={isDrawerOpen}
-            aria-controls="mobile-navigation-drawer"
+          <div
+            className={`ml-auto flex shrink-0 items-center gap-2 lg:hidden ${immersiveNav ? 'drop-shadow-[0_4px_24px_rgba(0,0,0,0.55)]' : ''}`}
           >
-            <span className="flex transition-opacity duration-200">
-              {isDrawerOpen ? (
-                <X size={20} strokeWidth={1.75} />
-              ) : (
-                <Menu size={20} strokeWidth={1.75} />
-              )}
-            </span>
-          </button>
+            <CurrencyToggle />
+            <button
+              type="button"
+              className={`flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-full border border-[#C5A880]/35 text-[#C5A880] shadow-[0_4px_24px_rgba(0,0,0,0.25)] transition-all duration-300 hover:border-[#C5A880]/55 hover:bg-[#C5A880]/10 active:scale-[0.96] ${
+                immersiveNav ? 'bg-black/50 backdrop-blur-md' : 'bg-black/30'
+              }`}
+              onClick={toggleDrawer}
+              aria-label={isDrawerOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={isDrawerOpen}
+              aria-controls="mobile-navigation-drawer"
+            >
+              <span className="flex transition-opacity duration-200">
+                {isDrawerOpen ? (
+                  <X size={20} strokeWidth={1.75} />
+                ) : (
+                  <Menu size={20} strokeWidth={1.75} />
+                )}
+              </span>
+            </button>
+          </div>
         </div>
       </header>
 

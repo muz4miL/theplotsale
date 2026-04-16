@@ -6,6 +6,7 @@ import SafeListingImage from '@/components/shared/SafeListingImage';
 import { motion } from 'framer-motion';
 import { Bed, Bath, Maximize, ArrowUpRight } from 'lucide-react';
 import ListingLogo from '@/components/ListingLogo';
+import { useDisplayCurrency } from '@/contexts/DisplayCurrencyContext';
 
 export default function UKPropertiesPage() {
   const [properties, setProperties] = useState([]);
@@ -100,14 +101,9 @@ export default function UKPropertiesPage() {
 }
 
 function PropertyCard({ property }) {
-  const formatPrice = (price) => {
-    if (price === undefined || price === null) return 'Price on request';
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP',
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
+  const { formatPrice } = useDisplayCurrency();
+  const native = property.currency === 'PKR' ? 'PKR' : 'GBP';
+  const priceLabel = formatPrice(property.price, native);
 
   return (
     <motion.div
@@ -135,7 +131,7 @@ function PropertyCard({ property }) {
           
           {/* Price Badge */}
           <div className="absolute right-4 top-4 rounded-full bg-[#C5A880] px-4 py-2 shadow-[0_8px_20px_rgba(197,168,128,0.35)]">
-            <span className="text-black font-bold text-lg">{formatPrice(property.price)}</span>
+            <span className="text-black font-bold text-lg">{priceLabel}</span>
           </div>
         </div>
 

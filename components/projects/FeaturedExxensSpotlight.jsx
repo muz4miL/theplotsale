@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, MapPin, Building2 } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
-import ListingLogo from '@/components/shared/ListingLogo';
+import ListingLogo from '@/components/ListingLogo';
 import {
   getExxsnHeightsEditorialSpecs,
   projectUsesExxsnEditorialSpecs,
@@ -35,11 +35,11 @@ export default function FeaturedExxensSpotlight({ project }) {
       aria-labelledby="featured-flagship-heading"
     >
       {/* One viewport — no sticky tunnel, no scroll-linked text opacity */}
-      <div className="relative min-h-[100svh] min-h-[640px] w-full">
+      <div className="relative min-h-[max(640px,100svh)] w-full">
         <div className="absolute inset-0 z-0">
           <SafeListingImage
             src={project.mainImage}
-            alt=""
+            alt={project.title}
             fill
             className="object-cover object-center"
             sizes="100vw"
@@ -68,7 +68,7 @@ export default function FeaturedExxensSpotlight({ project }) {
           <div className="absolute bottom-0 right-0 h-7 w-7 border-b border-r border-[#C5A880]/40 sm:h-9 sm:w-9" />
         </div>
 
-        <div className="relative z-10 flex min-h-[100svh] min-h-[640px] flex-col px-5 pb-12 pt-[max(5.5rem,calc(env(safe-area-inset-top,0px)+4.5rem))] sm:px-8 sm:pb-16 sm:pt-[max(6rem,calc(env(safe-area-inset-top,0px)+4.75rem))] lg:px-12 lg:pb-20 lg:pt-[max(6.5rem,calc(env(safe-area-inset-top,0px)+5rem))]">
+        <div className="relative z-10 flex min-h-[max(640px,100svh)] flex-col px-5 pb-12 pt-[max(5.5rem,calc(env(safe-area-inset-top,0px)+4.5rem))] sm:px-8 sm:pb-16 sm:pt-[max(6rem,calc(env(safe-area-inset-top,0px)+4.75rem))] lg:px-12 lg:pb-20 lg:pt-[max(6.5rem,calc(env(safe-area-inset-top,0px)+5rem))]">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}

@@ -7,8 +7,10 @@ import { motion } from 'framer-motion';
 import { Bed, Bath, MapPin, ArrowLeft } from 'lucide-react';
 import ListingLogo from '@/components/ListingLogo';
 import ProjectLuxuryShowcase from '@/components/projects/ProjectLuxuryShowcase';
+import { useDisplayCurrency } from '@/contexts/DisplayCurrencyContext';
 
 export default function PropertyDetailPage() {
+  const { formatPrice } = useDisplayCurrency();
   const params = useParams();
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -57,14 +59,8 @@ export default function PropertyDetailPage() {
     );
   }
 
-  const formatPrice = (price) => {
-    if (price === undefined || price === null) return 'Price on request';
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP',
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
+  const native = property.currency === 'PKR' ? 'PKR' : 'GBP';
+  const priceLine = formatPrice(property.price, native);
 
   const galleryUrls = [...(property.galleryMedia || []), ...(property.galleryImages || [])];
   const videoMedia = galleryUrls.filter((url) => url.includes('/video/upload/'));
@@ -97,7 +93,7 @@ export default function PropertyDetailPage() {
       <ProjectLuxuryShowcase
         project={showcaseListing}
         backHref="/uk-properties"
-        priceLine={formatPrice(property.price)}
+        priceLine={priceLine}
       />
 
       <section className="border-b border-white/10 bg-black px-6 py-8">
