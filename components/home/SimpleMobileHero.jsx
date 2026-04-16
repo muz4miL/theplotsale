@@ -111,25 +111,15 @@ export default function SimpleMobileHero() {
     <section className="relative w-full overflow-hidden bg-black" style={{ height: '100svh', minHeight: '100vh' }}>
       {/* Video Container */}
       <div className="relative h-[60vh] w-full overflow-hidden">
-        {/* Fallback Background Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: 'url(/intro.png)',
-            zIndex: 1,
-          }}
-        />
-
         {/* Video Element */}
         {!hasError && (
           <video
             ref={videoRef}
             key={currentVideoIndex}
-            className="absolute inset-0 w-full h-full object-cover z-10"
+            className="absolute inset-0 w-full h-full object-cover z-10 bg-black"
             muted
             playsInline
             preload="auto"
-            poster="/intro.png"
             style={{
               opacity: isLoading ? 0 : 1,
               transition: 'opacity 0.5s ease-in-out',

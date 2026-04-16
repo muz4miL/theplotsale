@@ -306,3 +306,24 @@ html.has-scroll-dragging {
 .has-scroll-smooth [data-scroll-container] {
   min-height: 100vh;
 }
+
+@keyframes luxury-marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-lane {
+  display: flex;
+  width: max-content;
+  animation: luxury-marquee 30s linear infinite;
+  will-change: transform;
+}
+
+.marquee-track {
+  will-change: auto;
+}

@@ -24,7 +24,6 @@ export default function HeroVideoParallax() {
 
   // State for mobile/desktop and video transitions
   const [isMobile, setIsMobile] = useState(false);
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   
   const videos = [
     '/videos/1.mp4',
@@ -53,7 +52,7 @@ export default function HeroVideoParallax() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Seamless video transition logic
+  // Seamless video transition logic (desktop + mobile video layer)
   useEffect(() => {
     const video1 = videoRef.current;
     const video2 = video2Ref.current;
@@ -61,15 +60,16 @@ export default function HeroVideoParallax() {
 
     let activeVideo = video1;
     let inactiveVideo = video2;
-    let videoIndex = 0;
+    let activeIndex = 0;
 
-    // Set initial states
+    // Initial setup: active starts at first video, inactive preloads second
     video1.style.opacity = '1';
     video2.style.opacity = '0';
     video1.src = videos[0];
     video2.src = videos[1];
+    video1.load();
+    video2.load();
 
-    // Mobile-specific video play handler
     const attemptVideoPlay = async (video) => {
       if (!video) return;
       
@@ -91,24 +91,37 @@ export default function HeroVideoParallax() {
       }
     };
 
-    const handleVideoEnd = () => {
-      // Preload next video
-      videoIndex = (videoIndex + 1) % videos.length;
-      const nextVideoIndex = (videoIndex + 1) % videos.length;
-      
-      inactiveVideo.src = videos[nextVideoIndex];
-      inactiveVideo.load();
-      
-      // Crossfade
-      gsap.to(activeVideo, { opacity: 0, duration: 1.5, ease: 'power2.inOut' });
-      gsap.to(inactiveVideo, { opacity: 1, duration: 1.5, ease: 'power2.inOut' });
-      
-      attemptVideoPlay(inactiveVideo);
-      
-      // Swap references
+    const handleVideoEnd = async (event) => {
+      // Ignore end events from non-active layer to prevent odd mid-transition jumps.
+      if (event?.target !== activeVideo) return;
+
+      // Determine next active video and the one to preload after transition
+      const nextActiveIndex = (activeIndex + 1) % videos.length;
+      const nextPreloadIndex = (nextActiveIndex + 1) % videos.length;
+
+      // Ensure inactive layer points to next active source
+      if (inactiveVideo.src !== `${window.location.origin}${videos[nextActiveIndex]}`) {
+        inactiveVideo.src = videos[nextActiveIndex];
+        inactiveVideo.load();
+      }
+
+      // Always start next clip from the beginning.
+      inactiveVideo.currentTime = 0;
+      await attemptVideoPlay(inactiveVideo);
+
+      // Elegant crossfade transition between video layers
+      gsap.to(activeVideo, { opacity: 0, duration: 1.2, ease: 'power2.inOut' });
+      gsap.to(inactiveVideo, { opacity: 1, duration: 1.2, ease: 'power2.inOut' });
+
+      // Swap layers: inactive becomes active
       [activeVideo, inactiveVideo] = [inactiveVideo, activeVideo];
-      
-      setCurrentVideoIndex(videoIndex);
+      activeIndex = nextActiveIndex;
+
+      // Preload the following video into the now-inactive layer
+      inactiveVideo.pause();
+      inactiveVideo.currentTime = 0;
+      inactiveVideo.src = videos[nextPreloadIndex];
+      inactiveVideo.load();
     };
 
     // Handle user interaction to start videos on mobile
@@ -231,104 +244,20 @@ export default function HeroVideoParallax() {
     return () => ctx.revert();
   }, [isMobile]);
 
+  if (isMobile) {
+    return <SimpleMobileHero />;
+  }
+
   return (
     <section
       ref={sectionRef}
       className={`relative ${isMobile ? 'h-auto min-h-screen flex flex-col' : 'h-screen w-full overflow-hidden'} text-white`}
       style={{ background: 'linear-gradient(to bottom right, #111111, #0A0A0A, #050505)' }}
     >
-      {/* ==================== MOBILE LAYOUT ==================== */}
-      {isMobile ? (
-        <>
-          {/* VIDEO SECTION - Top 60% with Brand Identity Overlay */}
-          <div className="relative h-[60vh] w-full overflow-hidden">
-            {/* Fallback background image */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{
-                backgroundImage: 'url(/intro.png)',
-                zIndex: 1
-              }}
-            />
-            
-            <div className="absolute inset-0 z-10">
-              <video
-                ref={videoRef}
-                className="h-full w-full object-cover absolute inset-0"
-                autoPlay 
-                loop={false} 
-                muted 
-                playsInline 
-                preload="metadata"
-                webkit-playsinline="true"
-                x5-playsinline="true"
-                x5-video-player-type="h5"
-                poster="/intro.png"
-                style={{ transition: 'opacity 1.5s ease-in-out' }}
-              />
-              <video
-                ref={video2Ref}
-                className="h-full w-full object-cover absolute inset-0"
-                loop={false} 
-                muted 
-                playsInline 
-                preload="none"
-                webkit-playsinline="true"
-                x5-playsinline="true"
-                x5-video-player-type="h5"
-                poster="/intro.png"
-                style={{ opacity: 0, transition: 'opacity 1.5s ease-in-out' }}
-              />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent)' }} />
-            </div>
-
-            {/* Brand Identity Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
-              <div className="mb-4">
-                <span className="text-[10px] tracking-[0.3em] text-white/90 font-sans uppercase font-light" style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.8)' }}>
-                  PREMIER REAL ESTATE CONSULTANCY
-                </span>
-              </div>
-              <h1 className="text-3xl font-serif font-light text-white mb-2" style={{ textShadow: '0 4px 16px rgba(0, 0, 0, 0.9)' }}>
-                Cultivating Futures
-              </h1>
-              <p className="text-xl italic font-serif text-[#C5A880] font-light" style={{ textShadow: '0 4px 16px rgba(0, 0, 0, 0.9)' }}>
-                We are not just building homes. We are shaping dreams into addresses.
-              </p>
-            </div>
-          </div>
-
-          {/* ARCHITECTURE STORY - Bottom Section */}
-          <div className="flex-1 flex flex-col justify-center items-center px-6 py-24" style={{ backgroundColor: '#0A0A0A' }}>
-            <div className="w-full max-w-md text-center">
-              <div className="h-[1px] w-24 mb-6 mx-auto" style={{ background: 'linear-gradient(to right, #C5A880, rgba(197, 168, 128, 0.3))' }} />
-              <div className="mb-4">
-                <span className="text-xs tracking-[0.25em] font-sans uppercase font-light" style={{ color: '#C5A880' }}>LONDON • LAHORE</span>
-              </div>
-              <div className="mb-8">
-                <h2 className="text-3xl font-light font-serif mb-2" style={{ color: '#F2F4F6', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>Aspirations into</h2>
-                <h2 className="text-3xl italic font-light font-serif" style={{ color: '#C5A880', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>Foundations</h2>
-              </div>
-              <p className="font-light font-sans" style={{ color: 'rgba(242, 244, 246, 0.8)', lineHeight: '1.8' }}>
-                At ThePlotSale, we are committed to delivering real estate solutions marked by transparency and integrity, bridging developers and homeowners in a trusted partnership. We envision a sustainable future where every property is not just an asset, but a space people are proud to call home.
-              </p>
-            </div>
-          </div>
-        </>
-      ) : (
-        /* ==================== DESKTOP LAYOUT ==================== */
-        <>
+      {/* ==================== DESKTOP LAYOUT ==================== */}
+      <>
           <div ref={videoContainerRef} className="absolute z-20 overflow-hidden bg-black/20 w-full h-full right-0 top-0 rounded-none shadow-none">
-            {/* Fallback background image */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{
-                backgroundImage: 'url(/intro.png)',
-                zIndex: 1
-              }}
-            />
-            
-            <div className="relative h-full w-full overflow-hidden z-10">
+            <div className="relative h-full w-full overflow-hidden z-10 bg-black">
               <video
                 ref={videoRef}
                 className="h-full w-full object-cover absolute inset-0"
@@ -340,7 +269,6 @@ export default function HeroVideoParallax() {
                 webkit-playsinline="true"
                 x5-playsinline="true"
                 x5-video-player-type="h5"
-                poster="/intro.png"
                 style={{ transition: 'opacity 1.5s ease-in-out' }}
               />
               <video
@@ -353,7 +281,6 @@ export default function HeroVideoParallax() {
                 webkit-playsinline="true"
                 x5-playsinline="true"
                 x5-video-player-type="h5"
-                poster="/intro.png"
                 style={{ opacity: 0, transition: 'opacity 1.5s ease-in-out' }}
               />
               <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(17, 17, 17, 0.9), rgba(17, 17, 17, 0.3), transparent)' }} />
@@ -458,9 +385,7 @@ export default function HeroVideoParallax() {
               </div>
             </div>
           </div>
-        </>
-      )
-      }
+      </>
     </section >
   );
 }

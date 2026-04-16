@@ -11,12 +11,10 @@ const exploreLinks = [
 ];
 
 const projectsLinks = [
-  { label: 'Airport City Sialkot', href: '/projects/airport-city-sialkot' },
-  { label: 'Canal Fort II', href: '/projects/canal-fort-ii' },
-  { label: 'Exxsn Heights', href: '/projects/exxsn-heights' },
-  { label: 'Pearl Garden', href: '/projects/pearl-garden' },
-  { label: 'Siddique City', href: '/projects/siddique-city' },
-  { label: 'Siddique Heights', href: '/projects/siddique-heights' },
+  { label: 'Pakistan Projects', href: '/pakistan-projects' },
+  { label: 'UK Inventory', href: '/uk-properties' },
+  { label: 'Current Developments', href: '/projects' },
+  { label: 'Luxury Properties', href: '/properties' },
 ];
 
 const socialIcons = [
@@ -75,7 +73,7 @@ export default function Footer() {
         <div className="border-t border-white/5" />
 
         {/* SECTION 2: NAVIGATION LINKS */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-12 pb-12">
+        <section className="grid grid-cols-1 gap-10 pt-12 pb-12 md:grid-cols-3">
           {/* Quick Links */}
           <div>
             <p className="font-playfair text-[#C5A880] text-[10px] tracking-[0.25em] uppercase mb-4">
@@ -104,7 +102,7 @@ export default function Footer() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="text-white/70 text-sm font-light hover:translate-x-1 hover:text-[#C5A880] transition-all duration-300"
+                  className="text-white/70 text-sm font-light tracking-[0.08em] hover:translate-x-1 hover:text-[#C5A880] transition-all duration-300"
                 >
                   {link.label}
                 </Link>
@@ -148,6 +146,12 @@ export default function Footer() {
         <section className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between pt-8 text-xs text-white/30">
           <p>© 2025 ThePlotSale. All Rights Reserved.</p>
           <div className="flex gap-6">
+            <Link
+              href="/admin/login"
+              className="hover:text-[#C5A880] transition-colors duration-300"
+            >
+              Admin Login
+            </Link>
             <Link
               href="/privacy"
               className="hover:text-[#C5A880] transition-colors duration-300"

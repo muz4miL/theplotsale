@@ -3,6 +3,7 @@ import WhoWeAre from '@/components/about/WhoWeAre';
 import ManagementTeam from '@/components/about/ManagementTeam';
 import HeritageStory from '@/components/about/HeritageStory';
 import ClubPhilosophy from '@/components/about/ClubPhilosophy';
+import ExtraordinaryCta from '@/components/shared/ExtraordinaryCta';
 
 export default function AboutPage() {
     return (
@@ -12,6 +13,7 @@ export default function AboutPage() {
             <ManagementTeam />
             <HeritageStory />
             <ClubPhilosophy />
+            <ExtraordinaryCta />
         </main>
     );
 }

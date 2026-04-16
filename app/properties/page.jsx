@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Bed, Bath, Maximize, MapPin } from 'lucide-react';
+import ExtraordinaryCta from '@/components/shared/ExtraordinaryCta';
 
 const properties = [
   {
@@ -173,6 +174,9 @@ export default function PropertiesPage() {
           ))}
         </motion.div>
 
+      </div>
+      <div className="mt-20 -mx-6 md:-mx-0">
+        <ExtraordinaryCta />
       </div>
     </main>
   );
