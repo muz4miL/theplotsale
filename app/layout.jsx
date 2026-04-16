@@ -2,6 +2,7 @@
 
 import { Playfair_Display, Manrope } from 'next/font/google';
 import PublicChrome from '@/components/layout/PublicChrome';
+import { DisplayCurrencyProvider } from '@/contexts/DisplayCurrencyContext';
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -44,7 +45,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${playfair.variable} ${manrope.variable}`}>
       <body className="antialiased selection:bg-[#C5A880]/35 selection:text-white">
-        <PublicChrome>{children}</PublicChrome>
+        <DisplayCurrencyProvider>
+          <PublicChrome>{children}</PublicChrome>
+        </DisplayCurrencyProvider>
         {/* Premium Film Grain Noise Texture Overlay */}
         <div
           className="pointer-events-none fixed inset-0 z-[9999] opacity-[0.026] max-md:opacity-[0.014]"
