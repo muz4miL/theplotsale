@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import {
   Building2,
   Handshake,
@@ -56,31 +56,20 @@ const disciplines = [
   },
 ];
 
-const gridVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 26, scale: 0.98 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] },
-  },
-};
-
-function DisciplineCard({ item }) {
+function DisciplineCard({ item, index, scrollYProgress }) {
   const Icon = item.icon;
+  const start = 0.16 + index * 0.08;
+  const mid = start + 0.14;
+  const end = start + 0.3;
+
+  // Build on scroll-down, reverse on scroll-up.
+  const opacity = useTransform(scrollYProgress, [start, mid, end], [0.05, 1, 1]);
+  const y = useTransform(scrollYProgress, [start, mid, end], [36, 0, 0]);
+  const scale = useTransform(scrollYProgress, [start, mid, end], [0.94, 1, 1]);
+
   return (
     <motion.article
-      variants={cardVariants}
+      style={{ opacity, y, scale }}
       className="group relative min-h-[260px] overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0a0d14] p-6 transition-all duration-500 hover:-translate-y-0.5 hover:border-[#C5A880]/35"
     >
       <div
@@ -117,23 +106,21 @@ function DisciplineCard({ item }) {
 
 export default function CoreCapabilitiesCarousel() {
   const sectionRef = useRef(null);
-  const triggerRef = useRef(null);
-  const inView = useInView(triggerRef, {
-    once: false,
-    amount: 0.35,
-    margin: '-5% 0px -20% 0px',
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start 85%', 'end 25%'],
   });
+  const headerOpacity = useTransform(scrollYProgress, [0.02, 0.18, 0.24], [0, 1, 1]);
+  const headerY = useTransform(scrollYProgress, [0.02, 0.18], [28, 0]);
 
   return (
     <section ref={sectionRef} className="relative overflow-hidden bg-[#050507] py-24 lg:py-28">
       <div className="pointer-events-none absolute bottom-0 right-0 h-[580px] w-[580px] rounded-full opacity-[0.03]" style={{ background: 'radial-gradient(circle, #f4e1c1, transparent 70%)' }} />
       <div className="pointer-events-none absolute left-0 top-0 h-[360px] w-[360px] rounded-full opacity-[0.02]" style={{ background: 'radial-gradient(circle, #C5A880, transparent 70%)' }} />
 
-      <div ref={triggerRef} className="relative z-10">
+      <div className="relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 26 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 26 }}
-          transition={{ duration: 0.5 }}
+          style={{ opacity: headerOpacity, y: headerY }}
           className="mx-auto mb-14 max-w-6xl px-6"
         >
           <div className="mb-6 flex items-center gap-4">
@@ -145,16 +132,11 @@ export default function CoreCapabilitiesCarousel() {
           </h2>
         </motion.div>
 
-        <motion.div
-          variants={gridVariants}
-          initial="hidden"
-          animate={inView ? 'visible' : 'hidden'}
-          className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-6 md:grid-cols-2 xl:grid-cols-3"
-        >
-          {disciplines.map((item) => (
-            <DisciplineCard key={item.title} item={item} />
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-6 md:grid-cols-2 xl:grid-cols-3">
+          {disciplines.map((item, index) => (
+            <DisciplineCard key={item.title} item={item} index={index} scrollYProgress={scrollYProgress} />
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
