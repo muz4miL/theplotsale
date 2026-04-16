@@ -93,6 +93,11 @@ html.lenis body {
 
 html {
   scroll-behavior: smooth;
+  /* clip: no horizontal scroll + does NOT break descendant `position:sticky` (hidden does) */
+  overflow-x: clip;
+  max-width: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -100,10 +105,18 @@ body {
   color: var(--foreground);
   font-family: var(--font-body), system-ui, sans-serif;
   line-height: 1.6;
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/* Touch devices: calmer chrome, no grey tap flash, comfortable body rhythm */
+@media (hover: none) and (pointer: coarse) {
+  body {
+    line-height: 1.65;
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 /* Typography Utilities */
@@ -444,4 +457,10 @@ html.has-scroll-dragging {
   .lux-listing-grain {
     opacity: 0.1;
   }
+}
+
+/* —— Mobile luxury shell: horizontal safe areas (match ~px-6 rhythm) —— */
+.lux-mobile-page-gutter {
+  padding-left: max(1.5rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1.5rem, env(safe-area-inset-right, 0px));
 }

@@ -70,7 +70,7 @@ export default function Intro() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full overflow-x-hidden bg-[#0A0A0A] min-h-[85vh] flex items-center justify-center py-12 lg:py-16"
+      className="relative flex min-h-[min(88vh,920px)] w-full items-center justify-center overflow-x-hidden bg-[#0A0A0A] py-14 max-lg:py-16 lg:min-h-[85vh] lg:py-16"
     >
       <LuxurySectionOrbs />
 
@@ -81,7 +81,7 @@ export default function Intro() {
         }}
       />
 
-      <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 w-full">
+      <div className="mx-auto w-full max-w-7xl pl-[max(1.5rem,env(safe-area-inset-left,0px))] pr-[max(1.5rem,env(safe-area-inset-right,0px))] md:pl-8 md:pr-8 lg:pl-12 lg:pr-12">
 
         <div className="flex flex-col lg:grid lg:grid-cols-2 gap-10 lg:gap-12 lg:items-center">
 
@@ -91,7 +91,7 @@ export default function Intro() {
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
           >
-            <div className="relative h-[450px] lg:h-[500px] w-full overflow-hidden rounded-sm mb-8 lg:mb-0">
+            <div className="relative mb-8 h-[min(52vh,460px)] w-full overflow-hidden rounded-2xl sm:h-[min(50vh,480px)] sm:rounded-3xl lg:mb-0 lg:h-[500px] lg:rounded-sm">
 
               <motion.div
                 className="absolute inset-0 bg-black z-20 origin-right"
@@ -122,11 +122,11 @@ export default function Intro() {
 
             {/* FLOATING BADGE */}
             <motion.div
-              className="absolute -bottom-6 -right-6 lg:-bottom-8 lg:-right-8 w-44 h-44 lg:w-52 lg:h-52 overflow-hidden rounded-sm shadow-2xl"
+              className="absolute -bottom-4 -right-2 h-40 w-40 overflow-hidden rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.55)] sm:-bottom-6 sm:-right-4 sm:h-44 sm:w-44 lg:-bottom-8 lg:-right-8 lg:h-52 lg:w-52 lg:rounded-sm"
               variants={floatingImageVariant}
               style={{ backdropFilter: 'blur(12px)' }}
             >
-              <div className="absolute inset-0 border border-white/30 rounded-sm z-10" />
+              <div className="absolute inset-0 z-10 rounded-2xl border border-white/25 lg:rounded-sm" />
 
               <div className="w-full h-full bg-gradient-to-br from-white/5 via-black/40 to-black/60 flex flex-col items-center justify-center relative">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
@@ -167,7 +167,7 @@ export default function Intro() {
               animate={isInView ? "visible" : "hidden"}
               variants={textVariants}
             >
-              <h2 className="text-3xl md:text-4xl lg:text-5xl text-white leading-[1.1]">
+              <h2 className="text-[clamp(1.75rem,5.2vw,2.25rem)] leading-[1.12] text-white md:text-4xl lg:text-5xl">
                 Built on
                 <br />
                 <span className="italic text-white/90 text-[1.1em]">Trust &amp; Performance</span>

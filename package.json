@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "sync-flagship": "node scripts/sync-flagship-slug.js"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

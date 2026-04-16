@@ -38,7 +38,7 @@ export default function LavitaLifestyle() {
                 }}
             />
 
-            <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
+            <div className="mx-auto max-w-7xl pl-[max(1.5rem,env(safe-area-inset-left,0px))] pr-[max(1.5rem,env(safe-area-inset-right,0px))] md:pl-8 md:pr-8 lg:pl-12 lg:pr-12">
                 <div className="flex flex-col lg:grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
 
                     {/* LEFT COLUMN: TEXT */}

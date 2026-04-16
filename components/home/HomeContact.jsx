@@ -138,7 +138,7 @@ export default function HomeContact() {
         </div>
 
         {/* —— Right: premium contact panel —— */}
-        <div className="relative flex flex-col justify-center bg-[#0a1412] px-6 py-16 sm:px-10 lg:px-14 lg:py-20">
+        <div className="relative flex flex-col justify-center bg-[#0a1412] py-16 pl-[max(1.5rem,env(safe-area-inset-left,0px))] pr-[max(1.5rem,env(safe-area-inset-right,0px))] sm:px-10 lg:px-14 lg:py-20">
           <div
             className="pointer-events-none absolute inset-0 opacity-[0.07]"
             style={{
@@ -219,7 +219,7 @@ export default function HomeContact() {
                     required
                     autoComplete="name"
                     disabled={status === 'loading'}
-                    className="w-full border-0 border-b border-white/15 bg-transparent py-2.5 font-[family-name:var(--font-manrope)] text-sm font-light tracking-wide text-white/90 outline-none transition-colors duration-300 placeholder:text-white/25 focus:border-[#C5A880] disabled:opacity-50"
+                    className="w-full min-h-[48px] border-0 border-b border-white/15 bg-transparent py-3 font-[family-name:var(--font-manrope)] text-base font-light tracking-wide text-white/90 outline-none transition-colors duration-300 placeholder:text-white/25 focus:border-[#C5A880] disabled:opacity-50"
                   />
                 </div>
 
@@ -236,7 +236,7 @@ export default function HomeContact() {
                       required
                       autoComplete="email"
                       disabled={status === 'loading'}
-                      className="w-full border-0 border-b border-white/15 bg-transparent py-2.5 font-[family-name:var(--font-manrope)] text-sm font-light tracking-wide text-white/90 outline-none transition-colors duration-300 placeholder:text-white/25 focus:border-[#C5A880] disabled:opacity-50"
+                      className="w-full min-h-[48px] border-0 border-b border-white/15 bg-transparent py-3 font-[family-name:var(--font-manrope)] text-base font-light tracking-wide text-white/90 outline-none transition-colors duration-300 placeholder:text-white/25 focus:border-[#C5A880] disabled:opacity-50"
                     />
                   </div>
                   <div>
@@ -251,7 +251,7 @@ export default function HomeContact() {
                       required
                       autoComplete="tel"
                       disabled={status === 'loading'}
-                      className="w-full border-0 border-b border-white/15 bg-transparent py-2.5 font-[family-name:var(--font-manrope)] text-sm font-light tracking-wide text-white/90 outline-none transition-colors duration-300 placeholder:text-white/25 focus:border-[#C5A880] disabled:opacity-50"
+                      className="w-full min-h-[48px] border-0 border-b border-white/15 bg-transparent py-3 font-[family-name:var(--font-manrope)] text-base font-light tracking-wide text-white/90 outline-none transition-colors duration-300 placeholder:text-white/25 focus:border-[#C5A880] disabled:opacity-50"
                     />
                   </div>
                 </div>
@@ -267,7 +267,7 @@ export default function HomeContact() {
                     rows={3}
                     required
                     disabled={status === 'loading'}
-                    className="w-full resize-none border-0 border-b border-white/15 bg-transparent py-2.5 font-[family-name:var(--font-manrope)] text-sm font-light tracking-wide text-white/90 outline-none transition-colors duration-300 placeholder:text-white/25 focus:border-[#C5A880] disabled:opacity-50"
+                    className="w-full min-h-[6.5rem] resize-none border-0 border-b border-white/15 bg-transparent py-3 font-[family-name:var(--font-manrope)] text-base font-light tracking-wide text-white/90 outline-none transition-colors duration-300 placeholder:text-white/25 focus:border-[#C5A880] disabled:opacity-50"
                   />
                 </div>
 
@@ -275,7 +275,7 @@ export default function HomeContact() {
                   <button
                     type="submit"
                     disabled={status === 'loading'}
-                    className="lux-button w-full rounded-full bg-[#f2ebe3] py-3.5 font-[family-name:var(--font-manrope)] text-[11px] font-semibold uppercase tracking-[0.22em] text-[#0a1412] transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                    className="lux-button min-h-[52px] w-full rounded-full bg-[#f2ebe3] py-3.5 font-[family-name:var(--font-manrope)] text-[11px] font-semibold uppercase tracking-[0.22em] text-[#0a1412] transition-colors hover:bg-white active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {status === 'loading' ? 'Sending…' : 'Request'}
                   </button>

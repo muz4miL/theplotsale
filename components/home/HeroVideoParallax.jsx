@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import SimpleMobileHero from './SimpleMobileHero';
@@ -23,7 +23,9 @@ export default function HeroVideoParallax() {
   const eleganceRef = useRef(null);
   const goldDividerRef = useRef(null);
 
-  // State for mobile/desktop and video transitions
+  // Defer mobile vs desktop until after mount so SSR + first client paint match,
+  // then branch once — avoids swapping the entire tree after effects touch video nodes.
+  const [ready, setReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   
   const videos = [
@@ -32,29 +34,20 @@ export default function HeroVideoParallax() {
     '/videos/3.mp4'
   ];
 
-  // Check if mobile on mount and resize
-  useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-
-      // On mobile, show content immediately
-      if (mobile && revealRef.current && timelessRef.current && eleganceRef.current) {
-        gsap.set([revealRef.current, timelessRef.current, eleganceRef.current, revealSubRef.current], {
-          opacity: 1,
-          y: 0,
-          clipPath: 'inset(0 0 0 0)'
-        });
-      }
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+  useLayoutEffect(() => {
+    /* Touch-first viewports: dedicated hero (no ScrollTrigger pin / heavy video stack). */
+    const mq = window.matchMedia('(max-width: 1023px)');
+    const apply = () => setIsMobile(mq.matches);
+    apply();
+    setReady(true);
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
   }, []);
 
-  // Seamless video transition logic (desktop + mobile video layer)
+  // Seamless video transition logic (desktop hero only)
   useEffect(() => {
+    if (!ready || isMobile) return;
+
     const video1 = videoRef.current;
     const video2 = video2Ref.current;
     if (!video1 || !video2) return;
@@ -148,11 +141,11 @@ export default function HeroVideoParallax() {
       document.removeEventListener('touchstart', handleUserInteraction);
       document.removeEventListener('click', handleUserInteraction);
     };
-  }, []);
+  }, [ready, isMobile]);
 
   // GSAP animations - DESKTOP ONLY
   useEffect(() => {
-    if (isMobile || typeof window === 'undefined' || !sectionRef.current) return;
+    if (!ready || isMobile || typeof window === 'undefined' || !sectionRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
 
@@ -243,7 +236,17 @@ export default function HeroVideoParallax() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [isMobile]);
+  }, [ready, isMobile]);
+
+  if (!ready) {
+    return (
+      <div
+        className="min-h-screen w-full"
+        style={{ background: 'linear-gradient(to bottom right, #111111, #0A0A0A, #050505)' }}
+        aria-hidden
+      />
+    );
+  }
 
   if (isMobile) {
     return <SimpleMobileHero />;

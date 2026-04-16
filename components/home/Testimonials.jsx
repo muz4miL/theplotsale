@@ -32,7 +32,7 @@ export default function Testimonials() {
     return (
         <section
             ref={sectionRef}
-            className="relative w-full overflow-hidden bg-[#0A0A0A] py-12 lg:py-16"
+            className="relative w-full overflow-hidden bg-[#0A0A0A] py-14 max-lg:py-16 lg:py-16"
         >
             {/* Noise Texture Overlay */}
             <div
@@ -42,7 +42,7 @@ export default function Testimonials() {
                 }}
             />
 
-            <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
+            <div className="mx-auto max-w-7xl pl-[max(1.5rem,env(safe-area-inset-left,0px))] pr-[max(1.5rem,env(safe-area-inset-right,0px))] md:pl-8 md:pr-8 lg:pl-12 lg:pr-12">
                 {/* Header Section */}
                 <motion.div
                     initial="hidden"

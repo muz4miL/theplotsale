@@ -3,9 +3,15 @@
 import { useEffect, useRef } from 'react';
 import Lenis from 'lenis';
 
+/**
+ * Lenis smooth scroll breaks `position: fixed` (e.g. navbar) when a transformed
+ * scroll root is involved — common on mobile + Chrome DevTools device mode still
+ * reports a "fine" pointer. Skip on narrow viewports and touch-like environments.
+ */
 function shouldSkipLenis() {
   if (typeof window === 'undefined') return true;
-  // Touch / coarse pointer: native scroll avoids Lenis crashes on iOS Safari and keeps UX natural.
+  if (window.matchMedia('(max-width: 1023px)').matches) return true;
+
   const coarse =
     window.matchMedia?.('(pointer: coarse)').matches ||
     window.matchMedia?.('(hover: none)').matches ||
@@ -18,42 +24,66 @@ export default function SmoothScroll({ children }) {
   const lenisRef = useRef(null);
 
   useEffect(() => {
-    if (shouldSkipLenis()) {
-      return undefined;
-    }
-
     let rafId;
-    try {
-      const lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        orientation: 'vertical',
-        gestureOrientation: 'vertical',
-        smoothWheel: true,
-        wheelMultiplier: 1,
-        smoothTouch: false,
-        touchMultiplier: 2,
-        infinite: false,
-      });
+    const mq = window.matchMedia('(max-width: 1023px)');
 
-      lenisRef.current = lenis;
+    const teardown = () => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = undefined;
+      }
+      if (lenisRef.current) {
+        try {
+          lenisRef.current.destroy();
+        } catch {
+          /* noop */
+        }
+        lenisRef.current = null;
+      }
+    };
 
-      function raf(time) {
-        lenis.raf(time);
-        rafId = requestAnimationFrame(raf);
+    const setup = () => {
+      teardown();
+
+      if (shouldSkipLenis()) {
+        return;
       }
 
-      rafId = requestAnimationFrame(raf);
+      try {
+        const lenis = new Lenis({
+          duration: 1.2,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          orientation: 'vertical',
+          gestureOrientation: 'vertical',
+          smoothWheel: true,
+          wheelMultiplier: 1,
+          smoothTouch: false,
+          touchMultiplier: 2,
+          infinite: false,
+        });
 
-      return () => {
-        if (rafId) cancelAnimationFrame(rafId);
-        lenis.destroy();
-        lenisRef.current = null;
-      };
-    } catch (e) {
-      console.warn('Lenis init skipped:', e?.message || e);
-      return undefined;
-    }
+        lenisRef.current = lenis;
+
+        function raf(time) {
+          lenis.raf(time);
+          rafId = requestAnimationFrame(raf);
+        }
+
+        rafId = requestAnimationFrame(raf);
+      } catch (e) {
+        console.warn('Lenis init skipped:', e?.message || e);
+      }
+    };
+
+    setup();
+    mq.addEventListener('change', setup);
+    window.addEventListener('resize', setup);
+
+    return () => {
+      mq.removeEventListener('change', setup);
+      window.removeEventListener('resize', setup);
+      teardown();
+    };
   }, []);
 
   return <>{children}</>;

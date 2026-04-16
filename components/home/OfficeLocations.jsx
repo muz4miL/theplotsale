@@ -31,7 +31,7 @@ function mapOpenUrl(query) {
 
 export default function OfficeLocations() {
   return (
-    <section className="relative overflow-hidden bg-[#050708] px-4 pb-20 pt-14 md:px-8 md:pb-24 md:pt-20">
+    <section className="relative overflow-hidden bg-[#050708] pb-[max(5rem,env(safe-area-inset-bottom,0px))] pl-[max(1rem,env(safe-area-inset-left,0px))] pr-[max(1rem,env(safe-area-inset-right,0px))] pt-14 md:pb-24 md:pl-8 md:pr-8 md:pt-20">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/2 top-0 h-60 w-[65rem] -translate-x-1/2 bg-[radial-gradient(ellipse_at_top,_rgba(197,168,128,0.12),_transparent_65%)]" />
       </div>

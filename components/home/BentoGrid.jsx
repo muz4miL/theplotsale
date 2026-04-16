@@ -237,7 +237,7 @@ function MobileExperience() {
       />
 
       {/* Section Header - Centered */}
-      <div className="relative z-20 pt-12 pb-8 px-6 flex flex-col items-center text-center">
+      <div className="relative z-20 flex flex-col items-center px-[max(1.5rem,env(safe-area-inset-left,0px))] pb-10 pt-14 text-center max-[380px]:pt-12 sm:px-8">
         <div className="flex items-center gap-3 mb-3">
           <div className="h-[1px] w-8 bg-gradient-to-r from-transparent via-[#C5A880] to-[#C5A880]" />
           <span className="text-[#C5A880] text-[9px] tracking-[0.35em] uppercase font-medium">
@@ -245,7 +245,7 @@ function MobileExperience() {
           </span>
           <div className="h-[1px] w-8 bg-gradient-to-l from-transparent via-[#C5A880] to-[#C5A880]" />
         </div>
-        <h2 className="font-playfair text-2xl font-light tracking-tight text-white/90">
+        <h2 className="max-w-[18ch] font-playfair text-[clamp(1.45rem,4.8vw,1.85rem)] font-light leading-tight tracking-tight text-white/90 text-balance">
           Track Record & Expertise
         </h2>
       </div>
@@ -254,7 +254,7 @@ function MobileExperience() {
       <div className="relative flex-1 z-10">
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto px-6 h-full items-center snap-x snap-mandatory no-scrollbar"
+          className="flex h-full snap-x snap-mandatory items-center gap-4 overflow-x-auto pl-[max(1.5rem,env(safe-area-inset-left,0px))] pr-[max(1.5rem,env(safe-area-inset-right,0px))] no-scrollbar sm:pl-8 sm:pr-8"
           style={{
             scrollBehavior: 'smooth',
             WebkitOverflowScrolling: 'touch',
@@ -267,10 +267,10 @@ function MobileExperience() {
               style={{ width: '80vw' }}
             >
               {/* Magazine-Style Card */}
-              <div className="flex flex-col bg-[#0A0A0A]/60 backdrop-blur-sm rounded-sm overflow-hidden border border-white/5">
+              <div className="flex flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-[#080c0b]/90 shadow-[0_28px_80px_rgba(0,0,0,0.5)] backdrop-blur-md">
 
                 {/* Image Container - Clean, No Overlays */}
-                <div className="relative h-[40vh] overflow-hidden">
+                <div className="relative h-[min(42vh,380px)] overflow-hidden sm:h-[40vh]">
                   <Image
                     src={item.url}
                     alt={item.title}
@@ -281,9 +281,9 @@ function MobileExperience() {
                 </div>
 
                 {/* Text Container - Below Image */}
-                <div className="bg-[#0A0A0A] p-6 space-y-4">
+                <div className="space-y-4 bg-[#060908] p-6 sm:p-7">
                   {/* Title */}
-                  <h3 className="font-playfair text-3xl font-light text-white/90 tracking-tight">
+                  <h3 className="font-playfair text-[clamp(1.5rem,4.5vw,1.85rem)] font-light tracking-tight text-white/90 text-balance">
                     {item.title}
                   </h3>
 
@@ -312,7 +312,7 @@ function MobileExperience() {
       </div>
 
       {/* Minimal Progress Indicator - Bottom */}
-      <div className="relative z-20 py-8 px-6">
+      <div className="relative z-20 py-10 pl-[max(1.5rem,env(safe-area-inset-left,0px))] pr-[max(1.5rem,env(safe-area-inset-right,0px))] pb-[max(2rem,env(safe-area-inset-bottom,0px))] sm:pl-8 sm:pr-8">
         <div className="flex items-center justify-center gap-3">
           {/* Thin Luxury Line Indicator */}
           <div className="relative w-32 h-[1px] bg-white/10">

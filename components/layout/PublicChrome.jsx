@@ -19,7 +19,7 @@ export default function PublicChrome({ children }) {
       <Preloader />
       <Navbar />
       <LuxuryGlobalAmbient />
-      <main className="relative z-10">{children}</main>
+      <main className="relative z-10 min-w-0 overflow-x-clip">{children}</main>
       <Footer />
     </SmoothScroll>
   );

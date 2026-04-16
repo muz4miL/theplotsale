@@ -12,18 +12,17 @@ import OfficeLocations from '@/components/home/OfficeLocations';
 
 export default function Home() {
   return (
-    <main>
+    <>
       <HeroVideoParallax />
       <Intro />
-      <CoreCapabilitiesCarousel />
       <LuxuryLogoMarquee />
       <Properties />
       <BentoGrid />
       <LavitaLifestyle />
       <Testimonials />
+      <CoreCapabilitiesCarousel />
       <HomeContact />
       <OfficeLocations />
-
-    </main>
+    </>
   );
 }

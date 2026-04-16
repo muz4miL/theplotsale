@@ -58,7 +58,7 @@ export default function LuxuryLogoMarquee() {
   return (
     <section className="relative overflow-hidden border-y border-white/10 bg-neutral-950 py-14">
       <LuxurySectionOrbs />
-      <div className="relative mx-auto mb-10 max-w-7xl px-6 text-center">
+      <div className="relative mx-auto mb-10 max-w-7xl pl-[max(1.5rem,env(safe-area-inset-left,0px))] pr-[max(1.5rem,env(safe-area-inset-right,0px))] text-center md:pl-8 md:pr-8 lg:pl-12 lg:pr-12">
         <p className="text-[10px] uppercase tracking-[0.5em] text-[#C5A880]">Global Confidence Layer</p>
         <h3 className="mt-3 text-2xl font-semibold text-white md:text-3xl">Trusted by Elite Property Networks</h3>
         <LuxuryEdgeShimmer className="mx-auto mt-6 max-w-xs md:max-w-sm" />

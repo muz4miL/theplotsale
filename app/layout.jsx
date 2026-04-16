@@ -32,19 +32,22 @@ export const metadata = {
   },
 };
 
+/** Notch / home-indicator aware layout; pairs with safe-area padding in chrome + sections */
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#0a0a0a',
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${playfair.variable} ${manrope.variable}`}>
-      <head>
-        {/* Preload first hero video for instant playback */}
-        <link rel="preload" href="/videos/1.mp4" as="video" type="video/mp4" />
-      </head>
-      <body className="antialiased">
+      <body className="antialiased selection:bg-[#C5A880]/35 selection:text-white">
         <PublicChrome>{children}</PublicChrome>
         {/* Premium Film Grain Noise Texture Overlay */}
         <div
-          className="pointer-events-none fixed inset-0 z-[9999]"
-          style={{ opacity: 0.03 }}
+          className="pointer-events-none fixed inset-0 z-[9999] opacity-[0.026] max-md:opacity-[0.014]"
           aria-hidden="true"
         >
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">

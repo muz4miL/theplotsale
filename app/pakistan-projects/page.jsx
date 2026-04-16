@@ -5,9 +5,8 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import ExtraordinaryCta from '@/components/shared/ExtraordinaryCta';
 import ProjectListingCard from '@/components/projects/ProjectListingCard';
-import FeaturedExxensSpotlight, {
-  pickFeaturedExxensProject,
-} from '@/components/projects/FeaturedExxensSpotlight';
+import FeaturedExxensSpotlight from '@/components/projects/FeaturedExxensSpotlight';
+import { pickFeaturedFlagshipProject } from '@/lib/featured-flagship';
 
 const TABS = ['Completed', 'Current', 'Upcoming'];
 
@@ -40,7 +39,7 @@ export default function PakistanProjectsPage() {
     fetchProjects();
   }, []);
 
-  const featuredProject = pickFeaturedExxensProject(projects);
+  const featuredProject = pickFeaturedFlagshipProject(projects);
   const filteredProjects = projects.filter((project) => project.status === activeTab);
   const gridProjects = filteredProjects.filter(
     (p) => !featuredProject || String(p.slug) !== String(featuredProject.slug)
@@ -70,37 +69,60 @@ export default function PakistanProjectsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#030706]">
+    <div className="min-h-screen min-w-0 overflow-x-hidden bg-[#030706]">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(197,168,128,0.06),transparent)]" />
 
-      {/* Hero Section */}
-      <section className="relative px-5 pb-16 pt-32 sm:px-8 lg:px-10">
-        <div className="relative mx-auto max-w-[1200px]">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-            className={`text-center ${featuredProject ? 'mb-10 lg:mb-12' : 'mb-14 lg:mb-16'}`}
-          >
-            <p className="mb-5 font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.42em] text-[#C5A880]/90">
-              Portfolio
-            </p>
-            <h1 className="font-playfair text-[clamp(2.5rem,6vw,4rem)] font-light leading-[1.05] text-white">
-              Pakistan <span className="italic text-[#e8dcc4]">developments</span>
-            </h1>
-            <p className="mx-auto mt-5 max-w-xl font-[family-name:var(--font-manrope)] text-sm font-light leading-relaxed text-white/50 sm:text-base">
-              Master-planned communities and signature builds — curated for international and domestic capital.
-            </p>
-            <div className="mx-auto mt-8 h-px w-24 bg-gradient-to-r from-transparent via-[#C5A880]/50 to-transparent" />
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Full-bleed flagship — scroll-linked parallax (Exxens by slug or title) */}
+      {/* Flagship first — full-bleed scroll scene (env: NEXT_PUBLIC_FEATURED_PROJECT_SLUG) */}
       {featuredProject ? <FeaturedExxensSpotlight project={featuredProject} /> : null}
 
-      <section className="relative px-5 pb-16 sm:px-8 lg:px-10">
+      {/* Classic hero only when no flagship match */}
+      {!featuredProject ? (
+        <section className="relative px-5 pb-16 pt-32 sm:px-8 lg:px-10">
+          <div className="relative mx-auto max-w-[1200px]">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+              className="mb-14 text-center lg:mb-16"
+            >
+              <p className="mb-5 font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.42em] text-[#C5A880]/90">
+                Portfolio
+              </p>
+              <h1 className="font-playfair text-[clamp(2.5rem,6vw,4rem)] font-light leading-[1.05] text-white">
+                Pakistan <span className="italic text-[#e8dcc4]">developments</span>
+              </h1>
+              <p className="mx-auto mt-5 max-w-xl font-[family-name:var(--font-manrope)] text-sm font-light leading-relaxed text-white/50 sm:text-base">
+                Master-planned communities and signature builds — curated for international and domestic capital.
+              </p>
+              <div className="mx-auto mt-8 h-px w-24 bg-gradient-to-r from-transparent via-[#C5A880]/50 to-transparent" />
+            </motion.div>
+          </div>
+        </section>
+      ) : null}
+
+      <section
+        id="portfolio-grid"
+        className={`relative px-5 pb-16 sm:px-8 lg:px-10 ${featuredProject ? 'border-t border-white/[0.05] bg-[#030706] pt-14 sm:pt-16' : ''}`}
+      >
         <div className="relative mx-auto max-w-[1200px]">
+          {featuredProject ? (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+              className="mb-12 text-center lg:mb-14"
+            >
+              <p className="font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.4em] text-[#C5A880]/90">
+                Portfolio
+              </p>
+              <h2 className="mt-3 font-playfair text-[clamp(1.75rem,4vw,2.75rem)] font-light text-white">
+                Pakistan <span className="italic text-[#e8dcc4]">developments</span>
+              </h2>
+              <p className="mx-auto mt-4 max-w-lg font-[family-name:var(--font-manrope)] text-sm font-light text-white/45">
+                Continue into the full register — every dossier is investor-grade.
+              </p>
+            </motion.div>
+          ) : null}
           {/* Tab Interface */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -182,7 +204,7 @@ export default function PakistanProjectsPage() {
 
 function LoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-[#030706]">
+    <div className="min-h-screen min-w-0 overflow-x-hidden bg-[#030706]">
       <section className="relative px-5 pt-32 pb-16 sm:px-8">
         <div className="mx-auto max-w-[1200px]">
           <div className="mb-14 text-center">

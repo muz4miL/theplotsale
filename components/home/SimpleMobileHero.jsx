@@ -7,6 +7,7 @@ const VIDEOS = ['/videos/1.mp4', '/videos/2.mp4', '/videos/3.mp4'];
 
 export default function SimpleMobileHero() {
   const videoRef = useRef(null);
+  const needsTapRef = useRef(false);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [showTapToPlay, setShowTapToPlay] = useState(false);
@@ -16,85 +17,62 @@ export default function SimpleMobileHero() {
     const video = videoRef.current;
     if (!video) return;
 
-    // Configure video for mobile
     video.muted = true;
     video.defaultMuted = true;
     video.playsInline = true;
 
-    // Handle when video can play
     const handleCanPlay = () => {
       setIsLoading(false);
       attemptPlay();
     };
 
-    // Handle video errors
     const handleError = (e) => {
       console.error('Video error:', e);
       setHasError(true);
       setIsLoading(false);
     };
 
-    // Handle video end - move to next video
     const handleEnded = () => {
-      const nextIndex = (currentVideoIndex + 1) % VIDEOS.length;
-      setCurrentVideoIndex(nextIndex);
+      setCurrentVideoIndex((i) => (i + 1) % VIDEOS.length);
     };
 
-    // Attempt to play video
     const attemptPlay = async () => {
       if (!video) return;
 
       try {
         await video.play();
+        needsTapRef.current = false;
         setShowTapToPlay(false);
       } catch (err) {
         console.log('Autoplay blocked:', err.name);
         if (err.name === 'NotAllowedError') {
-          // iOS blocked autoplay - show tap to play
+          needsTapRef.current = true;
           setShowTapToPlay(true);
         }
       }
     };
 
-    // Handle user tap to play
-    const handleUserPlay = async () => {
-      if (!video) return;
-      
-      try {
-        video.muted = true;
-        await video.play();
-        setShowTapToPlay(false);
-      } catch (err) {
-        console.error('Play failed:', err);
-      }
-    };
-
-    // Attach event listeners
-    video.addEventListener('canplay', handleCanPlay);
-    video.addEventListener('error', handleError);
-    video.addEventListener('ended', handleEnded);
-
-    // Handle visibility change (resume when tab becomes visible)
     const handleVisibilityChange = () => {
-      if (!document.hidden && video.paused && !showTapToPlay) {
+      if (!document.hidden && video.paused && !needsTapRef.current) {
         attemptPlay();
       }
     };
+
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('error', handleError);
+    video.addEventListener('ended', handleEnded);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Try to load and play
     video.load();
 
-    // Cleanup
     return () => {
       video.removeEventListener('canplay', handleCanPlay);
       video.removeEventListener('error', handleError);
       video.removeEventListener('ended', handleEnded);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [currentVideoIndex, showTapToPlay]);
+  }, [currentVideoIndex]);
 
-  // Handle tap to play overlay click
   const handleTapToPlayClick = async () => {
     const video = videoRef.current;
     if (!video) return;
@@ -102,6 +80,7 @@ export default function SimpleMobileHero() {
     try {
       video.muted = true;
       await video.play();
+      needsTapRef.current = false;
       setShowTapToPlay(false);
     } catch (err) {
       console.error('Play failed:', err);
@@ -109,127 +88,164 @@ export default function SimpleMobileHero() {
   };
 
   return (
-    <section className="relative w-full overflow-hidden bg-black" style={{ height: '100svh', minHeight: '100vh' }}>
-      {/* Video Container */}
-      <div className="relative h-[60vh] w-full overflow-hidden">
-        {/* Video Element */}
+    <section className="relative min-h-[100svh] w-full overflow-hidden bg-[#030303]">
+      {/* Cinematic video — taller first fold, edge-to-edge */}
+      <div className="relative h-[min(72svh,640px)] min-h-[320px] w-full overflow-hidden sm:h-[min(68svh,680px)]">
         {!hasError && (
           <video
             ref={videoRef}
             key={currentVideoIndex}
-            className="absolute inset-0 w-full h-full object-cover z-10 bg-black"
+            className="absolute inset-0 z-10 h-full w-full scale-[1.02] object-cover bg-black"
             muted
             playsInline
             preload="auto"
             style={{
               opacity: isLoading ? 0 : 1,
-              transition: 'opacity 0.5s ease-in-out',
+              transition: 'opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1)',
             }}
           >
             <source src={VIDEOS[currentVideoIndex]} type="video/mp4" />
           </video>
         )}
 
-        {/* Loading Spinner */}
+        {/* Cinematic letterbox + vignette */}
+        <div
+          className="pointer-events-none absolute inset-0 z-[12]"
+          style={{
+            background:
+              'linear-gradient(to top, rgba(3,3,3,0.95) 0%, rgba(3,3,3,0.35) 38%, transparent 62%), linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 35%), radial-gradient(ellipse 90% 70% at 50% 45%, transparent 40%, rgba(0,0,0,0.45) 100%)',
+          }}
+        />
+
         {isLoading && !hasError && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50">
-            <div className="flex flex-col items-center gap-3">
-              <div className="relative w-12 h-12">
-                <div className="absolute inset-0 border-3 border-[#C5A880]/20 rounded-full" />
-                <div className="absolute inset-0 border-3 border-transparent border-t-[#C5A880] rounded-full animate-spin" />
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60">
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative h-14 w-14">
+                <div className="absolute inset-0 rounded-full border-[3px] border-[#C5A880]/15" />
+                <div className="absolute inset-0 animate-spin rounded-full border-[3px] border-transparent border-t-[#C5A880]" />
               </div>
-              <p className="text-[#C5A880]/70 text-xs tracking-[0.2em] uppercase font-[family-name:var(--font-manrope)]">
-                Loading
+              <p className="font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.32em] text-[#C5A880]/75">
+                Preparing scene
               </p>
             </div>
           </div>
         )}
 
-        {/* Tap to Play Overlay (iOS Autoplay Blocked) */}
         {showTapToPlay && !isLoading && (
-          <div
-            className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 cursor-pointer"
+          <button
+            type="button"
+            className="absolute inset-0 z-30 flex cursor-pointer items-center justify-center border-0 bg-black/45 backdrop-blur-[2px] active:bg-black/55"
             onClick={handleTapToPlayClick}
+            aria-label="Begin cinematic introduction"
           >
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-16 h-16 rounded-full bg-[#C5A880]/20 border border-[#C5A880]/40 backdrop-blur-sm flex items-center justify-center">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#C5A880">
+            <div className="flex flex-col items-center gap-4 px-6 text-center">
+              <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full border border-[#C5A880]/50 bg-[#C5A880]/12 shadow-[0_0_48px_rgba(197,168,128,0.2)] backdrop-blur-md transition-transform duration-300 active:scale-95">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="#C5A880" aria-hidden>
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
-              <p className="text-white/70 text-xs tracking-[0.2em] uppercase font-[family-name:var(--font-manrope)]">
-                Tap to play
+              <p className="font-[family-name:var(--font-manrope)] text-[11px] uppercase tracking-[0.28em] text-white/85">
+                Tap to begin
               </p>
             </div>
-          </div>
+          </button>
         )}
 
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 z-15 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-        <div className="pointer-events-none absolute bottom-[5.5rem] right-3 z-[16] opacity-25">
-          <LuxurySkylineGlyph className="h-10 w-28" />
+        <div className="pointer-events-none absolute bottom-[6.25rem] right-[max(0.75rem,env(safe-area-inset-right,0px))] z-[14] opacity-[0.22]">
+          <LuxurySkylineGlyph className="h-11 w-[7.25rem]" />
         </div>
 
-        {/* Brand Identity Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
-          <div className="mb-4">
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-px bg-gradient-to-r from-transparent via-[#C5A880]/35 to-transparent"
+          aria-hidden
+        />
+
+        <div className="absolute inset-x-0 bottom-0 z-20 lux-mobile-page-gutter pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-10">
+          <div className="mb-3 flex items-center gap-3">
+            <div className="h-px w-10 bg-gradient-to-r from-[#C5A880] to-transparent sm:w-12" />
             <span
-              className="text-[10px] tracking-[0.3em] text-white/90 font-sans uppercase font-light"
-              style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.8)' }}
+              className="font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.34em] text-[#C5A880] sm:text-[11px] sm:tracking-[0.36em]"
+              style={{ textShadow: '0 2px 12px rgba(0,0,0,0.85)' }}
             >
-              PREMIER REAL ESTATE CONSULTANCY
+              Premier real estate consultancy
             </span>
           </div>
           <h1
-            className="text-3xl font-serif font-light text-white mb-2"
-            style={{ textShadow: '0 4px 16px rgba(0, 0, 0, 0.9)' }}
+            className="max-w-[20ch] font-[family-name:var(--font-playfair)] text-[clamp(1.85rem,6.5vw,2.65rem)] font-light leading-[1.08] tracking-[-0.02em] text-white text-balance"
+            style={{ textShadow: '0 6px 32px rgba(0,0,0,0.75)' }}
           >
             Cultivating Futures
           </h1>
           <p
-            className="text-xl italic font-serif text-[#C5A880] font-light"
-            style={{ textShadow: '0 4px 16px rgba(0, 0, 0, 0.9)' }}
+            className="mt-3 max-w-prose font-[family-name:var(--font-playfair)] text-[clamp(1.05rem,3.8vw,1.35rem)] font-light italic leading-snug text-[#e8d4bc] text-pretty sm:mt-4"
+            style={{ textShadow: '0 4px 24px rgba(0,0,0,0.8)' }}
           >
             We are not just building homes. We are shaping dreams into addresses.
           </p>
+          <p
+            className="mt-6 font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.32em] text-white/55 sm:mt-8"
+            style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}
+          >
+            London · Lahore
+          </p>
+        </div>
+
+        <div className="pointer-events-none absolute bottom-[max(5.5rem,env(safe-area-inset-bottom,0px))] left-1/2 z-[16] flex -translate-x-1/2 flex-col items-center max-[380px]:bottom-[max(6rem,env(safe-area-inset-bottom,0px))]">
+          <span className="mb-2 font-[family-name:var(--font-manrope)] text-[9px] uppercase tracking-[0.28em] text-[#C5A880]/90">
+            Explore
+          </span>
+          <div className="relative h-10 w-px overflow-hidden rounded-full bg-white/12">
+            <div
+              className="absolute top-0 h-5 w-full animate-scroll-indicator rounded-full"
+              style={{ background: 'linear-gradient(to bottom, #C5A880, transparent)' }}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Content Section */}
-      <div className="flex-1 flex flex-col justify-center items-center px-6 py-24 bg-[#0A0A0A]">
-        <div className="w-full max-w-md text-center">
+      {/* Editorial continuation — jewelled panel */}
+      <div className="relative border-t border-white/[0.06] bg-[linear-gradient(180deg,#060807_0%,#0a0a0a_45%,#080a09_100%)]">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-32 opacity-40"
+          style={{
+            background: 'radial-gradient(ellipse 120% 100% at 50% 0%, rgba(197,168,128,0.12), transparent 55%)',
+          }}
+        />
+
+        <div className="relative mx-auto max-w-lg lux-mobile-page-gutter py-16 sm:py-20">
           <div
-            className="h-[1px] w-24 mb-6 mx-auto"
-            style={{ background: 'linear-gradient(to right, #C5A880, rgba(197, 168, 128, 0.3))' }}
-          />
-          <div className="mb-4">
-            <span className="text-xs tracking-[0.25em] font-sans uppercase font-light text-[#C5A880]">
-              LONDON • LAHORE
-            </span>
-          </div>
-          <div className="mb-8">
-            <h2
-              className="text-3xl font-light font-serif mb-2"
-              style={{ color: '#F2F4F6', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
-            >
-              Aspirations into
-            </h2>
-            <h2
-              className="text-3xl italic font-light font-serif"
-              style={{ color: '#C5A880', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
-            >
-              Foundations
-            </h2>
-          </div>
-          <p
-            className="font-light font-sans"
-            style={{ color: 'rgba(242, 244, 246, 0.8)', lineHeight: '1.8' }}
+            className="rounded-2xl border border-white/[0.07] bg-[#0c1010]/80 px-6 py-10 shadow-[0_32px_80px_rgba(0,0,0,0.55)] backdrop-blur-md sm:rounded-3xl sm:px-8 sm:py-12"
+            style={{
+              boxShadow:
+                '0 32px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04), 0 0 0 1px rgba(197,168,128,0.06)',
+            }}
           >
-            At ThePlotSale, we are committed to delivering real estate solutions marked by transparency and
-            integrity, bridging developers and homeowners in a trusted partnership. We envision a sustainable
-            future where every property is not just an asset, but a space people are proud to call home.
-          </p>
+            <div className="mx-auto mb-8 h-px w-20 bg-gradient-to-r from-transparent via-[#C5A880]/55 to-transparent sm:mb-10 sm:w-24" />
+            <div className="mb-5 text-center">
+              <span className="font-[family-name:var(--font-manrope)] text-[11px] uppercase tracking-[0.28em] text-[#C5A880]">
+                London · Lahore
+              </span>
+            </div>
+            <div className="text-center">
+              <h2
+                className="font-[family-name:var(--font-playfair)] text-[clamp(1.65rem,5vw,2.15rem)] font-light leading-tight tracking-tight text-[#f2f4f6] text-balance"
+                style={{ textShadow: '0 4px 28px rgba(0,0,0,0.45)' }}
+              >
+                Aspirations into
+              </h2>
+              <h2
+                className="mt-1 font-[family-name:var(--font-playfair)] text-[clamp(1.65rem,5vw,2.15rem)] font-light italic leading-tight tracking-tight text-[#C5A880] text-balance"
+                style={{ textShadow: '0 4px 28px rgba(0,0,0,0.45)' }}
+              >
+                Foundations
+              </h2>
+            </div>
+            <p className="mx-auto mt-8 max-w-prose text-center font-[family-name:var(--font-manrope)] text-[15px] font-light leading-[1.75] tracking-[0.01em] text-white/[0.78] text-pretty sm:text-base sm:leading-[1.8]">
+              At ThePlotSale, we are committed to delivering real estate solutions marked by transparency and
+              integrity, bridging developers and homeowners in a trusted partnership. We envision a sustainable future
+              where every property is not just an asset, but a space people are proud to call home.
+            </p>
+          </div>
         </div>
       </div>
     </section>

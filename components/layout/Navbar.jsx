@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 const navConfig = [
   { label: 'Home', href: '/' },
@@ -51,7 +51,7 @@ export default function Navbar() {
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
@@ -106,6 +106,10 @@ export default function Navbar() {
   const toggleDrawer = () => setIsDrawerOpen((prev) => !prev);
   const closeDrawer = () => setIsDrawerOpen(false);
 
+  /** Projects index: full-bleed flagship — nav sits flush in the scene until scroll */
+  const isProjectsListing = pathname === '/projects' || pathname === '/pakistan-projects';
+  const immersiveNav = isProjectsListing && !isScrolled;
+
   const pillTransition = prefersReducedMotion
     ? { duration: 0.2 }
     : { type: 'spring', stiffness: 420, damping: 34, mass: 0.85 };
@@ -113,15 +117,17 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-[60] px-[clamp(1.25rem,3.5vw,2.75rem)] transition-[padding,background,border,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`fixed top-0 left-0 right-0 z-[60] pl-[max(env(safe-area-inset-left,0px),clamp(1.25rem,3.5vw,2.75rem))] pr-[max(env(safe-area-inset-right,0px),clamp(1.25rem,3.5vw,2.75rem))] transition-[padding,background,border,box-shadow,backdrop-filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
           isScrolled
-            ? 'border-b border-white/[0.09] bg-[rgba(6,10,9,0.88)] py-3 shadow-[0_12px_40px_rgba(0,0,0,0.45)] supports-[backdrop-filter]:backdrop-blur-xl'
-            : 'border-b border-transparent bg-gradient-to-b from-black/55 via-black/20 to-transparent py-4 supports-[backdrop-filter]:backdrop-blur-[6px] lg:py-5'
+            ? 'border-b border-white/[0.09] bg-[rgba(6,10,9,0.88)] pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] shadow-[0_12px_40px_rgba(0,0,0,0.45)] supports-[backdrop-filter]:backdrop-blur-xl'
+            : immersiveNav
+              ? 'border-b border-transparent bg-transparent pb-4 pt-[calc(1rem+env(safe-area-inset-top,0px))] shadow-none supports-[backdrop-filter]:backdrop-blur-none lg:pb-5 lg:pt-[calc(1.25rem+env(safe-area-inset-top,0px))]'
+              : 'border-b border-transparent bg-gradient-to-b from-black/55 via-black/20 to-transparent pb-4 pt-[calc(1rem+env(safe-area-inset-top,0px))] supports-[backdrop-filter]:backdrop-blur-[6px] lg:pb-5 lg:pt-[calc(1.25rem+env(safe-area-inset-top,0px))]'
         }`}
       >
         <div
           className={`pointer-events-none absolute bottom-0 left-[8%] right-[8%] h-px bg-gradient-to-r from-transparent via-[#C5A880]/35 to-transparent transition-opacity duration-500 ${
-            isScrolled ? 'opacity-100' : 'opacity-40'
+            isScrolled ? 'opacity-100' : immersiveNav ? 'opacity-[0.22]' : 'opacity-40'
           }`}
           aria-hidden
         />
@@ -129,7 +135,7 @@ export default function Navbar() {
         <div className="relative mx-auto flex max-w-[1440px] items-center gap-4 lg:gap-6">
           <Link
             href="/"
-            className="group flex items-center gap-2.5 no-underline sm:gap-3"
+            className={`group flex items-center gap-2.5 no-underline sm:gap-3 ${immersiveNav ? 'drop-shadow-[0_4px_24px_rgba(0,0,0,0.7)]' : ''}`}
             aria-label="The Plot Sale home"
           >
             <div className="relative flex shrink-0 items-center">
@@ -155,7 +161,11 @@ export default function Navbar() {
 
           {/* Desktop — pill rail + sliding active indicator */}
           <nav
-            className="ml-auto hidden items-center gap-0.5 rounded-full border border-white/[0.08] bg-black/25 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] supports-[backdrop-filter]:backdrop-blur-md lg:flex"
+            className={`ml-auto hidden items-center gap-0.5 rounded-full border p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] supports-[backdrop-filter]:backdrop-blur-md lg:flex ${
+              immersiveNav
+                ? 'border-white/[0.12] bg-black/50 shadow-[0_8px_32px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.08)] supports-[backdrop-filter]:backdrop-blur-xl'
+                : 'border-white/[0.08] bg-black/25'
+            }`}
             aria-label="Primary"
           >
             {navConfig.map((item) => {
@@ -187,7 +197,9 @@ export default function Navbar() {
           <div className="hidden lg:block">
             <Link
               href="/contact"
-              className="lux-button inline-flex items-center justify-center rounded-full border border-[#C5A880] bg-[#C5A880] px-7 py-2.5 font-[family-name:var(--font-manrope)] text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-[#111111] transition-colors hover:bg-transparent hover:text-[#C5A880] xl:px-9 xl:py-[0.85rem] xl:text-[0.74rem] xl:tracking-[0.25em]"
+              className={`lux-button inline-flex items-center justify-center rounded-full border border-[#C5A880] bg-[#C5A880] px-7 py-2.5 font-[family-name:var(--font-manrope)] text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-[#111111] transition-colors hover:bg-transparent hover:text-[#C5A880] xl:px-9 xl:py-[0.85rem] xl:text-[0.74rem] xl:tracking-[0.25em] ${
+                immersiveNav ? 'shadow-[0_10px_36px_rgba(0,0,0,0.45)]' : ''
+              }`}
             >
               Book appointment
             </Link>
@@ -195,37 +207,21 @@ export default function Navbar() {
 
           <button
             type="button"
-            className="ml-auto flex h-11 w-11 items-center justify-center rounded-full border border-[#C5A880]/35 bg-black/30 text-[#C5A880] shadow-[0_4px_24px_rgba(0,0,0,0.25)] transition-all duration-300 hover:border-[#C5A880]/55 hover:bg-[#C5A880]/10 lg:hidden"
+            className={`ml-auto flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-full border border-[#C5A880]/35 text-[#C5A880] shadow-[0_4px_24px_rgba(0,0,0,0.25)] transition-all duration-300 hover:border-[#C5A880]/55 hover:bg-[#C5A880]/10 active:scale-[0.96] lg:hidden ${
+              immersiveNav ? 'bg-black/50 backdrop-blur-md' : 'bg-black/30'
+            }`}
             onClick={toggleDrawer}
             aria-label={isDrawerOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isDrawerOpen}
             aria-controls="mobile-navigation-drawer"
           >
-            <AnimatePresence mode="wait" initial={false}>
+            <span className="flex transition-opacity duration-200">
               {isDrawerOpen ? (
-                <motion.span
-                  key="close"
-                  initial={{ opacity: 0, rotate: -90 }}
-                  animate={{ opacity: 1, rotate: 0 }}
-                  exit={{ opacity: 0, rotate: 90 }}
-                  transition={{ duration: 0.2 }}
-                  className="flex"
-                >
-                  <X size={20} strokeWidth={1.75} />
-                </motion.span>
+                <X size={20} strokeWidth={1.75} />
               ) : (
-                <motion.span
-                  key="open"
-                  initial={{ opacity: 0, rotate: 90 }}
-                  animate={{ opacity: 1, rotate: 0 }}
-                  exit={{ opacity: 0, rotate: -90 }}
-                  transition={{ duration: 0.2 }}
-                  className="flex"
-                >
-                  <Menu size={20} strokeWidth={1.75} />
-                </motion.span>
+                <Menu size={20} strokeWidth={1.75} />
               )}
-            </AnimatePresence>
+            </span>
           </button>
         </div>
       </header>

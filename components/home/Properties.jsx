@@ -84,7 +84,7 @@ export default function Properties() {
                 }}
             />
 
-            <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
+            <div className="mx-auto max-w-7xl pl-[max(1.5rem,env(safe-area-inset-left,0px))] pr-[max(1.5rem,env(safe-area-inset-right,0px))] md:pl-8 md:pr-8 lg:pl-12 lg:pr-12">
                 {/* Header Section */}
                 <motion.div
                     initial="hidden"
@@ -182,7 +182,10 @@ export default function Properties() {
 
                             {/* Hover CTA */}
                             <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                                <button className="bg-[#C5A880] text-black px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] rounded-sm hover:bg-white transition-colors duration-300">
+                                <button
+                                    type="button"
+                                    className="min-h-[48px] rounded-full bg-[#C5A880] px-8 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-black transition-colors duration-300 hover:bg-white active:scale-[0.98]"
+                                >
                                     View Details
                                 </button>
                             </div>

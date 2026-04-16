@@ -25,11 +25,11 @@ const socialIcons = [
 
 export default function Footer() {
   return (
-    <footer className="relative z-10 bg-gradient-to-t from-black to-[#05110e] text-[#f5f5f5] pt-16 pb-8">
+    <footer className="relative z-10 bg-gradient-to-t from-black to-[#05110e] text-[#f5f5f5] pt-16 pb-[max(2rem,env(safe-area-inset-bottom,0px))]">
       {/* Golden Horizon Border */}
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C5A880]/40 to-transparent" />
 
-      <div className="max-w-[1200px] mx-auto px-6">
+      <div className="mx-auto max-w-[1200px] lux-mobile-page-gutter">
 
         {/* SECTION 1: IDENTITY & SOCIALS */}
         <section className="flex flex-col md:flex-row gap-8 md:justify-between md:items-start pb-12">
@@ -61,9 +61,9 @@ export default function Footer() {
                 key={label}
                 href={href}
                 aria-label={`Visit The Plot Sale on ${label}`}
-                className="w-11 h-11 rounded-full border border-[#C5A880]/40 text-[#C5A880] flex items-center justify-center transition-all duration-300 hover:bg-[#C5A880] hover:text-[#05110e] hover:border-[#C5A880]"
+                className="flex h-12 min-h-[44px] w-12 min-w-[44px] items-center justify-center rounded-full border border-[#C5A880]/40 text-[#C5A880] transition-all duration-300 hover:border-[#C5A880] hover:bg-[#C5A880] hover:text-[#05110e] active:scale-[0.97]"
               >
-                <Icon size={17} />
+                <Icon size={18} strokeWidth={1.5} />
               </Link>
             ))}
           </div>
@@ -144,7 +144,7 @@ export default function Footer() {
 
         {/* SECTION 3: LEGAL */}
         <section className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between pt-8 text-xs text-white/30">
-          <p>© 2025 ThePlotSale. All Rights Reserved.</p>
+          <p>© 2026 ThePlotSale. All Rights Reserved.</p>
           <div className="flex gap-6">
             <Link
               href="/admin/login"
