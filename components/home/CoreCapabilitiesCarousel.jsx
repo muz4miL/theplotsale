@@ -1,103 +1,130 @@
 'use client';
 
-import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
-  IconOffPlan,
-  IconUkCorridor,
-  IconLahoreArc,
-  IconPortfolioCurve,
-  IconMilestoneBars,
-  IconIntegritySeal,
+  MonogramTriangle,
+  MonogramDiamond,
+  MonogramArc,
+  MonogramPill,
+  MonogramGrid,
+  MonogramOctagon,
 } from '@/components/home/DisciplineMonograms';
 
 const disciplines = [
   {
-    tag: 'Intelligence at scale',
-    title: 'Off-plan & launch intelligence',
-    desc: 'Early tranche access and on-the-ground credibility work before narratives get loud and good inventory thins.',
-    Icon: IconOffPlan,
-    points: ['Developer & scheme vetting', 'Launch-phase positioning', 'Noise filtering'],
+    Monogram: MonogramTriangle,
+    eyebrow: '01 — Intelligence',
+    title: 'Off-plan & launch',
+    titleItalic: 'intelligence',
+    desc: 'Early tranche access and on-the-ground credibility work before narratives get loud and strong inventory thins.',
+    bullets: ['Developer & scheme vetting', 'Launch-phase positioning', 'Noise filtering'],
+    anchor: true,
   },
   {
-    tag: 'London & Thames corridor',
-    title: 'UK premium brokerage',
-    desc: 'Residential sourcing across prime Hounslow and Isleworth stock — from first viewing through negotiation, structuring, and completion.',
-    Icon: IconUkCorridor,
-    points: ['Prime inventory', 'Offer architecture', 'Completion stewardship'],
+    Monogram: MonogramDiamond,
+    eyebrow: '02 — UK desk',
+    title: 'Premium brokerage',
+    titleItalic: 'London corridor',
+    desc: 'Residential sourcing across Hounslow and Isleworth stock — viewing through negotiation, structuring, and completion.',
+    bullets: ['Prime inventory', 'Offer architecture', 'Completion stewardship'],
+    anchor: false,
   },
   {
-    tag: 'Lahore vertical & land',
-    title: 'Pakistan project desk',
-    desc: 'Curated access to current pipelines, upcoming phases, and delivered benchmarks your overseas desk can underwrite with confidence.',
-    Icon: IconLahoreArc,
-    points: ['Live developments', 'Upcoming releases', 'Delivered proof'],
+    Monogram: MonogramArc,
+    eyebrow: '03 — Pakistan',
+    title: 'Project desk',
+    titleItalic: 'Lahore & beyond',
+    desc: 'Curated access to current pipelines, upcoming phases, and delivered benchmarks an overseas desk can underwrite with confidence.',
+    bullets: ['Live developments', 'Upcoming releases', 'Delivered proof'],
+    anchor: false,
   },
   {
-    tag: 'Portfolio fit',
-    title: 'Investment matchmaking',
-    desc: 'Goal-based alignment across yield, growth, liquidity, and entry timing — not generic “deals,” but positions that match the mandate.',
-    Icon: IconPortfolioCurve,
-    points: ['Yield mapping', 'Risk profiling', 'Exit sequencing'],
+    Monogram: MonogramPill,
+    eyebrow: '04 — Mandate',
+    title: 'Investment',
+    titleItalic: 'matchmaking',
+    desc: 'Goal-based alignment across yield, growth, liquidity, and entry timing — positions that match the mandate, not generic deals.',
+    bullets: ['Yield mapping', 'Risk profiling', 'Exit sequencing'],
+    anchor: false,
   },
   {
-    tag: 'Capital rhythm',
-    title: 'Payment-plan engineering',
-    desc: 'Clear instalment routes for domestic and overseas buyers with milestones and cashflow you can actually model.',
-    Icon: IconMilestoneBars,
-    points: ['Milestone design', 'Buyer clarity', 'Flexible routing'],
+    Monogram: MonogramGrid,
+    eyebrow: '05 — Capital',
+    title: 'Payment-plan',
+    titleItalic: 'engineering',
+    desc: 'Instalment routes for domestic and overseas buyers with milestones and cashflow you can model without ambiguity.',
+    bullets: ['Milestone design', 'Buyer clarity', 'Flexible routing'],
+    anchor: false,
   },
   {
-    tag: 'Closing discipline',
-    title: 'Transaction integrity',
-    desc: 'Compliance-first coordination and documentation oversight so capital releases and handovers land without drama.',
-    Icon: IconIntegritySeal,
-    points: ['Document control', 'Compliance checkpoints', 'Stress-tested closings'],
+    Monogram: MonogramOctagon,
+    eyebrow: '06 — Integrity',
+    title: 'Transaction',
+    titleItalic: 'discipline',
+    desc: 'Compliance-first coordination and documentation oversight so releases and handovers land without drama.',
+    bullets: ['Document control', 'Compliance checkpoints', 'Stress-tested closings'],
+    anchor: false,
   },
 ];
 
-function DisciplineCard({ item, index, scrollYProgress }) {
-  const Icon = item.Icon;
-  const start = 0.06 + index * 0.055;
-  const mid = start + 0.12;
-  const end = start + 0.26;
+const easeLux = [0.22, 1, 0.36, 1];
 
-  const opacity = useTransform(scrollYProgress, [start, mid, end], [0.04, 1, 1]);
-  const y = useTransform(scrollYProgress, [start, mid, end], [32, 0, 0]);
-  const scale = useTransform(scrollYProgress, [start, mid, end], [0.96, 1, 1]);
+const secondaryGridClass = [
+  'lg:col-start-2 lg:row-start-1',
+  'lg:col-start-3 lg:row-start-1',
+  'lg:col-start-2 lg:row-start-2',
+  'lg:col-start-3 lg:row-start-2',
+  'lg:col-start-2 lg:row-start-3 lg:col-span-2 sm:mx-auto sm:max-w-xl lg:max-w-none lg:justify-self-stretch',
+];
+
+function DisciplineCard({ item, itemVariants, gridClassName = '' }) {
+  const Monogram = item.Monogram;
+  const isAnchor = item.anchor;
 
   return (
     <motion.article
-      style={{ opacity, y, scale }}
-      className="group relative flex min-h-[280px] flex-col overflow-hidden rounded-[2px] border border-white/[0.07] bg-[#060809] p-7 transition-[border-color,box-shadow] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] before:pointer-events-none before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-700 hover:before:opacity-100 before:bg-[radial-gradient(ellipse_120%_80%_at_10%_0%,rgba(197,168,128,0.07),transparent_55%)] hover:border-[#C5A880]/25 hover:shadow-[0_24px_64px_-20px_rgba(0,0,0,0.55)] md:min-h-[300px]"
+      variants={itemVariants}
+      className={`group relative flex flex-col overflow-hidden rounded-[2px] border border-[rgba(255,255,255,0.06)] bg-[#060809] transition-[border-color,box-shadow] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-[#C5A880]/22 hover:shadow-[0_28px_72px_-24px_rgba(0,0,0,0.58)] ${
+        isAnchor
+          ? 'p-9 sm:p-10 lg:col-start-1 lg:row-start-1 lg:row-span-3 lg:min-h-[min(560px,calc(100svh-10rem))]'
+          : 'min-h-[260px] p-7 sm:min-h-[280px]'
+      } ${gridClassName}`}
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C5A880]/35 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_120%_70%_at_0%_0%,rgba(197,168,128,0.06),transparent_58%)] opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
 
-      <div className="relative z-10 flex flex-1 flex-col">
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div className="flex h-[4.25rem] w-[4.25rem] shrink-0 items-center justify-center rounded-[2px] border border-[#C5A880]/20 text-[#C5A880] transition-colors duration-500 group-hover:border-[#C5A880]/40 group-hover:text-[#e8dcc4]">
-            <Icon className="h-10 w-10" />
-          </div>
-          <span className="max-w-[11rem] text-right font-[family-name:var(--font-manrope)] text-[9px] font-semibold uppercase leading-relaxed tracking-[0.22em] text-[#C5A880]/75">
-            {item.tag}
+      <div className="relative z-10 flex h-full flex-1 flex-col">
+        <div className={`mb-6 flex items-start justify-between gap-4 ${isAnchor ? 'mb-8' : ''}`}>
+          <span className="font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.22em] text-[#C5A880]">
+            {item.eyebrow}
           </span>
+          <div
+            className={`flex shrink-0 items-center justify-center rounded-[2px] border border-[#C5A880]/22 text-[#C5A880] transition-colors duration-500 group-hover:border-[#C5A880]/40 group-hover:text-[#e8dcc4] ${
+              isAnchor ? 'h-[5.5rem] w-[5.5rem]' : 'h-[4.25rem] w-[4.25rem]'
+            }`}
+          >
+            <Monogram className={isAnchor ? 'h-12 w-12' : 'h-10 w-10'} />
+          </div>
         </div>
 
-        <h3 className="mb-3 font-playfair text-[1.35rem] font-light leading-snug tracking-tight text-white transition-colors duration-300 group-hover:text-[#f5f0e8] sm:text-2xl">
-          {item.title}
+        <h3
+          className={`font-playfair font-light tracking-tight text-[#e8dcc4] ${isAnchor ? 'text-[clamp(1.85rem,4vw,3rem)] leading-[1.12] sm:text-4xl' : 'text-[1.35rem] leading-snug sm:text-xl'}`}
+        >
+          {item.title} <em className="italic text-white/58">{item.titleItalic}</em>
         </h3>
-        <p className="flex-1 font-[family-name:var(--font-manrope)] text-[13px] font-light leading-[1.75] text-white/48">
+
+        <p
+          className={`mt-4 font-[family-name:var(--font-manrope)] font-light leading-relaxed text-white/50 ${isAnchor ? 'max-w-md text-sm sm:text-base' : 'mt-3 flex-1 text-[13px] leading-[1.75]'}`}
+        >
           {item.desc}
         </p>
 
-        <ul className="relative z-10 mt-6 space-y-2 border-t border-white/[0.06] pt-6">
-          {item.points.map((point) => (
+        <ul className={`mt-auto flex flex-col gap-2.5 border-t border-white/[0.06] ${isAnchor ? 'pt-8' : 'pt-6'}`}>
+          {item.bullets.map((bullet) => (
             <li
-              key={point}
-              className="flex items-start gap-2.5 font-[family-name:var(--font-manrope)] text-[11px] font-medium uppercase tracking-[0.18em] text-white/40"
+              key={bullet}
+              className="discipline-hair-bullet font-[family-name:var(--font-manrope)] text-[11px] font-medium uppercase leading-snug tracking-[0.16em] text-white/42"
             >
-              <span className="mt-[0.35rem] h-px w-5 shrink-0 bg-[#C5A880]/50" aria-hidden />
-              <span className="leading-snug">{point}</span>
+              {bullet}
             </li>
           ))}
         </ul>
@@ -107,54 +134,90 @@ function DisciplineCard({ item, index, scrollYProgress }) {
 }
 
 export default function CoreCapabilitiesCarousel() {
-  const sectionRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start 88%', 'end 22%'],
-  });
-  const headerOpacity = useTransform(scrollYProgress, [0, 0.12, 0.2], [0, 1, 1]);
-  const headerY = useTransform(scrollYProgress, [0, 0.14], [24, 0]);
+  const reduce = useReducedMotion();
+  const [anchor, ...rest] = disciplines;
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: reduce ? 0 : 28 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: reduce ? 0.01 : 0.88, ease: easeLux },
+    },
+  };
+
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: reduce ? 0 : 0.08,
+        delayChildren: reduce ? 0 : 0.04,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: reduce ? 0 : 18 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: reduce ? 0.01 : 0.85, ease: easeLux },
+    },
+  };
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-[#030706] py-20 sm:py-24 lg:py-32">
+    <section className="relative overflow-hidden bg-[#030706] py-20 sm:py-28 lg:py-32">
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.2]"
+        className="pointer-events-none absolute inset-0 opacity-[0.18]"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
           mixBlendMode: 'overlay',
         }}
         aria-hidden
       />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_-20%,rgba(197,168,128,0.07),transparent_50%)]" />
-      <div className="pointer-events-none absolute bottom-0 right-0 h-[min(70vw,520px)] w-[min(70vw,520px)] translate-x-1/4 translate-y-1/4 rounded-full bg-[#C5A880]/[0.03] blur-3xl" aria-hidden />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_55%_at_50%_-15%,rgba(197,168,128,0.075),transparent_52%)]" />
 
-      <div className="relative z-10">
-        <motion.div
-          style={{ opacity: headerOpacity, y: headerY }}
-          className="lux-mobile-page-gutter mx-auto mb-14 max-w-6xl lg:mb-20"
+      <div className="relative z-10 lux-mobile-page-gutter mx-auto max-w-7xl">
+        <motion.header
+          className="mb-12 max-w-2xl lg:mb-16"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-10% 0px' }}
+          variants={headerVariants}
         >
-          <div className="mb-8 flex flex-wrap items-center gap-5">
+          <div className="mb-6 flex flex-wrap items-center gap-5">
             <div className="h-px w-14 bg-gradient-to-r from-[#C5A880] to-transparent" />
-            <span className="font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.38em] text-[#C5A880]">
+            <span className="font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.32em] text-[#C5A880]">
               What we do
             </span>
-            <span className="hidden h-px flex-1 min-w-[4rem] bg-gradient-to-r from-white/[0.08] to-transparent sm:block" />
           </div>
-          <h2 className="max-w-4xl font-playfair text-[clamp(2rem,5.5vw,3.75rem)] font-light leading-[1.08] tracking-tight text-balance text-white">
-            Six disciplines.{' '}
+          <h2 className="font-playfair text-[clamp(2rem,5vw,3.5rem)] font-light leading-[1.08] text-balance text-white">
+            Full-cycle execution.{' '}
             <span className="italic text-[#e8dcc4]/95">One standard.</span>
           </h2>
-          <p className="mt-6 max-w-2xl font-[family-name:var(--font-manrope)] text-sm font-light leading-relaxed text-white/45 sm:text-base">
-            The Plot Sale — advisory depth, execution discipline, and cross-border fluency across UK residential and
-            Pakistan development without the noise.
+          <p className="mt-5 font-[family-name:var(--font-manrope)] text-sm font-light leading-relaxed text-white/45 sm:text-base">
+            The Plot Sale — UK residential brokerage, Pakistan development access, and cross-border structuring without
+            the noise.
           </p>
-        </motion.div>
+        </motion.header>
 
-        <div className="lux-mobile-page-gutter mx-auto grid max-w-6xl grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {disciplines.map((item, index) => (
-            <DisciplineCard key={item.title} item={item} index={index} scrollYProgress={scrollYProgress} />
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-8% 0px' }}
+          className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:grid-rows-3 lg:gap-5"
+        >
+          <DisciplineCard item={anchor} itemVariants={itemVariants} />
+          {rest.map((item, i) => (
+            <DisciplineCard
+              key={item.eyebrow}
+              item={item}
+              itemVariants={itemVariants}
+              gridClassName={secondaryGridClass[i] || ''}
+            />
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

@@ -464,3 +464,36 @@ html.has-scroll-dragging {
   padding-left: max(1.5rem, env(safe-area-inset-left, 0px));
   padding-right: max(1.5rem, env(safe-area-inset-right, 0px));
 }
+
+/* Home disciplines — monoline monogram “draw” on hover (pointer + no reduced motion) */
+.discipline-mono-stroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .discipline-mono-stroke {
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .group:hover .discipline-mono-stroke {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Hair-rule list (Plot Sale editorial) */
+.discipline-hair-bullet {
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+.discipline-hair-bullet::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 12px;
+  height: 1px;
+  background-color: rgba(197, 168, 128, 0.75);
+}

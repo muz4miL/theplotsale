@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { Navbar, Footer } from '@/components/layout';
+import ScrollToTop from '@/components/layout/ScrollToTop';
 import Preloader from '@/components/Preloader';
 import SmoothScroll from '@/components/SmoothScroll';
 import { LuxuryGlobalAmbient } from '@/components/shared/LuxuryMotionAccents';
@@ -16,6 +17,7 @@ export default function PublicChrome({ children }) {
 
   return (
     <SmoothScroll>
+      <ScrollToTop />
       <Preloader />
       <Navbar />
       <LuxuryGlobalAmbient />
