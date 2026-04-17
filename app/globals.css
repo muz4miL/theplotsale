@@ -558,11 +558,17 @@ html.has-scroll-dragging {
   display: flex;
   width: max-content;
   gap: 1.5rem;
-  animation: lux-marquee-ltr 40s linear infinite;
+  animation: lux-marquee-ltr 60s linear infinite;
+  will-change: transform;
 }
 
 .lux-marquee-track-reverse {
   animation-direction: reverse;
+  animation-duration: 65s;
+}
+
+.lux-marquee-track:hover {
+  animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {

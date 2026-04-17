@@ -53,3 +53,50 @@ export function useSectionScrollProgress(surfaceRef) {
 
   return p;
 }
+
+/**
+ * Scroll progress 0→1 **locked to the sticky pin range** of a tall section.
+ *
+ * For a section of height H that contains a `position: sticky; top: 0; h-screen`
+ * child, the child stays pinned while the scroll travels (H - vh). This hook returns
+ *   0 at the moment pinning starts (section top hits viewport top)
+ *   1 at the moment pinning ends   (section bottom hits viewport bottom)
+ *
+ * Use this (not the viewport-crossing progress) to drive horizontal scroll tracks
+ * inside a pinned section — otherwise the animation keeps running after the sticky
+ * child has already released, producing a "last card cut off / next section bleeds
+ * in underneath" feel.
+ */
+export function useStickyPinProgress(surfaceRef) {
+  const [p, setP] = useState(0);
+
+  useEffect(() => {
+    let raf = 0;
+    const tick = () => {
+      raf = 0;
+      const el = surfaceRef.current;
+      if (!el) return;
+      const vh = typeof window !== 'undefined' ? window.innerHeight || 1 : 1;
+      const rect = el.getBoundingClientRect();
+      const pinTravel = Math.max(1, rect.height - vh);
+      const raw = -rect.top / pinTravel;
+      setP(Math.max(0, Math.min(1, raw)));
+    };
+
+    const onScroll = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(tick);
+    };
+
+    tick();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (raf) window.cancelAnimationFrame(raf);
+    };
+  }, [surfaceRef]);
+
+  return p;
+}

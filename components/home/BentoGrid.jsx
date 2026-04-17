@@ -1,8 +1,8 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useLayoutEffect, useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useSectionScrollProgress } from '@/hooks/useSectionScrollProgress';
+import { useStickyPinProgress } from '@/hooks/useSectionScrollProgress';
 
 // Flagship portfolio — real, client-delivered assets. Update imagery here when
 // the CMS sync ships a new hero photo for any of these projects.
@@ -55,9 +55,43 @@ const experienceItems = [
 ];
 
 function DesktopExperience({ targetRef, scrollP }) {
-  const xPercent = scrollP * -85;
+  const trackRef = useRef(null);
+  const [maxTranslate, setMaxTranslate] = useState(0);
+
+  // Measure the real on-screen distance we need to travel so the LAST card lands
+  // cleanly centered in the viewport (right-biased), regardless of viewport width.
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    const measure = () => {
+      const el = trackRef.current;
+      if (!el) return;
+      // trackWidth = full content width; we want to stop translating when the
+      // right-edge of the track has travelled past the right-edge of the viewport
+      // by roughly a card's width, so the final card sits comfortably in-frame.
+      const trackWidth = el.scrollWidth;
+      const vw = window.innerWidth || 1;
+      // Right-edge of the track should end at ~ vw - 15vw (mirrors pl-[15vw] on left)
+      const target = Math.max(0, trackWidth - vw * 0.85);
+      setMaxTranslate(target);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (trackRef.current) ro.observe(trackRef.current);
+    window.addEventListener('resize', measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, []);
+
+  const translatePx = -scrollP * maxTranslate;
+
   return (
-    <section ref={targetRef} className="relative hidden bg-[#0A0A0A] md:block" style={{ height: '500vh' }}>
+    <section
+      ref={targetRef}
+      className="relative hidden bg-[#0A0A0A] md:block"
+      style={{ height: '380vh' }}
+    >
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="absolute inset-0">
           <Image
@@ -89,8 +123,9 @@ function DesktopExperience({ targetRef, scrollP }) {
         </div>
 
         <div
+          ref={trackRef}
           className="absolute inset-0 flex items-end gap-0 pb-20 pl-[15vw] will-change-transform"
-          style={{ transform: `translateX(${xPercent}%)` }}
+          style={{ transform: `translate3d(${translatePx}px, 0, 0)` }}
         >
           {experienceItems.map((item) => {
             const isPortrait = item.isPortrait;
@@ -288,7 +323,10 @@ function MobileExperience() {
 
 export default function HorizontalScrollCarousel() {
   const targetRef = useRef(null);
-  const scrollP = useSectionScrollProgress(targetRef);
+  // Progress locked to the sticky-pin range — animation finishes exactly when the
+  // section is about to release its pin, so there's no "last card cut off /
+  // next section bleeds in" race.
+  const scrollP = useStickyPinProgress(targetRef);
 
   return (
     <>

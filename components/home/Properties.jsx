@@ -2,6 +2,7 @@
 
 import { Bed, Bath, Maximize } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
+import CountUpNumber from '@/components/projects/CountUpNumber';
 import { useDisplayCurrency } from '@/contexts/DisplayCurrencyContext';
 import { useInViewOnce } from '@/hooks/useInViewOnce';
 
@@ -118,15 +119,21 @@ export default function Properties() {
                 <div className="flex items-center gap-4 border-t border-white/10 pt-4">
                   <div className="flex items-center gap-1.5">
                     <Bed className="h-4 w-4 text-[#C5A880]" strokeWidth={1.5} />
-                    <span className="font-[family-name:var(--font-manrope)] text-xs text-white/80">{property.beds}</span>
+                    <span className="font-[family-name:var(--font-manrope)] text-xs text-white/80">
+                      <CountUpNumber end={property.beds} duration={1800} />
+                    </span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Bath className="h-4 w-4 text-[#C5A880]" strokeWidth={1.5} />
-                    <span className="font-[family-name:var(--font-manrope)] text-xs text-white/80">{property.baths}</span>
+                    <span className="font-[family-name:var(--font-manrope)] text-xs text-white/80">
+                      <CountUpNumber end={property.baths} duration={1800} />
+                    </span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Maximize className="h-4 w-4 text-[#C5A880]" strokeWidth={1.5} />
-                    <span className="font-[family-name:var(--font-manrope)] text-xs text-white/80">{property.sqft} sqft</span>
+                    <span className="font-[family-name:var(--font-manrope)] text-xs text-white/80">
+                      <CountUpNumber end={property.sqft} suffix=" sqft" duration={2000} />
+                    </span>
                   </div>
                 </div>
               </div>

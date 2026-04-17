@@ -92,9 +92,14 @@ export default function Navbar() {
   const toggleDrawer = () => setIsDrawerOpen((prev) => !prev);
   const closeDrawer = () => setIsDrawerOpen(false);
 
-  /** Projects index: full-bleed flagship — nav sits flush in the scene until scroll */
-  const isProjectsListing = pathname === '/projects' || pathname === '/pakistan-projects';
-  const immersiveNav = isProjectsListing && !isScrolled;
+  /** Pages whose hero is a full-bleed cinematic — nav sits flush in the scene
+   *  until the user starts scrolling, then hardens into the frosted solid state.
+   *  About is a video hero, Projects/PK-Projects is a flagship image hero. */
+  const isImmersiveRoute =
+    pathname === '/projects' ||
+    pathname === '/pakistan-projects' ||
+    pathname === '/about';
+  const immersiveNav = isImmersiveRoute && !isScrolled;
 
   return (
     <>

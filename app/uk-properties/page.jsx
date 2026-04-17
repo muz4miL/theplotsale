@@ -69,13 +69,14 @@ export default function UKPropertiesPage() {
         <div className="relative mx-auto max-w-[1200px]">
           <FadeIn className="text-center">
             <p className="font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.42em] text-[#C5A880]/90">
-              London Register
+              London Register · Private Client
             </p>
             <h1 className="mt-5 font-playfair text-[clamp(2.5rem,6vw,4rem)] font-light leading-[1.04] tracking-tight text-white">
               UK <span className="italic text-[#e8dcc4]">residences</span>
             </h1>
             <p className="mx-auto mt-5 max-w-xl font-[family-name:var(--font-manrope)] text-sm font-light leading-relaxed text-white/55 sm:text-base">
-              A discreet portfolio of prime homes across London&rsquo;s most desirable postcodes.
+              A discreet portfolio of prime homes across London&rsquo;s most desirable postcodes — hand-curated by our
+              UK managing office.
             </p>
             <div className="mx-auto mt-8 flex items-center justify-center gap-4">
               <div className="h-px w-10 bg-gradient-to-r from-transparent to-[#C5A880]/60" />
@@ -93,9 +94,13 @@ export default function UKPropertiesPage() {
         <div className="relative mx-auto max-w-[1200px]">
           {properties.length === 0 ? (
             <FadeIn className="py-24 text-center">
-              <p className="font-playfair text-xl italic text-white/55">No listings on the register right now.</p>
+              <p className="font-playfair text-xl italic text-white/55">No listings on the London register right now.</p>
               <p className="mx-auto mt-3 max-w-md font-[family-name:var(--font-manrope)] text-sm text-white/40">
-                Please check back shortly, or contact concierge for off-market opportunities.
+                Please check back shortly, explore our{' '}
+                <Link href="/pakistan-projects" className="text-[#C5A880] underline-offset-4 hover:underline">
+                  Pakistan developments
+                </Link>
+                , or contact concierge for off-market opportunities.
               </p>
             </FadeIn>
           ) : (

@@ -132,8 +132,21 @@ export default function CinematicVision() {
             aria-hidden
           />
 
+          {/* Poster layer — shows instantly so the frame never looks empty,
+              fades out once the video has decoded a frame. */}
+          <div
+            className="absolute inset-0 transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            style={{
+              backgroundImage: `url(${POSTER_SRC})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              opacity: canPlay ? 0 : 1,
+            }}
+            aria-hidden
+          />
+
           {/* Video surface */}
-          <div className="absolute inset-0 bg-black">
+          <div className="absolute inset-0">
             <video
               ref={videoRef}
               className="h-full w-full object-cover"
@@ -143,23 +156,24 @@ export default function CinematicVision() {
               muted
               loop
               playsInline
-              preload="metadata"
+              preload="auto"
               // prevent iOS inline-play quirks
               webkit-playsinline="true"
               x5-playsinline="true"
               onCanPlay={() => setCanPlay(true)}
+              onLoadedData={() => setCanPlay(true)}
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
             />
           </div>
 
-          {/* Cinematic grade */}
+          {/* Cinematic grade — subtle, only darkens the bottom so caption reads */}
           <div
-            className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-t from-black/70 via-black/10 to-black/30"
+            className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-t from-black/55 via-transparent to-black/15"
             aria-hidden
           />
           <div
-            className="pointer-events-none absolute inset-0 z-[2] bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.55)_100%)]"
+            className="pointer-events-none absolute inset-0 z-[2] bg-[radial-gradient(ellipse_at_center,transparent_70%,rgba(0,0,0,0.35)_100%)]"
             aria-hidden
           />
 

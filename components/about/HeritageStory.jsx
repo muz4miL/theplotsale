@@ -2,25 +2,32 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
+import CountUpNumber from '@/components/projects/CountUpNumber';
 
 const heritageData = [
   {
     year: '2020',
     title: 'Foundation of Trust',
-    body: 'ThePlotSale was established with a clear mission: to bridge the gap between developers and homeowners through transparent, integrity-driven real estate solutions across London and Lahore.',
-    image: '/about/heritage.png',
+    body: 'ThePlotSale is founded by the Siddique family with a single mandate — bridge the gap between developers and homeowners through transparent, integrity-driven real estate across London and Lahore. The first handshake becomes the company charter: quality in every detail, dedication in every project.',
+    image: '/images/TheGreenValley.png',
   },
   {
-    year: '2022',
-    title: 'Expanding Horizons',
-    body: 'Our portfolio grew to include landmark projects like Airport City Sialkot, Siddique City, and premium developments in Hounslow, establishing us as a trusted name in cross-border real estate consultancy.',
-    image: '/about/heritage2.png',
+    year: '2023',
+    title: 'Green Valley Delivered',
+    body: 'Our Murree hill-retreat project — Green Valley — is handed over. Finished in the Siddique family tradition, it becomes the firm\'s calling card and proves a quiet thesis: alpine landscape, private roads and careful architecture compound resale value for a generation.',
+    image: '/images/TheGreenValley3.png',
   },
   {
     year: '2025',
+    title: 'Union Town & EXXNS Heights',
+    body: 'The portfolio expands into two flagship fronts. Union Town — a master-planned community in Sialkot with its own civic mosque, school, and sports complex — is underway. In Lahore, EXXNS Heights rises as our signature vertical development, engineered for international investors.',
+    image: '/images/UnionTown4CityView.png',
+  },
+  {
+    year: '2026',
     title: 'Cultivating Futures',
-    body: "Today, we stand as a premier consultancy committed to quality in every detail and dedication in every project. We don't just sell properties—we help people find spaces they're proud to call home.",
-    image: '/about/heritage3.png',
+    body: "Today we operate across two continents — London and Lahore — with a private-client desk for cross-border investors. We don't just sell properties; we shape the addresses our clients are proud to call home, and the assets their children will inherit.",
+    image: '/images/ExxnsHeight.png',
   },
 ];
 
@@ -63,7 +70,9 @@ function HeritageBlockDesktop({ data, index, activeIndex, onActivate }) {
             active ? 'translate-x-0 opacity-100' : 'translate-x-[-10px] opacity-[0.35]'
           }`}
         >
-          <p className="mb-6 font-sans text-sm tracking-[0.3em] text-[#C5A880] lg:mb-8 lg:text-base">{data.year}</p>
+          <p className="mb-6 font-sans text-sm tracking-[0.3em] text-[#C5A880] lg:mb-8 lg:text-base">
+            {active ? <CountUpNumber end={parseInt(data.year)} duration={1500} /> : data.year}
+          </p>
           <h3 className="mb-6 font-serif text-4xl font-light leading-tight text-white lg:mb-8 lg:text-5xl xl:text-6xl">
             {data.title}
           </h3>
