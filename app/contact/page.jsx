@@ -1,22 +1,77 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { MapPin, Phone, Mail, Clock, ArrowUpRight } from 'lucide-react';
 import { LuxurySkylineGlyph, LuxurySectionOrbs } from '@/components/shared/LuxuryMotionAccents';
 import { useInViewOnce } from '@/hooks/useInViewOnce';
-import { useSectionScrollProgress } from '@/hooks/useSectionScrollProgress';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 const HERO_IMAGE =
   'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2400&q=85';
 
+/** Scroll parallax without React setState (avoids React 19 + next/image reconcile issues). */
+function ContactHeroImageScale({ surfaceRef, reduceMotion }) {
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap || reduceMotion) {
+      if (wrap) wrap.style.transform = 'scale(1)';
+      return undefined;
+    }
+
+    let raf = 0;
+    const tick = () => {
+      raf = 0;
+      const el = surfaceRef.current;
+      if (!el || !wrap) return;
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const range = vh + rect.height;
+      const scrolled = vh - rect.top;
+      const p = Math.max(0, Math.min(1, scrolled / Math.max(1, range)));
+      const scale = 1.03 + (1.12 - 1.03) * p;
+      wrap.style.transform = `scale(${scale})`;
+    };
+
+    const onScroll = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(tick);
+    };
+
+    tick();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (raf) window.cancelAnimationFrame(raf);
+    };
+  }, [surfaceRef, reduceMotion]);
+
+  return (
+    <div
+      ref={wrapRef}
+      className="absolute inset-0 will-change-transform"
+      style={{ transformOrigin: 'center center', transform: reduceMotion ? 'scale(1)' : 'scale(1.03)' }}
+    >
+      <Image
+        src={HERO_IMAGE}
+        alt="Architectural interior — The Plot Sale"
+        fill
+        className="object-cover object-center"
+        sizes="(max-width: 1024px) 100vw, 58vw"
+        priority
+      />
+    </div>
+  );
+}
+
 export default function ContactPage() {
   const heroRef = useRef(null);
   const reduceMotion = usePrefersReducedMotion();
-  const scrollP = useSectionScrollProgress(heroRef);
-  const imageScale = reduceMotion ? 1 : 1.03 + (1.12 - 1.03) * scrollP;
 
   const [formState, setFormState] = useState({ status: 'idle', message: '' });
 
@@ -111,22 +166,7 @@ export default function ContactPage() {
       <section className="relative">
         <div className="mx-auto grid max-w-[1600px] lg:min-h-[min(88vh,900px)] lg:grid-cols-[1fr_minmax(380px,42%)]">
           <div className="relative min-h-[280px] overflow-hidden lg:min-h-0">
-            <div
-              className="absolute inset-0 will-change-transform"
-              style={{
-                transform: `scale(${imageScale})`,
-                transformOrigin: 'center center',
-              }}
-            >
-              <Image
-                src={HERO_IMAGE}
-                alt="Architectural interior — The Plot Sale"
-                fill
-                className="object-cover object-center"
-                sizes="(max-width: 1024px) 100vw, 58vw"
-                priority
-              />
-            </div>
+            <ContactHeroImageScale surfaceRef={heroRef} reduceMotion={reduceMotion} />
             <div className="absolute inset-0 bg-gradient-to-t from-[#030706] via-black/20 to-black/50 lg:bg-gradient-to-r lg:from-transparent lg:via-black/25 lg:to-[#030706]" />
             <div className="pointer-events-none absolute bottom-8 left-6 z-10 max-w-xs sm:left-10 lg:bottom-12 lg:left-12">
               <p className="font-playfair text-sm italic text-white/90">The Plot Sale</p>
