@@ -1,78 +1,19 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { MapPin, Phone, Mail, Clock, ArrowUpRight } from 'lucide-react';
 import { LuxurySkylineGlyph, LuxurySectionOrbs } from '@/components/shared/LuxuryMotionAccents';
-import { useInViewOnce } from '@/hooks/useInViewOnce';
-import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import OfficeMapCard from '@/components/shared/OfficeMapCard';
+import { officeMapSites } from '@/lib/office-locations';
 
 const HERO_IMAGE =
   'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2400&q=85';
 
-/** Scroll parallax without React setState (avoids React 19 + next/image reconcile issues). */
-function ContactHeroImageScale({ surfaceRef, reduceMotion }) {
-  const wrapRef = useRef(null);
-
-  useEffect(() => {
-    const wrap = wrapRef.current;
-    if (!wrap || reduceMotion) {
-      if (wrap) wrap.style.transform = 'scale(1)';
-      return undefined;
-    }
-
-    let raf = 0;
-    const tick = () => {
-      raf = 0;
-      const el = surfaceRef.current;
-      if (!el || !wrap) return;
-      const rect = el.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
-      const range = vh + rect.height;
-      const scrolled = vh - rect.top;
-      const p = Math.max(0, Math.min(1, scrolled / Math.max(1, range)));
-      const scale = 1.03 + (1.12 - 1.03) * p;
-      wrap.style.transform = `scale(${scale})`;
-    };
-
-    const onScroll = () => {
-      if (raf) return;
-      raf = window.requestAnimationFrame(tick);
-    };
-
-    tick();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-      if (raf) window.cancelAnimationFrame(raf);
-    };
-  }, [surfaceRef, reduceMotion]);
-
-  return (
-    <div
-      ref={wrapRef}
-      className="absolute inset-0 will-change-transform"
-      style={{ transformOrigin: 'center center', transform: reduceMotion ? 'scale(1)' : 'scale(1.03)' }}
-    >
-      <Image
-        src={HERO_IMAGE}
-        alt="Architectural interior — The Plot Sale"
-        fill
-        className="object-cover object-center"
-        sizes="(max-width: 1024px) 100vw, 58vw"
-        priority
-      />
-    </div>
-  );
-}
+const [lahoreMapOffice, ukMapOffice] = officeMapSites;
 
 export default function ContactPage() {
-  const heroRef = useRef(null);
-  const reduceMotion = usePrefersReducedMotion();
-
   const [formState, setFormState] = useState({ status: 'idle', message: '' });
 
   async function handleSubmit(e) {
@@ -111,10 +52,8 @@ export default function ContactPage() {
 
   return (
     <main className="relative min-h-screen bg-[#030706] text-white">
-      <section
-        ref={heroRef}
-        className="relative overflow-hidden border-b border-white/[0.06] pt-28 pb-16 sm:pt-32 sm:pb-20 lg:pt-36 lg:pb-24"
-      >
+      {/* Hero band — no scroll listeners / no observers (React 19 DOM safety) */}
+      <section className="relative overflow-hidden border-b border-white/[0.06] pt-28 pb-16 sm:pt-32 sm:pb-20 lg:pt-36 lg:pb-24">
         <LuxurySectionOrbs />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(197,168,128,0.12),transparent)]" />
 
@@ -166,7 +105,16 @@ export default function ContactPage() {
       <section className="relative">
         <div className="mx-auto grid max-w-[1600px] lg:min-h-[min(88vh,900px)] lg:grid-cols-[1fr_minmax(380px,42%)]">
           <div className="relative min-h-[280px] overflow-hidden lg:min-h-0">
-            <ContactHeroImageScale surfaceRef={heroRef} reduceMotion={reduceMotion} />
+            <div className="absolute inset-0">
+              <Image
+                src={HERO_IMAGE}
+                alt="Architectural interior — The Plot Sale"
+                fill
+                className="object-cover object-center"
+                sizes="(max-width: 1024px) 100vw, 58vw"
+                priority
+              />
+            </div>
             <div className="absolute inset-0 bg-gradient-to-t from-[#030706] via-black/20 to-black/50 lg:bg-gradient-to-r lg:from-transparent lg:via-black/25 lg:to-[#030706]" />
             <div className="pointer-events-none absolute bottom-8 left-6 z-10 max-w-xs sm:left-10 lg:bottom-12 lg:left-12">
               <p className="font-playfair text-sm italic text-white/90">The Plot Sale</p>
@@ -186,45 +134,97 @@ export default function ContactPage() {
             />
             <LuxurySectionOrbs className="opacity-80" />
 
-            <FormPanel
-              formState={formState}
-              handleSubmit={handleSubmit}
-            />
+            <FormPanel formState={formState} handleSubmit={handleSubmit} />
           </div>
         </div>
       </section>
 
       <section className="border-t border-white/[0.06] bg-[#030706] px-5 py-20 sm:px-8 lg:px-12">
         <div className="mx-auto max-w-[1400px]">
-          <StudiosHeader />
+          <div className="lux-animate-featured-in mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.35em] text-[#C5A880]/90">Studios</p>
+              <h3 className="mt-2 font-playfair text-3xl font-light text-white md:text-4xl">Two doors. One standard.</h3>
+            </div>
+            <p className="max-w-md font-[family-name:var(--font-manrope)] text-sm font-light text-white/45">
+              Visit by appointment. We coordinate introductions across both markets.
+            </p>
+          </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <StudioCard
+          <div className="grid gap-10 md:grid-cols-2 md:gap-12">
+            <StudioBlockWithMap
               title="Pakistan"
               lines={['Plot 2, Block C, Etihad Town', 'Main Raiwind Road', 'Lahore, 54000']}
+              office={lahoreMapOffice}
+              animationDelay="0ms"
             />
-            <StudioCard
+            <StudioBlockWithMap
               title="United Kingdom"
               lines={['The Vista Center, 50 Salisbury Road', 'Hounslow, London TW4 6JQ', 'Office A4-16']}
+              office={ukMapOffice}
+              animationDelay="100ms"
             />
           </div>
 
-          <QuickRowsBlock />
+          <div className="lux-animate-featured-in mt-12 grid gap-4 border border-white/[0.08] bg-white/[0.02] p-6 backdrop-blur-sm sm:grid-cols-3 sm:p-8">
+            <QuickRow icon={Phone} label="Phone">
+              <a href="tel:+923211222999" className="mt-1 block text-sm text-white/70 transition-colors hover:text-[#C5A880]">
+                PK (+92) 321-1222999
+              </a>
+              <a href="tel:+447383663339" className="block text-sm text-white/70 transition-colors hover:text-[#C5A880]">
+                UK +44 7383663339
+              </a>
+            </QuickRow>
+            <QuickRow icon={Mail} label="Email">
+              <a
+                href="mailto:contact@theplotsale.com"
+                className="mt-1 break-all text-sm text-white/70 transition-colors hover:text-[#C5A880]"
+              >
+                contact@theplotsale.com
+              </a>
+            </QuickRow>
+            <QuickRow icon={Clock} label="Hours">
+              <p className="mt-1 text-sm text-white/70">Mon–Sat · 9:00–18:00</p>
+              <p className="text-sm text-white/50">Sunday · by appointment</p>
+            </QuickRow>
+          </div>
         </div>
       </section>
     </main>
   );
 }
 
-function FormPanel({ formState, handleSubmit }) {
-  const [ref, inView] = useInViewOnce({ threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+function StudioBlockWithMap({ title, lines, office, animationDelay }) {
   return (
-    <div
-      ref={ref}
-      className={`relative z-10 mx-auto w-full max-w-md transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
-        inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-      }`}
-    >
+    <div className="space-y-6 lux-animate-featured-in" style={{ animationDelay }}>
+      <article className="group relative overflow-hidden border border-white/[0.08] bg-gradient-to-br from-white/[0.04] to-transparent px-8 py-10 transition-colors duration-500 hover:border-[#C5A880]/25">
+        <div className="absolute left-0 top-0 h-full w-[3px] bg-gradient-to-b from-[#C5A880] via-[#C5A880]/40 to-transparent opacity-90" />
+        <div className="flex items-start gap-4 pl-2">
+          <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#C5A880]" strokeWidth={1.25} />
+          <div>
+            <h4 className="font-playfair text-xl text-white">{title}</h4>
+            <address className="mt-3 font-[family-name:var(--font-manrope)] text-sm font-light not-italic leading-relaxed text-white/55">
+              {lines.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
+            </address>
+          </div>
+        </div>
+      </article>
+
+      <p className="font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.28em] text-white/35">
+        Studio location
+      </p>
+      <OfficeMapCard office={office} />
+    </div>
+  );
+}
+
+function FormPanel({ formState, handleSubmit }) {
+  return (
+    <div className="relative z-10 mx-auto w-full max-w-md lux-animate-featured-in">
       <div className="mb-8 border-b border-white/[0.07] pb-8">
         <h2 className="font-playfair text-2xl font-light text-white sm:text-3xl">
           Request a <span className="italic text-[#e8d5b5]">conversation</span>
@@ -274,86 +274,6 @@ function FormPanel({ formState, handleSubmit }) {
           By submitting, you agree we may contact you regarding this inquiry. We do not sell your data.
         </p>
       </form>
-    </div>
-  );
-}
-
-function StudiosHeader() {
-  const [ref, inView] = useInViewOnce({ threshold: 0.2, rootMargin: '0px' });
-  return (
-    <div
-      ref={ref}
-      className={`mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
-        inView ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
-      }`}
-    >
-      <div>
-        <p className="text-[10px] uppercase tracking-[0.35em] text-[#C5A880]/90">Studios</p>
-        <h3 className="mt-2 font-playfair text-3xl font-light text-white md:text-4xl">Two doors. One standard.</h3>
-      </div>
-      <p className="max-w-md font-[family-name:var(--font-manrope)] text-sm font-light text-white/45">
-        Visit by appointment. We coordinate introductions across both markets.
-      </p>
-    </div>
-  );
-}
-
-function StudioCard({ title, lines }) {
-  const [ref, inView] = useInViewOnce({ threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
-  return (
-    <article
-      ref={ref}
-      className={`group relative overflow-hidden border border-white/[0.08] bg-gradient-to-br from-white/[0.04] to-transparent px-8 py-10 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-[#C5A880]/25 motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
-        inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-      }`}
-    >
-      <div className="absolute left-0 top-0 h-full w-[3px] bg-gradient-to-b from-[#C5A880] via-[#C5A880]/40 to-transparent opacity-90" />
-      <div className="flex items-start gap-4 pl-2">
-        <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#C5A880]" strokeWidth={1.25} />
-        <div>
-          <h4 className="font-playfair text-xl text-white">{title}</h4>
-          <address className="mt-3 font-[family-name:var(--font-manrope)] text-sm font-light not-italic leading-relaxed text-white/55">
-            {lines.map((line) => (
-              <span key={line} className="block">
-                {line}
-              </span>
-            ))}
-          </address>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function QuickRowsBlock() {
-  const [ref, inView] = useInViewOnce({ threshold: 0.08, rootMargin: '0px' });
-  return (
-    <div
-      ref={ref}
-      className={`mt-12 grid gap-4 border border-white/[0.08] bg-white/[0.02] p-6 backdrop-blur-sm sm:grid-cols-3 sm:p-8 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
-        inView ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-      }`}
-    >
-      <QuickRow icon={Phone} label="Phone">
-        <a href="tel:+923211222999" className="mt-1 block text-sm text-white/70 transition-colors hover:text-[#C5A880]">
-          PK (+92) 321-1222999
-        </a>
-        <a href="tel:+447383663339" className="block text-sm text-white/70 transition-colors hover:text-[#C5A880]">
-          UK +44 7383663339
-        </a>
-      </QuickRow>
-      <QuickRow icon={Mail} label="Email">
-        <a
-          href="mailto:contact@theplotsale.com"
-          className="mt-1 break-all text-sm text-white/70 transition-colors hover:text-[#C5A880]"
-        >
-          contact@theplotsale.com
-        </a>
-      </QuickRow>
-      <QuickRow icon={Clock} label="Hours">
-        <p className="mt-1 text-sm text-white/70">Mon–Sat · 9:00–18:00</p>
-        <p className="text-sm text-white/50">Sunday · by appointment</p>
-      </QuickRow>
     </div>
   );
 }

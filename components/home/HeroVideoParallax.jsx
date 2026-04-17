@@ -136,6 +136,7 @@ export default function HeroVideoParallax() {
     attemptVideoPlay(video1);
 
     return () => {
+      gsap.killTweensOf([video1, video2]);
       video1.removeEventListener('ended', handleVideoEnd);
       video2.removeEventListener('ended', handleVideoEnd);
       document.removeEventListener('touchstart', handleUserInteraction);
@@ -143,22 +144,20 @@ export default function HeroVideoParallax() {
     };
   }, [ready, isMobile]);
 
-  // GSAP animations - DESKTOP ONLY
-  useEffect(() => {
+  // GSAP animations — desktop only. Avoid ScrollTrigger `pin` (it reparents DOM and races React 19
+  // commitDeletion). Sticky wrapper below keeps the hero in view for ~400vh while we scrub.
+  useLayoutEffect(() => {
     if (!ready || isMobile || typeof window === 'undefined' || !sectionRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      // Create timeline
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
-          end: '+=400%',
+          end: 'bottom bottom',
           scrub: 1.2,
-          pin: true,
-          anticipatePin: 1,
         },
       });
 
@@ -235,7 +234,10 @@ export default function HeroVideoParallax() {
 
     }, sectionRef);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      ScrollTrigger.refresh();
+    };
   }, [ready, isMobile]);
 
   if (!ready) {
@@ -255,10 +257,10 @@ export default function HeroVideoParallax() {
   return (
     <section
       ref={sectionRef}
-      className={`relative ${isMobile ? 'h-auto min-h-screen flex flex-col' : 'h-screen w-full overflow-hidden'} text-white`}
+      className="relative min-h-[500vh] w-full text-white"
       style={{ background: 'linear-gradient(to bottom right, #111111, #0A0A0A, #050505)' }}
     >
-      {/* ==================== DESKTOP LAYOUT ==================== */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden">
       <>
           <div ref={videoContainerRef} className="absolute z-20 overflow-hidden bg-black/20 w-full h-full right-0 top-0 rounded-none shadow-none">
             <div className="relative h-full w-full overflow-hidden z-10 bg-black">
@@ -394,6 +396,7 @@ export default function HeroVideoParallax() {
             </div>
           </div>
       </>
-    </section >
+      </div>
+    </section>
   );
 }

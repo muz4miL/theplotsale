@@ -3,6 +3,8 @@ const nextConfig = {
   /* Framer Motion + scroll/layout animations rely on refs & subtle render timing; React Compiler
      auto-memoization can desync the DOM and trigger removeChild NotFoundError in React 19 (prod). */
   reactCompiler: false,
+  /* Dev double-mount + GSAP/scroll libs amplifies DOM races; disable until animations are stable. */
+  reactStrictMode: false,
   images: {
     remotePatterns: [
       {

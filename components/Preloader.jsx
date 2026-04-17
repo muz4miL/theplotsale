@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, startTransition } from 'react';
 import Image from 'next/image';
 
 /**
  * Intro overlay — plain DOM + CSS only (no Framer) so React 19 never fights layout/animation
  * reconcilers during route transitions or unmount.
+ *
+ * When dismissed, keep a single mounted shell (no `return null`) so a huge subtree is not torn
+ * down at the same time as client navigations — avoids intermittent removeChild races.
  */
 export default function Preloader() {
   const [visible, setVisible] = useState(true);
@@ -22,7 +25,7 @@ export default function Preloader() {
     }, 3200);
 
     const removeTimer = window.setTimeout(() => {
-      setVisible(false);
+      startTransition(() => setVisible(false));
       html.classList.remove('preloader-scroll-locked');
     }, 4200);
 
@@ -33,17 +36,21 @@ export default function Preloader() {
     };
   }, []);
 
-  if (!visible) return null;
-
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-[100002] flex w-full max-w-[100vw] flex-col overflow-hidden bg-[#0a0a0a]"
+      className={`fixed inset-0 flex w-full max-w-[100vw] flex-col overflow-hidden bg-[#0a0a0a] transition-opacity duration-500 ease-out ${
+        visible
+          ? 'pointer-events-none z-[100002] opacity-100'
+          : 'pointer-events-none -z-10 invisible opacity-0'
+      }`}
       style={{
         height: 'max(100dvh, 100lvh, 100svh)',
         minHeight: 'max(100dvh, 100lvh, 100svh)',
+        visibility: visible ? 'visible' : 'hidden',
       }}
-      aria-busy="true"
-      aria-label="Loading"
+      aria-busy={visible}
+      aria-hidden={!visible}
+      aria-label={visible ? 'Loading' : undefined}
     >
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_85%_55%_at_50%_42%,rgba(197,168,128,0.07),transparent_62%)]"
