@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import ExtraordinaryCta from '@/components/shared/ExtraordinaryCta';
 import ProjectListingCard from '@/components/projects/ProjectListingCard';
 import FeaturedExxensSpotlight from '@/components/projects/FeaturedExxensSpotlight';
@@ -136,34 +136,25 @@ export default function PakistanProjectsPage() {
                   key={tab}
                   type="button"
                   onClick={() => setActiveTab(tab)}
-                  className="relative rounded-full px-6 py-2.5 font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.22em] transition-colors sm:px-8 sm:py-3 sm:text-[11px]"
+                  className={`relative rounded-full px-6 py-2.5 font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.22em] transition-colors sm:px-8 sm:py-3 sm:text-[11px] ${
+                    activeTab === tab
+                      ? 'bg-[#C5A880] text-[#111111] shadow-[0_8px_24px_rgba(197,168,128,0.2)]'
+                      : 'text-white/45 hover:text-white/85'
+                  }`}
                 >
-                  {activeTab === tab && (
-                    <motion.div
-                      layoutId="projectsTabPill"
-                      className="absolute inset-0 rounded-full bg-[#C5A880] shadow-[0_8px_24px_rgba(197,168,128,0.2)]"
-                      transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-                    />
-                  )}
-                  <span
-                    className={`relative z-10 ${activeTab === tab ? 'text-[#111111]' : 'text-white/45 hover:text-white/85'}`}
-                  >
-                    {tab}
-                  </span>
+                  {tab}
                 </button>
               ))}
             </div>
           </motion.div>
 
-          {/* Projects Grid */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            >
+          {/* Projects Grid — no AnimatePresence (exit animations + React 19 = removeChild risk) */}
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          >
               {flagshipIsSoleListingInTab ? (
                 <div className="py-20 text-center">
                   <p className="font-playfair text-xl italic text-white/55">
@@ -194,7 +185,6 @@ export default function PakistanProjectsPage() {
                 </div>
               )}
             </motion.div>
-          </AnimatePresence>
         </div>
       </section>
       <ExtraordinaryCta />

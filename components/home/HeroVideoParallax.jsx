@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import SimpleMobileHero from './SimpleMobileHero';
+import MobileHeroVideo from './MobileHeroVideo';
 import { LuxurySkylineGlyph } from '@/components/shared/LuxuryMotionAccents';
 
 export default function HeroVideoParallax() {
@@ -249,7 +249,7 @@ export default function HeroVideoParallax() {
   }
 
   if (isMobile) {
-    return <SimpleMobileHero />;
+    return <MobileHeroVideo />;
   }
 
   return (

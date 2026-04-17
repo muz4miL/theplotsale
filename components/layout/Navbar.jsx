@@ -5,7 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
-import { motion, useReducedMotion } from 'framer-motion';
 import CurrencyToggle from '@/components/layout/CurrencyToggle';
 
 const navConfig = [
@@ -28,22 +27,8 @@ function isNavActive(href, pathname) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-const drawerLinkVariants = {
-  closed: { opacity: 0, x: 28 },
-  open: (i) => ({
-    opacity: 1,
-    x: 0,
-    transition: {
-      delay: 0.08 + i * 0.055,
-      duration: 0.45,
-      ease: [0.22, 1, 0.36, 1],
-    },
-  }),
-};
-
 export default function Navbar() {
   const pathname = usePathname();
-  const prefersReducedMotion = useReducedMotion();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -111,10 +96,6 @@ export default function Navbar() {
   const isProjectsListing = pathname === '/projects' || pathname === '/pakistan-projects';
   const immersiveNav = isProjectsListing && !isScrolled;
 
-  const pillTransition = prefersReducedMotion
-    ? { duration: 0.2 }
-    : { type: 'spring', stiffness: 420, damping: 34, mass: 0.85 };
-
   return (
     <>
       <header
@@ -180,10 +161,8 @@ export default function Navbar() {
                   }`}
                 >
                   {active ? (
-                    <motion.span
-                      layoutId="navbar-active-pill"
-                      className="absolute inset-0 rounded-full border border-[#C5A880]/45 bg-[#C5A880]/[0.14] shadow-[0_0_24px_rgba(197,168,128,0.12)]"
-                      transition={pillTransition}
+                    <span
+                      className="absolute inset-0 rounded-full border border-[#C5A880]/45 bg-[#C5A880]/[0.14] shadow-[0_0_24px_rgba(197,168,128,0.12)] transition-colors duration-300"
                       aria-hidden
                     />
                   ) : null}
@@ -283,12 +262,16 @@ export default function Navbar() {
           {navConfig.map((item, i) => {
             const active = isNavActive(item.href, pathname);
             return (
-              <motion.div
+              <div
                 key={item.href}
-                custom={i}
-                initial="closed"
-                animate={isDrawerOpen ? 'open' : 'closed'}
-                variants={drawerLinkVariants}
+                style={{
+                  opacity: isDrawerOpen ? 1 : 0,
+                  transform: isDrawerOpen ? 'translateX(0)' : 'translateX(28px)',
+                  transitionProperty: 'opacity, transform',
+                  transitionDuration: '0.45s',
+                  transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                  transitionDelay: isDrawerOpen ? `${80 + i * 55}ms` : '0ms',
+                }}
               >
                 <Link
                   href={item.href}
@@ -309,7 +292,7 @@ export default function Navbar() {
                     {active ? 'Current' : 'View'}
                   </span>
                 </Link>
-              </motion.div>
+              </div>
             );
           })}
         </nav>
