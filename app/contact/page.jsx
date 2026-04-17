@@ -7,6 +7,7 @@ import { MapPin, Phone, Mail, Clock, ArrowUpRight } from 'lucide-react';
 import { LuxurySkylineGlyph, LuxurySectionOrbs } from '@/components/shared/LuxuryMotionAccents';
 import OfficeMapCard from '@/components/shared/OfficeMapCard';
 import { officeMapSites } from '@/lib/office-locations';
+import ConciergeTextReveal from '@/components/layout/ConciergeTextReveal';
 
 const HERO_IMAGE =
   'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2400&q=85';
@@ -59,24 +60,31 @@ export default function ContactPage() {
 
         <div className="relative z-10 mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
           <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl lux-animate-featured-in">
-              <div className="mb-6 flex items-center gap-3">
+            <ConciergeTextReveal className="max-w-3xl">
+              <div data-concierge-reveal className="mb-6 flex items-center gap-3">
                 <span className="h-px w-10 bg-gradient-to-r from-[#C5A880] to-transparent" />
                 <span className="text-[10px] font-medium uppercase tracking-[0.42em] text-[#C5A880]">Concierge</span>
                 <LuxurySkylineGlyph className="hidden h-8 w-24 opacity-40 sm:block md:h-9 md:w-28" />
               </div>
 
               <h1 className="font-playfair text-[clamp(2.5rem,6.5vw,4.25rem)] font-light leading-[1.05] tracking-tight">
-                <span className="block text-white/95">Private client</span>
-                <span className="mt-1 block italic text-[#e8d5b5]">desk</span>
+                <span data-concierge-reveal className="block text-white/95">
+                  Private client
+                </span>
+                <span data-concierge-reveal className="mt-1 block italic text-[#e8d5b5]">
+                  desk
+                </span>
               </h1>
 
-              <p className="mt-6 max-w-xl font-[family-name:var(--font-manrope)] text-sm font-light leading-relaxed text-white/55 sm:text-base">
-                A discreet line for acquisitions, developments, and cross-border mandates. Share your brief — we
-                respond with clarity, not noise.
+              <p
+                data-concierge-reveal
+                className="mt-6 max-w-xl font-[family-name:var(--font-manrope)] text-sm font-light leading-relaxed text-white/55 sm:text-base"
+              >
+                A discreet line for acquisitions, developments, and cross-border mandates. Share your brief — we respond
+                with clarity, not noise.
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-4">
+              <div data-concierge-reveal className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
                 <Link
                   href="mailto:contact@theplotsale.com"
                   className="group inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#C5A880] transition-colors hover:text-white"
@@ -86,8 +94,20 @@ export default function ContactPage() {
                 </Link>
                 <span className="hidden h-3 w-px bg-white/15 sm:block" aria-hidden />
                 <p className="text-[10px] uppercase tracking-[0.28em] text-white/35">London · Lahore</p>
+                <span className="hidden h-3 w-px bg-white/15 sm:block" aria-hidden />
+                <Link
+                  href="https://wa.me/923211222999"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/55 transition-colors hover:text-[#25D366]"
+                >
+                  <span className="text-[#25D366]">WhatsApp</span>
+                  <span className="font-light tracking-[0.12em] text-white/70 group-hover:text-[#25D366]">
+                    92 321 1222999
+                  </span>
+                </Link>
               </div>
-            </div>
+            </ConciergeTextReveal>
 
             <div
               className="flex shrink-0 flex-col items-start gap-2 border-l border-[#C5A880]/35 pl-6 lux-animate-featured-in lg:items-end lg:border-l-0 lg:border-r lg:pl-0 lg:pr-6 lg:text-right"
@@ -173,6 +193,14 @@ export default function ContactPage() {
               </a>
               <a href="tel:+447383663339" className="block text-sm text-white/70 transition-colors hover:text-[#C5A880]">
                 UK +44 7383663339
+              </a>
+              <a
+                href="https://wa.me/923211222999"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-sm text-white/60 transition-colors hover:text-[#25D366]"
+              >
+                WhatsApp · 92 321 1222999
               </a>
             </QuickRow>
             <QuickRow icon={Mail} label="Email">

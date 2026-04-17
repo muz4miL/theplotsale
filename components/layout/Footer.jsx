@@ -47,20 +47,65 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Right: Social Icons */}
-          <div className="flex gap-3 md:justify-end justify-center md:mt-0">
-            {socialIcons.map(({ icon: Icon, href, label }) => (
-              <Link
-                key={label}
-                href={href}
-                aria-label={`Visit The Plot Sale on ${label}`}
-                className="flex h-12 min-h-[44px] w-12 min-w-[44px] items-center justify-center rounded-full border border-[#C5A880]/40 text-[#C5A880] transition-all duration-300 hover:border-[#C5A880] hover:bg-[#C5A880] hover:text-[#05110e] active:scale-[0.97]"
-              >
-                <Icon size={18} strokeWidth={1.5} />
-              </Link>
-            ))}
-          </div>
+          <BrandSocialLinks className="md:mt-0" />
         </section>
+
+        {/* Concierge — private desk */}
+        <ConciergeTextReveal className="relative mb-12 overflow-hidden rounded-2xl border border-[#C5A880]/20 bg-gradient-to-br from-white/[0.04] via-transparent to-[#C5A880]/[0.06] px-6 py-8 sm:px-10 sm:py-10">
+          <div className="pointer-events-none absolute left-0 top-0 h-full w-[3px] bg-gradient-to-b from-[#C5A880] via-[#C5A880]/35 to-transparent" aria-hidden />
+          <div className="pl-4 sm:pl-6">
+            <p
+              data-concierge-reveal
+              className="font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.38em] text-[#C5A880]"
+            >
+              Concierge
+            </p>
+            <h2 className="mt-3 font-playfair text-2xl font-light text-white/95 sm:text-3xl">
+              <span data-concierge-reveal className="block">
+                Private client
+              </span>
+              <span data-concierge-reveal className="mt-1 block italic text-[#e8d5b5]">
+                desk
+              </span>
+            </h2>
+            <p
+              data-concierge-reveal
+              className="mt-5 max-w-xl font-[family-name:var(--font-manrope)] text-sm font-light leading-relaxed text-white/55"
+            >
+              A discreet line for acquisitions, developments, and cross-border mandates. Share your brief — we respond
+              with clarity, not noise.
+            </p>
+            <div
+              data-concierge-reveal
+              className="mt-6 flex flex-col gap-3 border-t border-white/[0.08] pt-6 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-3"
+            >
+              <Link
+                href="mailto:contact@theplotsale.com"
+                className="text-sm font-light text-[#C5A880] transition-colors hover:text-white"
+              >
+                contact@theplotsale.com
+              </Link>
+              <span className="hidden text-white/20 sm:inline" aria-hidden>
+                ·
+              </span>
+              <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-white/40">London · Lahore</p>
+              <span className="hidden text-white/20 sm:inline" aria-hidden>
+                ·
+              </span>
+              <Link
+                href="https://wa.me/923211222999"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-white/70 transition-colors hover:text-[#25D366]"
+              >
+                <span className="font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.2em] text-[#25D366]/90">
+                  WhatsApp
+                </span>
+                <span className="font-light tracking-wide">92 321 1222999</span>
+              </Link>
+            </div>
+          </div>
+        </ConciergeTextReveal>
 
         {/* Divider */}
         <div className="border-t border-white/5" />
@@ -127,6 +172,17 @@ export default function Footer() {
                 <p className="text-[#C5A880] text-xs font-medium mb-1">Phone:</p>
                 <p>PK: <a href="tel:+923211222999" className="hover:text-[#C5A880] transition-colors">(+92) 321-1222999</a></p>
                 <p>UK: <a href="tel:+447383663339" className="hover:text-[#C5A880] transition-colors">+44 7383663339</a></p>
+              </div>
+              <div>
+                <p className="text-[#C5A880] text-xs font-medium mb-1">WhatsApp:</p>
+                <a
+                  href="https://wa.me/923211222999"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#25D366] transition-colors"
+                >
+                  92 321 1222999
+                </a>
               </div>
             </div>
           </div>
