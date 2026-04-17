@@ -415,6 +415,30 @@ html.has-scroll-dragging {
   }
 }
 
+/* Skyline glyph — was Framer motion.svg; CSS-only for React 19 stability */
+@keyframes luxury-skyline-glyph-pulse {
+
+  0%,
+  100% {
+    opacity: 0.22;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.luxury-skyline-glyph {
+  animation: luxury-skyline-glyph-pulse 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .luxury-skyline-glyph {
+    animation: none;
+    opacity: 0.36;
+  }
+}
+
 @keyframes luxury-edge-shimmer {
   0% {
     transform: translateX(-120%);
