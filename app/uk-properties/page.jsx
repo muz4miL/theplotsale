@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SafeListingImage from '@/components/shared/SafeListingImage';
-import { motion } from 'framer-motion';
 import { Bed, Bath, Maximize, ArrowUpRight } from 'lucide-react';
 import ListingLogo from '@/components/ListingLogo';
 import { useDisplayCurrency } from '@/contexts/DisplayCurrencyContext';
@@ -54,12 +53,7 @@ export default function UKPropertiesPage() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-6">
         <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
-          >
+          <div className="lux-animate-featured-in mb-16 text-center">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
               UK Properties
             </h1>
@@ -69,7 +63,7 @@ export default function UKPropertiesPage() {
             <div className="mt-4 inline-block px-6 py-2 bg-white/5 backdrop-blur-md rounded-full border border-white/10">
               <span className="text-[#C5A880] font-semibold">{properties.length} Properties Available</span>
             </div>
-          </motion.div>
+          </div>
 
           {/* Properties Grid */}
           {properties.length === 0 ? (
@@ -77,22 +71,11 @@ export default function UKPropertiesPage() {
               <p className="text-gray-400 text-lg">No properties available at the moment.</p>
             </div>
           ) : (
-            <motion.div
-              className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
-              initial="hidden"
-              animate="visible"
-              variants={{
-                visible: {
-                  transition: {
-                    staggerChildren: 0.1,
-                  },
-                },
-              }}
-            >
-              {properties.map((property) => (
-                <PropertyCard key={property._id} property={property} />
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {properties.map((property, i) => (
+                <PropertyCard key={property._id} property={property} index={i} />
               ))}
-            </motion.div>
+            </div>
           )}
         </div>
       </section>
@@ -100,19 +83,15 @@ export default function UKPropertiesPage() {
   );
 }
 
-function PropertyCard({ property }) {
+function PropertyCard({ property, index = 0 }) {
   const { formatPrice } = useDisplayCurrency();
   const native = property.currency === 'PKR' ? 'PKR' : 'GBP';
   const priceLabel = formatPrice(property.price, native);
 
   return (
-    <motion.div
-      variants={{
-        hidden: { opacity: 0, y: 30 },
-        visible: { opacity: 1, y: 0 },
-      }}
-      transition={{ duration: 0.6 }}
-      className="group relative"
+    <div
+      className="group relative lux-animate-featured-in"
+      style={{ animationDelay: `${Math.min(index, 12) * 70}ms` }}
     >
       <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-black/35 backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:border-[#C5A880]/55 hover:shadow-[0_24px_48px_rgba(0,0,0,0.35)]">
         {/* Image */}
@@ -172,7 +151,7 @@ function PropertyCard({ property }) {
           </Link>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 

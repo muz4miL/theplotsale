@@ -452,6 +452,125 @@ html.has-scroll-dragging {
   }
 }
 
+/* Home Intro — curtain + stagger (no Framer) */
+@keyframes intro-curtain-reveal {
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.intro-css-root .intro-css-curtain {
+  transform: scaleX(1);
+  transform-origin: right center;
+}
+
+.intro-css-root.intro-css-visible .intro-css-curtain {
+  animation: intro-curtain-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.intro-css-root.intro-css-visible .intro-css-image-inner {
+  animation: luxury-featured-in 1s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both;
+}
+
+.intro-css-root.intro-css-visible .intro-css-badge {
+  animation: luxury-featured-in 0.95s cubic-bezier(0.25, 0.8, 0.25, 1) 0.75s both;
+}
+
+.intro-css-root.intro-css-visible .intro-css-stagger-0 {
+  animation: luxury-featured-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+}
+
+.intro-css-root.intro-css-visible .intro-css-stagger-1 {
+  animation: luxury-featured-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+}
+
+.intro-css-root.intro-css-visible .intro-css-stagger-2 {
+  animation: luxury-featured-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.55s both;
+}
+
+.intro-css-root.intro-css-visible .intro-css-stagger-3 {
+  animation: luxury-featured-in 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.65s both;
+}
+
+.intro-css-root.intro-css-visible .intro-css-stagger-4 {
+  animation: luxury-featured-in 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.75s both;
+}
+
+@keyframes intro-icon-bob {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.intro-css-root.intro-css-visible .intro-css-icon-wrap:nth-child(1) {
+  animation: intro-icon-bob 4.5s ease-in-out 0.85s infinite;
+}
+
+.intro-css-root.intro-css-visible .intro-css-icon-wrap:nth-child(2) {
+  animation: intro-icon-bob 4.9s ease-in-out 1s infinite;
+}
+
+.intro-css-root.intro-css-visible .intro-css-icon-wrap:nth-child(3) {
+  animation: intro-icon-bob 5.3s ease-in-out 1.15s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .intro-css-root .intro-css-curtain,
+  .intro-css-root.intro-css-visible .intro-css-image-inner,
+  .intro-css-root.intro-css-visible .intro-css-badge,
+  .intro-css-root.intro-css-visible .intro-css-stagger-0,
+  .intro-css-root.intro-css-visible .intro-css-stagger-1,
+  .intro-css-root.intro-css-visible .intro-css-stagger-2,
+  .intro-css-root.intro-css-visible .intro-css-stagger-3,
+  .intro-css-root.intro-css-visible .intro-css-stagger-4,
+  .intro-css-root.intro-css-visible .intro-css-icon-wrap {
+    animation: none !important;
+  }
+
+  .intro-css-root .intro-css-curtain {
+    transform: scaleX(0);
+  }
+}
+
+/* Testimonials marquee rows (no Framer infinite motion) */
+@keyframes lux-marquee-ltr {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.lux-marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 1.5rem;
+  animation: lux-marquee-ltr 40s linear infinite;
+}
+
+.lux-marquee-track-reverse {
+  animation-direction: reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lux-marquee-track {
+    animation: none;
+  }
+}
+
 /* About hero — no Framer */
 @keyframes about-hero-ken {
   from {

@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { Bed, Bath, MapPin, ArrowLeft } from 'lucide-react';
 import ListingLogo from '@/components/ListingLogo';
 import ProjectLuxuryShowcase from '@/components/projects/ProjectLuxuryShowcase';
@@ -78,15 +77,12 @@ export default function PropertyDetailPage() {
     <div className="min-h-screen bg-black">
       {/* Back Button */}
       <div className="fixed top-24 left-6 z-[100]">
-        <Link href="/uk-properties">
-          <motion.button
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center space-x-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 hover:bg-white/20 transition-all"
-          >
-            <ArrowLeft className="w-5 h-5 text-white" />
-            <span className="text-white font-semibold">Back</span>
-          </motion.button>
+        <Link
+          href="/uk-properties"
+          className="flex items-center space-x-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 font-semibold text-white backdrop-blur-md transition-all hover:bg-white/20 lux-animate-featured-in"
+        >
+          <ArrowLeft className="h-5 w-5 text-white" />
+          <span>Back</span>
         </Link>
       </div>
 
@@ -120,25 +116,15 @@ export default function PropertyDetailPage() {
         <div className="max-w-7xl mx-auto">
 
           {/* Description */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-8 mb-16"
-          >
+          <div className="lux-animate-featured-in mb-16 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
             <h2 className="text-3xl font-bold text-white mb-6">About This Property</h2>
             <p className="text-gray-300 text-lg leading-relaxed">
               {property.description || 'Property details will be updated shortly.'}
             </p>
-          </motion.div>
+          </div>
 
           {videoMedia.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md"
-            >
+            <div className="lux-animate-featured-in rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
               <h2 className="mb-2 text-3xl font-bold text-white">Property film</h2>
               <p className="mb-6 text-sm text-white/50">Video tours and walkthroughs.</p>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -152,23 +138,18 @@ export default function PropertyDetailPage() {
                   />
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
 
           {!!property.floatingLogos?.length && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mt-12 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md"
-            >
+            <div className="lux-animate-featured-in mt-12 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
               <h2 className="mb-6 text-3xl font-bold text-white">Brand Partners</h2>
               <div className="flex flex-wrap gap-4">
                 {property.floatingLogos.map((logoUrl) => (
                   <ListingLogo key={logoUrl} src={logoUrl} name={property.title} className="h-14 w-14" />
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
         </div>
       </section>
