@@ -2,18 +2,51 @@
 
 /**
  * Mobile-only hero: full-bleed video + luxury copy. Desktop uses HeroVideoParallax unchanged.
- * iOS: direct `src` on <video>, poster, preload=auto, playsinline — no opacity:0 gate on the element.
+ * iOS Safari: muted + playsInline + play() must run synchronously inside tap/click (no async handler).
+ * Overlay z-index must sit above hero copy so “Tap to play” receives touches.
  */
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { LuxurySkylineGlyph } from '@/components/shared/LuxuryMotionAccents';
 
 const VIDEOS = ['/videos/1.mp4', '/videos/2.mp4', '/videos/3.mp4'];
 const POSTER = '/lifestyle-hero.png';
 
+function applyIosVideoAttrs(video) {
+  if (!video) return;
+  video.muted = true;
+  video.defaultMuted = true;
+  video.volume = 0;
+  video.playsInline = true;
+  video.setAttribute('playsinline', '');
+  video.setAttribute('webkit-playsinline', '');
+  video.setAttribute('muted', '');
+}
+
+/** Call play() synchronously — required for user-activation on WebKit. */
+function tryPlayNow(video, onPlaying, onBlocked) {
+  if (!video) {
+    onBlocked?.();
+    return;
+  }
+  applyIosVideoAttrs(video);
+  try {
+    const p = video.play();
+    if (p !== undefined) {
+      p.then(() => onPlaying?.()).catch(() => onBlocked?.());
+    } else {
+      onPlaying?.();
+    }
+  } catch {
+    onBlocked?.();
+  }
+}
+
 export default function MobileHeroVideo() {
   const videoRef = useRef(null);
+  const heroAreaRef = useRef(null);
+  const lastUserPlayRef = useRef(0);
   const [index, setIndex] = useState(0);
   /** buffering | playing | needs_tap | error */
   const [phase, setPhase] = useState('buffering');
@@ -22,88 +55,112 @@ export default function MobileHeroVideo() {
     setPhase('buffering');
   }, [index]);
 
+  const markPlaying = useCallback(() => setPhase('playing'), []);
+  const markNeedsTap = useCallback(() => setPhase('needs_tap'), []);
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     let cancelled = false;
+    applyIosVideoAttrs(video);
 
-    video.defaultMuted = true;
-    video.muted = true;
-    video.playsInline = true;
-    video.setAttribute('playsinline', 'true');
-    video.setAttribute('webkit-playsinline', 'true');
-
-    const tryPlay = async () => {
-      try {
-        await video.play();
-        if (!cancelled) setPhase('playing');
-      } catch {
-        if (!cancelled) setPhase('needs_tap');
-      }
+    const tryAutoplay = () => {
+      if (cancelled) return;
+      tryPlayNow(
+        video,
+        () => {
+          if (!cancelled) markPlaying();
+        },
+        () => {
+          if (!cancelled) markNeedsTap();
+        }
+      );
     };
 
-    const onReady = () => {
-      void tryPlay();
+    const onPlaying = () => {
+      if (!cancelled) markPlaying();
     };
-
-    video.addEventListener('loadeddata', onReady);
-    video.addEventListener('canplay', onReady);
-    video.addEventListener('playing', () => {
-      if (!cancelled) setPhase('playing');
-    });
-    video.addEventListener('error', () => {
+    const onError = () => {
       if (!cancelled) setPhase('error');
+    };
+
+    video.addEventListener('playing', onPlaying);
+    video.addEventListener('error', onError);
+
+    // Defer one frame so layout + decoder can attach (helps first paint on iOS)
+    const raf = requestAnimationFrame(() => {
+      tryAutoplay();
     });
 
-    video.load();
-    void tryPlay();
-
-    const retry = window.setTimeout(() => void tryPlay(), 350);
+    const t1 = window.setTimeout(tryAutoplay, 120);
+    const t2 = window.setTimeout(tryAutoplay, 600);
     const softFail = window.setTimeout(() => {
-      if (!cancelled && video.paused) setPhase('needs_tap');
-    }, 2800);
+      if (!cancelled && video.paused) markNeedsTap();
+    }, 3200);
+
+    const root = heroAreaRef.current;
+    let io;
+    if (root && typeof IntersectionObserver !== 'undefined') {
+      io = new IntersectionObserver(
+        (entries) => {
+          const vis = entries.some((e) => e.isIntersecting && e.intersectionRatio > 0.15);
+          if (vis && video.paused) tryAutoplay();
+        },
+        { threshold: [0, 0.15, 0.35] }
+      );
+      io.observe(root);
+    }
 
     return () => {
       cancelled = true;
-      window.clearTimeout(retry);
+      cancelAnimationFrame(raf);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
       window.clearTimeout(softFail);
-      video.removeEventListener('loadeddata', onReady);
-      video.removeEventListener('canplay', onReady);
+      video.removeEventListener('playing', onPlaying);
+      video.removeEventListener('error', onError);
+      io?.disconnect();
     };
-  }, [index]);
+  }, [index, markPlaying, markNeedsTap]);
 
   const handleEnded = () => {
     setIndex((i) => (i + 1) % VIDEOS.length);
   };
 
-  const handleTapToPlay = async () => {
+  /** User gesture: must stay synchronous — no async/await. */
+  const handleUserPlayIntent = () => {
+    const now = Date.now();
+    if (now - lastUserPlayRef.current < 350) return;
+    lastUserPlayRef.current = now;
+
     const video = videoRef.current;
-    if (!video) return;
-    video.muted = true;
-    try {
-      await video.play();
-      setPhase('playing');
-    } catch (e) {
-      console.warn('Tap play:', e);
-    }
+    tryPlayNow(
+      video,
+      () => setPhase('playing'),
+      () => setPhase('needs_tap')
+    );
   };
 
   return (
-    <section className="relative min-h-[100svh] w-full overflow-hidden bg-[#030303]">
+    <section ref={heroAreaRef} className="relative min-h-[100svh] w-full overflow-hidden bg-[#030303]">
       <div className="relative min-h-[min(72svh,720px)] w-full overflow-hidden">
         {phase !== 'error' ? (
           <video
             ref={videoRef}
             key={index}
             className="absolute inset-0 z-[1] h-full w-full object-cover"
-            src={VIDEOS[index]}
             poster={POSTER}
             preload="auto"
             muted
             playsInline
+            autoPlay
+            controls={false}
+            disablePictureInPicture
             onEnded={handleEnded}
-          />
+          >
+            <source src={VIDEOS[index]} type="video/mp4" />
+          </video>
         ) : (
           <div className="absolute inset-0 z-[1]">
             <Image src={POSTER} alt="" fill className="object-cover" sizes="100vw" priority />
@@ -130,11 +187,12 @@ export default function MobileHeroVideo() {
         {phase === 'needs_tap' && (
           <button
             type="button"
-            className="absolute inset-0 z-[30] flex cursor-pointer flex-col items-center justify-center border-0 bg-black/35 backdrop-blur-[1px] active:bg-black/45"
-            onClick={handleTapToPlay}
+            className="absolute inset-0 z-[200] flex cursor-pointer touch-manipulation flex-col items-center justify-center border-0 bg-black/35 backdrop-blur-[1px] active:bg-black/45"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
+            onClick={handleUserPlayIntent}
             aria-label="Play video"
           >
-            <div className="flex flex-col items-center gap-3 px-6">
+            <div className="pointer-events-none flex flex-col items-center gap-3 px-6">
               <div className="flex h-16 w-16 items-center justify-center rounded-full border border-[#C5A880]/45 bg-[#C5A880]/10 shadow-[0_0_40px_rgba(197,168,128,0.15)]">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="#C5A880" aria-hidden>
                   <path d="M8 5v14l11-7z" />
@@ -158,7 +216,7 @@ export default function MobileHeroVideo() {
           aria-hidden
         />
 
-        <div className="absolute inset-x-0 bottom-0 z-[20] lux-mobile-page-gutter pb-[max(1.25rem,env(safe-area-inset-bottom,0px))]">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[20] lux-mobile-page-gutter pb-[max(1.25rem,env(safe-area-inset-bottom,0px))]">
           <div className="rounded-t-2xl bg-gradient-to-t from-black via-black/94 to-transparent px-1 pb-2 pt-12 sm:pt-14">
             <div className="mb-3 flex items-center gap-3">
               <div className="h-px w-10 shrink-0 bg-gradient-to-r from-[#C5A880] to-transparent sm:w-12" />
