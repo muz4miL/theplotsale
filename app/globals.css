@@ -415,6 +415,110 @@ html.has-scroll-dragging {
   }
 }
 
+/* Project showcase image swap — replaces Framer AnimatePresence */
+@keyframes luxury-slide-fade {
+  from {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes luxury-featured-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lux-animate-featured-in {
+  animation: luxury-featured-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lux-animate-featured-in {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* About hero — no Framer */
+@keyframes about-hero-ken {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.1);
+  }
+}
+
+.about-hero-kenburns {
+  animation: about-hero-ken 20s linear infinite alternate;
+}
+
+@keyframes about-hero-stagger {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.about-hero-stagger-1 {
+  animation: about-hero-stagger 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+.about-hero-stagger-2 {
+  animation: about-hero-stagger 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+}
+
+.about-hero-stagger-3 {
+  animation: about-hero-stagger 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.55s both;
+}
+
+@keyframes about-hero-chevron {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+.about-hero-chevron {
+  animation: about-hero-chevron 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .about-hero-kenburns,
+  .about-hero-stagger-1,
+  .about-hero-stagger-2,
+  .about-hero-stagger-3,
+  .about-hero-chevron {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 /* Skyline glyph — was Framer motion.svg; CSS-only for React 19 stability */
 @keyframes luxury-skyline-glyph-pulse {
 

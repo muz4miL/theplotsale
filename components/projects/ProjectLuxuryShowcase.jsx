@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
 import ListingLogo from '@/components/ListingLogo';
@@ -44,25 +43,19 @@ export default function ProjectLuxuryShowcase({
         {/* —— Visual column —— */}
         <div className="relative flex min-h-[52vh] flex-col lg:min-h-full">
           <div className="relative min-h-[42vh] flex-1 overflow-hidden bg-neutral-950 lg:min-h-0">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeSrc}
-                className="absolute inset-0"
-                initial={{ opacity: 0, scale: 1.05 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.985 }}
-                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <SafeListingImage
-                  src={activeSrc}
-                  alt={project.title}
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 62vw"
-                />
-              </motion.div>
-            </AnimatePresence>
+            <div
+              key={activeSrc}
+              className="absolute inset-0 animate-[luxury-slide-fade_0.45s_cubic-bezier(0.22,1,0.36,1)_both]"
+            >
+              <SafeListingImage
+                src={activeSrc}
+                alt={project.title}
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 62vw"
+              />
+            </div>
             <div
               className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/65 lg:to-black/85"
               aria-hidden
@@ -85,13 +78,7 @@ export default function ProjectLuxuryShowcase({
                     aria-label={`Show image ${index + 1}`}
                     aria-current={index === activeIndex ? 'true' : undefined}
                   >
-                    <SafeListingImage
-                      src={url}
-                      alt=""
-                      fill
-                      className="object-cover"
-                      sizes="80px"
-                    />
+                    <SafeListingImage src={url} alt="" fill className="object-cover" sizes="80px" />
                   </button>
                 ))}
               </div>

@@ -1,14 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useInView } from 'framer-motion';
+import { useInViewOnce } from '@/hooks/useInViewOnce';
 
 /**
  * Counts from 0 to `end` when scrolled into view. Respects reduced motion via CSS media query.
  */
 export default function CountUpNumber({ end, className = '' }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.45 });
+  const [ref, isInView] = useInViewOnce({ threshold: 0.45, rootMargin: '0px' });
   const [display, setDisplay] = useState(0);
   const reducedMotionRef = useRef(false);
 

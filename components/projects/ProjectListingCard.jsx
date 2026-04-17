@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { ArrowUpRight, MapPin, Maximize2 } from 'lucide-react';
+import { useInViewOnce } from '@/hooks/useInViewOnce';
 import SafeListingImage from '@/components/shared/SafeListingImage';
 import ListingLogo from '@/components/ListingLogo';
 
@@ -24,19 +24,18 @@ const statusTokens = {
   },
 };
 
-const easeLux = [0.22, 1, 0.36, 1];
-
 export default function ProjectListingCard({ project, index }) {
+  const [wrapRef, visible] = useInViewOnce({ threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
   const status = statusTokens[project.status] || statusTokens.Current;
   const num = String(index + 1).padStart(2, '0');
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 48 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.15, margin: '0px 0px -8% 0px' }}
-      transition={{ duration: 0.75, delay: Math.min(index * 0.07, 0.35), ease: easeLux }}
-      className="h-full"
+    <div
+      ref={wrapRef}
+      className={`h-full transition-all duration-[750ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
+        visible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
+      }`}
+      style={{ transitionDelay: `${Math.min(index * 70, 350)}ms` }}
     >
       <Link
         href={`/pakistan-projects/${project.slug}`}
@@ -126,6 +125,6 @@ export default function ProjectListingCard({ project, index }) {
           </div>
         </div>
       </Link>
-    </motion.div>
+    </div>
   );
 }

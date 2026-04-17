@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { ArrowUpRight, MapPin, Building2 } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
 import ListingLogo from '@/components/ListingLogo';
@@ -9,8 +8,6 @@ import {
   getExxsnHeightsEditorialSpecs,
   projectUsesExxsnEditorialSpecs,
 } from '@/lib/featured-flagship';
-
-const easeLux = [0.22, 1, 0.36, 1];
 
 export default function FeaturedExxensSpotlight({ project }) {
   if (!project) return null;
@@ -69,12 +66,7 @@ export default function FeaturedExxensSpotlight({ project }) {
         </div>
 
         <div className="relative z-10 flex min-h-[max(640px,100svh)] flex-col px-5 pb-12 pt-[max(5.5rem,calc(env(safe-area-inset-top,0px)+4.5rem))] sm:px-8 sm:pb-16 sm:pt-[max(6rem,calc(env(safe-area-inset-top,0px)+4.75rem))] lg:px-12 lg:pb-20 lg:pt-[max(6.5rem,calc(env(safe-area-inset-top,0px)+5rem))]">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.75, ease: easeLux }}
-            className="flex flex-1 flex-col"
-          >
+          <div className="flex flex-1 flex-col lux-animate-featured-in">
             <div className="flex items-start justify-between gap-4">
               <div className="max-w-[18rem] space-y-2">
                 <p className="font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.36em] text-[#C5A880]">
@@ -168,7 +160,7 @@ export default function FeaturedExxensSpotlight({ project }) {
             <div className="mt-10 flex justify-center lg:mt-12">
               <div className="h-px w-24 bg-gradient-to-r from-transparent via-[#C5A880]/40 to-transparent" aria-hidden />
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

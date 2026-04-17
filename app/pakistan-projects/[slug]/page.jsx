@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { MapPin, Maximize2, ArrowLeft, FileText } from 'lucide-react';
 import ProgressTimeline from '@/components/projects/ProgressTimeline';
 import ListingLogo from '@/components/ListingLogo';
@@ -79,15 +78,12 @@ export default function ProjectDetailPage() {
     <div className="min-h-screen bg-black">
       {/* Back Button */}
       <div className="fixed top-24 left-6 z-[100]">
-        <Link href="/pakistan-projects">
-          <motion.button
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center space-x-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 hover:bg-white/20 transition-all"
-          >
-            <ArrowLeft className="w-5 h-5 text-white" />
-            <span className="text-white font-semibold">Back</span>
-          </motion.button>
+        <Link
+          href="/pakistan-projects"
+          className="inline-flex items-center space-x-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-md transition-all hover:bg-white/20"
+        >
+          <ArrowLeft className="h-5 w-5 text-white" />
+          <span className="font-semibold text-white">Back</span>
         </Link>
       </div>
 
@@ -118,54 +114,34 @@ export default function ProjectDetailPage() {
       <section className="relative py-20 px-6">
         <div className="max-w-7xl mx-auto">
           {/* Description */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-8 mb-12"
-          >
+          <div className="mb-12 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
             <h2 className="text-3xl font-bold text-white mb-6">About This Project</h2>
             <p className="text-gray-300 text-lg leading-relaxed">
               {project.description || 'Project details will be updated soon.'}
             </p>
-          </motion.div>
+          </div>
 
           {/* Payment Plan */}
           {project.paymentPlan && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-8 mb-12"
-            >
+            <div className="mb-12 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
               <div className="flex items-center mb-4">
                 <FileText className="w-8 h-8 text-[#C5A880] mr-3" />
                 <h2 className="text-3xl font-bold text-white">Payment Plan</h2>
               </div>
               <p className="text-gray-300 text-lg">{project.paymentPlan}</p>
-            </motion.div>
+            </div>
           )}
 
           {/* Development Progress Timeline */}
           {project.progressUpdates && project.progressUpdates.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-8"
-            >
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
               <h2 className="text-3xl font-bold text-white mb-8">Development Progress</h2>
               <ProgressTimeline progressUpdates={project.progressUpdates} />
-            </motion.div>
+            </div>
           )}
 
           {videoGallery.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mt-12 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md"
-            >
+            <div className="mt-12 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
               <h2 className="mb-2 text-3xl font-bold text-white">Project film</h2>
               <p className="mb-6 text-sm text-white/50">Walkthroughs and reels for this development.</p>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -179,23 +155,18 @@ export default function ProjectDetailPage() {
                   />
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
 
           {!!project.floatingLogos?.length && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mt-12 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md"
-            >
+            <div className="mt-12 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
               <h2 className="mb-6 text-3xl font-bold text-white">Brand Partners</h2>
               <div className="flex flex-wrap gap-4">
                 {project.floatingLogos.map((logoUrl) => (
                   <ListingLogo key={logoUrl} src={logoUrl} name={project.title} className="h-14 w-14" />
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
         </div>
       </section>

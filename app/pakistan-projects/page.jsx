@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import ExtraordinaryCta from '@/components/shared/ExtraordinaryCta';
 import ProjectListingCard from '@/components/projects/ProjectListingCard';
 import FeaturedExxensSpotlight from '@/components/projects/FeaturedExxensSpotlight';
@@ -55,10 +54,10 @@ export default function PakistanProjectsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-black">
         <div className="mx-4 max-w-2xl rounded-2xl border border-[#C5A880]/30 bg-white/5 p-8 text-center backdrop-blur-md">
           <p className="text-xs uppercase tracking-[0.3em] text-[#C5A880]">Projects Service Notice</p>
-          <p className="mt-4 text-red-300 text-lg">Unable to load live projects right now.</p>
+          <p className="mt-4 text-lg text-red-300">Unable to load live projects right now.</p>
           <p className="mt-3 text-sm text-white/70">{error}</p>
           <p className="mt-4 text-xs text-white/50">
             If this is production, verify Vercel environment variables and MongoDB network access.
@@ -72,19 +71,12 @@ export default function PakistanProjectsPage() {
     <div className="min-h-screen min-w-0 overflow-x-hidden bg-[#030706]">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(197,168,128,0.06),transparent)]" />
 
-      {/* Flagship first — full-bleed scroll scene (env: NEXT_PUBLIC_FEATURED_PROJECT_SLUG) */}
       {featuredProject ? <FeaturedExxensSpotlight project={featuredProject} /> : null}
 
-      {/* Classic hero only when no flagship match */}
       {!featuredProject ? (
         <section className="relative px-5 pb-16 pt-32 sm:px-8 lg:px-10">
           <div className="relative mx-auto max-w-[1200px]">
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-              className="mb-14 text-center lg:mb-16"
-            >
+            <div className="lux-animate-featured-in mb-14 text-center lg:mb-16">
               <p className="mb-5 font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.42em] text-[#C5A880]/90">
                 Portfolio
               </p>
@@ -95,7 +87,7 @@ export default function PakistanProjectsPage() {
                 Master-planned communities and signature builds — curated for international and domestic capital.
               </p>
               <div className="mx-auto mt-8 h-px w-24 bg-gradient-to-r from-transparent via-[#C5A880]/50 to-transparent" />
-            </motion.div>
+            </div>
           </div>
         </section>
       ) : null}
@@ -106,12 +98,7 @@ export default function PakistanProjectsPage() {
       >
         <div className="relative mx-auto max-w-[1200px]">
           {featuredProject ? (
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-              className="mb-12 text-center lg:mb-14"
-            >
+            <div className="lux-animate-featured-in mb-12 text-center lg:mb-14">
               <p className="font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.4em] text-[#C5A880]/90">
                 Portfolio
               </p>
@@ -121,15 +108,10 @@ export default function PakistanProjectsPage() {
               <p className="mx-auto mt-4 max-w-lg font-[family-name:var(--font-manrope)] text-sm font-light text-white/45">
                 Continue into the full register — every dossier is investor-grade.
               </p>
-            </motion.div>
+            </div>
           ) : null}
-          {/* Tab Interface */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-12 flex justify-center lg:mb-14"
-          >
+
+          <div className="mb-12 flex justify-center lg:mb-14">
             <div className="inline-flex rounded-full border border-white/[0.09] bg-black/30 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] supports-[backdrop-filter]:backdrop-blur-md">
               {TABS.map((tab) => (
                 <button
@@ -146,45 +128,37 @@ export default function PakistanProjectsPage() {
                 </button>
               ))}
             </div>
-          </motion.div>
+          </div>
 
-          {/* Projects Grid — no AnimatePresence (exit animations + React 19 = removeChild risk) */}
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          >
-              {flagshipIsSoleListingInTab ? (
-                <div className="py-20 text-center">
-                  <p className="font-playfair text-xl italic text-white/55">
-                    This phase is led by the flagship above.
-                  </p>
-                  <p className="mx-auto mt-3 max-w-md font-[family-name:var(--font-manrope)] text-sm text-white/40">
-                    Scroll the scene for the full reveal, or open the dossier directly.
-                  </p>
-                  <Link
-                    href={`/pakistan-projects/${featuredProject.slug}`}
-                    className="mt-8 inline-flex items-center gap-2 font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.28em] text-[#C5A880] underline-offset-4 hover:underline"
-                  >
-                    Open dossier
-                  </Link>
-                </div>
-              ) : gridProjects.length === 0 ? (
-                <div className="py-24 text-center">
-                  <p className="font-playfair text-xl italic text-white/50">No {activeTab.toLowerCase()} listings yet.</p>
-                  <p className="mx-auto mt-3 max-w-md font-[family-name:var(--font-manrope)] text-sm text-white/35">
-                    Check another phase or contact concierge for off-market opportunities.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-x-10 lg:gap-y-12">
-                  {gridProjects.map((project, index) => (
-                    <ProjectListingCard key={project._id} project={project} index={index} />
-                  ))}
-                </div>
-              )}
-            </motion.div>
+          <div key={activeTab} className="lux-animate-featured-in">
+            {flagshipIsSoleListingInTab ? (
+              <div className="py-20 text-center">
+                <p className="font-playfair text-xl italic text-white/55">This phase is led by the flagship above.</p>
+                <p className="mx-auto mt-3 max-w-md font-[family-name:var(--font-manrope)] text-sm text-white/40">
+                  Scroll the scene for the full reveal, or open the dossier directly.
+                </p>
+                <Link
+                  href={`/pakistan-projects/${featuredProject.slug}`}
+                  className="mt-8 inline-flex items-center gap-2 font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.28em] text-[#C5A880] underline-offset-4 hover:underline"
+                >
+                  Open dossier
+                </Link>
+              </div>
+            ) : gridProjects.length === 0 ? (
+              <div className="py-24 text-center">
+                <p className="font-playfair text-xl italic text-white/50">No {activeTab.toLowerCase()} listings yet.</p>
+                <p className="mx-auto mt-3 max-w-md font-[family-name:var(--font-manrope)] text-sm text-white/35">
+                  Check another phase or contact concierge for off-market opportunities.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-x-10 lg:gap-y-12">
+                {gridProjects.map((project, index) => (
+                  <ProjectListingCard key={project._id} project={project} index={index} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </section>
       <ExtraordinaryCta />
@@ -195,7 +169,7 @@ export default function PakistanProjectsPage() {
 function LoadingSkeleton() {
   return (
     <div className="min-h-screen min-w-0 overflow-x-hidden bg-[#030706]">
-      <section className="relative px-5 pt-32 pb-16 sm:px-8">
+      <section className="relative px-5 pb-16 pt-32 sm:px-8">
         <div className="mx-auto max-w-[1200px]">
           <div className="mb-14 text-center">
             <div className="mx-auto mb-5 h-3 w-24 animate-pulse rounded-full bg-white/10" />
