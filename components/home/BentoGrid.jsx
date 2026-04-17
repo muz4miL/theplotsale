@@ -4,50 +4,52 @@ import { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useSectionScrollProgress } from '@/hooks/useSectionScrollProgress';
 
+// Flagship portfolio — real, client-delivered assets. Update imagery here when
+// the CMS sync ships a new hero photo for any of these projects.
 const experienceItems = [
   {
     id: 1,
-    url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1000',
-    title: 'AIRPORT CITY',
-    label: 'Sialkot',
+    url: '/images/UnionTown.png',
+    title: 'UNION TOWN',
+    label: 'Sialkot · Current',
     description:
-      'Home is Where Your Story Unfolds - Premium residential and commercial development with world-class infrastructure.',
+      "ThePlotSale's flagship master-planned community — road infrastructure, mosque, schools, sports complex and a residential grid built to international standards.",
     isPortrait: true,
   },
   {
     id: 2,
-    url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000',
-    title: 'CANAL FORT 2',
-    label: 'Lahore',
+    url: '/images/ExxnsHeight.png',
+    title: 'EXXNS HEIGHTS',
+    label: 'Lahore · Current',
     description:
-      'A Place to Grow, A Place to Belong - Master-planned community offering modern living spaces and family-friendly amenities.',
+      'Contemporary vertical development under construction — luxury finishes, panoramic views and a structural programme that rewards early investors.',
     isPortrait: false,
   },
   {
     id: 3,
-    url: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1000',
-    title: 'EXXSN HEIGHTS',
-    label: 'Lahore',
+    url: '/images/TheGreenValley.png',
+    title: 'GREEN VALLEY',
+    label: 'Murree · Completed',
     description:
-      'Premium Vertical Development Under Way - Contemporary high-rise living with luxury finishes and panoramic views.',
+      'Completed hillside retreat in Murree — the handcrafted calling card of the Siddique family, blending alpine landscape with quiet residential luxury.',
     isPortrait: true,
   },
   {
     id: 4,
-    url: '/amenities/events-vertical.png',
-    title: 'PEARL GARDEN',
-    label: 'Lahore',
+    url: '/images/UnionTown3Mosque.png',
+    title: 'UNION MOSQUE',
+    label: 'Sialkot · Civic',
     description:
-      'Premium Vertical Development Under Way - Elegant residential towers designed for sophisticated urban living.',
+      "Union Town's spiritual centrepiece — a civic-scale mosque anchoring the community plan and setting the architectural language for every block around it.",
     isPortrait: true,
   },
   {
     id: 5,
-    url: '/amenities/kids-zone.png',
-    title: 'SIDDIQUE CITY',
-    label: 'Lahore',
+    url: '/images/UnionTown4CityView.png',
+    title: 'UNION TOWN · CITY VIEW',
+    label: 'Sialkot · Masterplan',
     description:
-      'Elevated Living, Grounded in Comfort - Sustainable community development with green spaces and modern infrastructure.',
+      'The Union Town masterplan from above — avenues, blocks and civic anchors knitted into one investor-grade community, ready for phased delivery.',
     isPortrait: false,
   },
 ];

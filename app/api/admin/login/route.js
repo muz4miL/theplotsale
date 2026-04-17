@@ -5,8 +5,11 @@ const ADMIN_COOKIE_VALUE = 'authenticated';
 
 export async function POST(request) {
   try {
-    const { password } = await request.json();
-    const adminPassword = process.env.ADMIN_PASSWORD;
+    const body = await request.json();
+    const rawPassword = typeof body?.password === 'string' ? body.password : '';
+    /* .env values often pick up accidental spaces/newlines when pasted; trim avoids false 401s. */
+    const submitted = rawPassword.trim();
+    const adminPassword = (process.env.ADMIN_PASSWORD ?? '').trim();
 
     if (!adminPassword) {
       return NextResponse.json(
@@ -18,7 +21,7 @@ export async function POST(request) {
       );
     }
 
-    if (!password || password !== adminPassword) {
+    if (!submitted || submitted !== adminPassword) {
       return NextResponse.json(
         {
           success: false,

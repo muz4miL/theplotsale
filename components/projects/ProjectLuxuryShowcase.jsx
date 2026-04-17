@@ -47,14 +47,17 @@ export default function ProjectLuxuryShowcase({
               key={activeSrc}
               className="absolute inset-0 animate-[luxury-slide-fade_0.45s_cubic-bezier(0.22,1,0.36,1)_both]"
             >
-              <SafeListingImage
-                src={activeSrc}
-                alt={project.title}
-                fill
-                priority
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 62vw"
-              />
+              {/* Inner layer carries the slow breathing zoom so the fade-in on activeSrc still reads cleanly */}
+              <div className="lux-hero-breathe absolute inset-0 transform-gpu">
+                <SafeListingImage
+                  src={activeSrc}
+                  alt={project.title}
+                  fill
+                  priority
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 62vw"
+                />
+              </div>
             </div>
             <div
               className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/65 lg:to-black/85"

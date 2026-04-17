@@ -11,10 +11,8 @@ const exploreLinks = [
 ];
 
 const projectsLinks = [
-  { label: 'Pakistan Projects', href: '/pakistan-projects' },
-  { label: 'UK Inventory', href: '/uk-properties' },
-  { label: 'Current Developments', href: '/projects' },
-  { label: 'Luxury Properties', href: '/properties' },
+  { label: 'UK Residences', href: '/uk-properties' },
+  { label: 'Pakistan Developments', href: '/pakistan-projects' },
 ];
 
 const socialIcons = [

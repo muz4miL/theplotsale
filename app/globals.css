@@ -716,6 +716,94 @@ html.has-scroll-dragging {
   }
 }
 
+/* Cinematic Vision — About-page centrepiece frame.
+   A living gold filament around the video: subtle animated gradient + soft outer
+   glow. Pure CSS (background + box-shadow only) — no layout thrash, GPU only. */
+@keyframes lux-cinematic-frame-sweep {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 300% 50%;
+  }
+}
+
+@keyframes lux-cinematic-frame-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(197, 168, 128, 0.22) inset,
+      0 30px 80px -24px rgba(0, 0, 0, 0.8),
+      0 0 60px -10px rgba(197, 168, 128, 0.18);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(197, 168, 128, 0.35) inset,
+      0 30px 90px -22px rgba(0, 0, 0, 0.82),
+      0 0 90px -8px rgba(197, 168, 128, 0.28);
+  }
+}
+
+.cinematic-vision-frame {
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+      110deg,
+      rgba(197, 168, 128, 0) 0%,
+      rgba(197, 168, 128, 0.55) 18%,
+      rgba(232, 220, 196, 0.9) 32%,
+      rgba(197, 168, 128, 0.55) 46%,
+      rgba(197, 168, 128, 0) 62%,
+      rgba(197, 168, 128, 0.35) 82%,
+      rgba(197, 168, 128, 0) 100%
+    )
+    0% 50% / 300% 100%;
+  animation:
+    lux-cinematic-frame-sweep 14s linear infinite,
+    lux-cinematic-frame-pulse 8s ease-in-out infinite;
+  /* Mask so only the 1px border shows, not the full block */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cinematic-vision-frame {
+    animation: none;
+    background-position: 30% 50%;
+  }
+}
+
+/* Hero image slow breathing — continuous, GPU-only transform; zero-impact on main thread.
+   Used on detail-page showcases to give the image cinematic life. */
+@keyframes lux-hero-breathe {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.055);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.lux-hero-breathe {
+  animation: lux-hero-breathe 18s ease-in-out infinite;
+  transform-origin: 50% 55%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lux-hero-breathe {
+    animation: none;
+  }
+}
+
 /* —— Mobile luxury shell: horizontal safe areas (match ~px-6 rhythm) —— */
 .lux-mobile-page-gutter {
   padding-left: max(1.5rem, env(safe-area-inset-left, 0px));

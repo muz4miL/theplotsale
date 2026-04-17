@@ -85,19 +85,32 @@ export default function MobileHeroVideo() {
       if (!cancelled) setPhase('error');
     };
 
+    /* React to real media state, not just timers — ensures autoplay fires the moment
+       the decoder has enough frames, which is how high-end mobile sites feel instant. */
+    const onLoadedData = () => {
+      if (!cancelled && video.paused) tryAutoplay();
+    };
+    const onCanPlay = () => {
+      if (!cancelled && video.paused) tryAutoplay();
+    };
+
     video.addEventListener('playing', onPlaying);
     video.addEventListener('error', onError);
+    video.addEventListener('loadeddata', onLoadedData);
+    video.addEventListener('canplay', onCanPlay);
 
     // Defer one frame so layout + decoder can attach (helps first paint on iOS)
     const raf = requestAnimationFrame(() => {
       tryAutoplay();
     });
 
-    const t1 = window.setTimeout(tryAutoplay, 120);
-    const t2 = window.setTimeout(tryAutoplay, 600);
+    const t1 = window.setTimeout(tryAutoplay, 250);
+    const t2 = window.setTimeout(tryAutoplay, 900);
+    /* More forgiving — mobile networks and Safari low-power mode can legitimately take a while.
+       We prefer the poster to sit elegantly instead of prematurely demanding a tap. */
     const softFail = window.setTimeout(() => {
       if (!cancelled && video.paused) markNeedsTap();
-    }, 3200);
+    }, 5200);
 
     const root = heroAreaRef.current;
     let io;
@@ -120,6 +133,8 @@ export default function MobileHeroVideo() {
       window.clearTimeout(softFail);
       video.removeEventListener('playing', onPlaying);
       video.removeEventListener('error', onError);
+      video.removeEventListener('loadeddata', onLoadedData);
+      video.removeEventListener('canplay', onCanPlay);
       io?.disconnect();
     };
   }, [index, markPlaying, markNeedsTap]);
@@ -146,21 +161,31 @@ export default function MobileHeroVideo() {
     <section ref={heroAreaRef} className="relative min-h-[100svh] w-full overflow-hidden bg-[#030303]">
       <div className="relative min-h-[min(72svh,720px)] w-full overflow-hidden">
         {phase !== 'error' ? (
-          <video
-            ref={videoRef}
-            key={index}
-            className="absolute inset-0 z-[1] h-full w-full object-cover"
-            poster={POSTER}
-            preload="auto"
-            muted
-            playsInline
-            autoPlay
-            controls={false}
-            disablePictureInPicture
-            onEnded={handleEnded}
-          >
-            <source src={VIDEOS[index]} type="video/mp4" />
-          </video>
+          <>
+            {/* Poster under the video — always rendered so the first frame looks expensive even
+                if the decoder is still spinning up (iOS Safari / low-power mode). */}
+            <div className="absolute inset-0 z-[0]" aria-hidden>
+              <Image src={POSTER} alt="" fill className="object-cover" sizes="100vw" priority />
+            </div>
+            <video
+              ref={videoRef}
+              key={index}
+              className={`absolute inset-0 z-[1] h-full w-full object-cover transition-opacity duration-700 ease-out ${
+                phase === 'playing' ? 'opacity-100' : 'opacity-0'
+              }`}
+              poster={POSTER}
+              /* `metadata` keeps first paint fast on mobile data plans; we escalate via events. */
+              preload="metadata"
+              muted
+              playsInline
+              autoPlay
+              controls={false}
+              disablePictureInPicture
+              onEnded={handleEnded}
+            >
+              <source src={VIDEOS[index]} type="video/mp4" />
+            </video>
+          </>
         ) : (
           <div className="absolute inset-0 z-[1]">
             <Image src={POSTER} alt="" fill className="object-cover" sizes="100vw" priority />

@@ -152,7 +152,7 @@ export default function PakistanProjectsPage() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-x-10 lg:gap-y-12">
+              <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-x-10 lg:gap-y-14 lg:[&>*:nth-child(even)]:mt-14">
                 {gridProjects.map((project, index) => (
                   <ProjectListingCard key={project._id} project={project} index={index} />
                 ))}
