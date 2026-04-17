@@ -94,8 +94,10 @@ export default function Navbar() {
 
   /** Pages whose hero is a full-bleed cinematic — nav sits flush in the scene
    *  until the user starts scrolling, then hardens into the frosted solid state.
-   *  About is a video hero, Projects/PK-Projects is a flagship image hero. */
+   *  Home has a full-screen video hero, About has a cinematic video hero,
+   *  Projects / PK-Projects has the flagship image hero. */
   const isImmersiveRoute =
+    pathname === '/' ||
     pathname === '/projects' ||
     pathname === '/pakistan-projects' ||
     pathname === '/about';

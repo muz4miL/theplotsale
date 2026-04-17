@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
 import ListingLogo from '@/components/ListingLogo';
 import CountUpNumber from '@/components/projects/CountUpNumber';
@@ -14,6 +14,148 @@ function buildImageSlides(project) {
   return [...new Set(images)];
 }
 
+/**
+ * CarouselImage — the full-bleed main image with touch-swipe + keyboard navigation.
+ * Renders the thumbnail rail beneath when there are multiple images.
+ */
+function CarouselImage({ slides, activeIndex, onGo }) {
+  const touchStartX = useRef(null);
+  const activeSrc = slides[activeIndex];
+
+  const prev = useCallback(() => onGo((activeIndex - 1 + slides.length) % slides.length), [activeIndex, slides.length, onGo]);
+  const next = useCallback(() => onGo((activeIndex + 1) % slides.length), [activeIndex, slides.length, onGo]);
+
+  /* Touch swipe */
+  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(delta) < 40) return;
+    delta < 0 ? next() : prev();
+  };
+
+  /* Keyboard */
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'ArrowLeft') prev();
+      if (e.key === 'ArrowRight') next();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [prev, next]);
+
+  return (
+    <div className="relative flex min-h-[52vh] flex-col lg:min-h-full">
+      {/* Main image area */}
+      <div
+        className="relative min-h-[42vh] flex-1 cursor-grab overflow-hidden bg-neutral-950 lg:min-h-0 active:cursor-grabbing"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        aria-roledescription="carousel"
+        aria-label="Project images"
+      >
+        {/* Animated image transition */}
+        <div
+          key={activeSrc}
+          className="absolute inset-0 animate-[luxury-slide-fade_0.4s_cubic-bezier(0.22,1,0.36,1)_both]"
+        >
+          <div className="lux-hero-breathe absolute inset-0 transform-gpu">
+            <SafeListingImage
+              src={activeSrc}
+              alt={`Project image ${activeIndex + 1}`}
+              fill
+              priority={activeIndex === 0}
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 62vw"
+            />
+          </div>
+        </div>
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/60 lg:to-black/80"
+          aria-hidden
+        />
+
+        {/* Image counter badge — top right */}
+        {slides.length > 1 ? (
+          <div className="absolute right-4 top-4 z-10 flex items-center gap-2 rounded-full border border-white/15 bg-black/50 px-3 py-1.5 backdrop-blur-md">
+            <span className="font-[family-name:var(--font-manrope)] text-[10px] font-semibold tabular-nums text-white">
+              {String(activeIndex + 1).padStart(2, '0')}
+            </span>
+            <span className="text-white/30">/</span>
+            <span className="font-[family-name:var(--font-manrope)] text-[10px] tabular-nums text-white/50">
+              {String(slides.length).padStart(2, '0')}
+            </span>
+          </div>
+        ) : null}
+
+        {/* Prev / Next arrows — only on multi-image; large hit targets for mobile */}
+        {slides.length > 1 ? (
+          <>
+            <button
+              type="button"
+              onClick={prev}
+              aria-label="Previous image"
+              className="group absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/70 backdrop-blur-sm transition-all hover:border-[#C5A880]/60 hover:bg-black/60 hover:text-white active:scale-[0.94] lg:left-5 lg:h-12 lg:w-12"
+            >
+              <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              aria-label="Next image"
+              className="group absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/70 backdrop-blur-sm transition-all hover:border-[#C5A880]/60 hover:bg-black/60 hover:text-white active:scale-[0.94] lg:right-5 lg:h-12 lg:w-12"
+            >
+              <ChevronRight className="h-5 w-5" strokeWidth={1.5} />
+            </button>
+          </>
+        ) : null}
+
+        {/* Dot indicators — bottom of image on mobile */}
+        {slides.length > 1 ? (
+          <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 lg:hidden">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => onGo(i)}
+                aria-label={`Go to image ${i + 1}`}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  i === activeIndex ? 'w-5 bg-[#C5A880]' : 'w-1.5 bg-white/40 hover:bg-white/70'
+                }`}
+              />
+            ))}
+          </div>
+        ) : null}
+      </div>
+
+      {/* Thumbnail rail — desktop only, not shown on mobile (dot indicators cover it) */}
+      {slides.length > 1 ? (
+        <div className="hidden border-t border-white/10 bg-black/80 px-3 py-3 backdrop-blur-md lg:block lg:px-4 lg:py-4">
+          <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory">
+            {slides.map((url, index) => (
+              <button
+                key={url}
+                type="button"
+                onClick={() => onGo(index)}
+                className={`relative h-14 w-[4.5rem] shrink-0 snap-start overflow-hidden rounded-md border-2 transition-all duration-300 sm:h-16 sm:w-[5.25rem] ${
+                  index === activeIndex
+                    ? 'border-[#C5A880] shadow-[0_0_0_1px_rgba(197,168,128,0.35)]'
+                    : 'border-white/12 opacity-70 hover:border-white/35 hover:opacity-100'
+                }`}
+                aria-label={`Show image ${index + 1}`}
+                aria-current={index === activeIndex ? 'true' : undefined}
+              >
+                <SafeListingImage src={url} alt="" fill className="object-cover" sizes="80px" />
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function ProjectLuxuryShowcase({
   project,
   backHref = '/pakistan-projects',
@@ -21,7 +163,6 @@ export default function ProjectLuxuryShowcase({
 }) {
   const slides = useMemo(() => buildImageSlides(project), [project]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const activeSrc = slides[activeIndex] || project.mainImage;
 
   useEffect(() => {
     setActiveIndex(0);
@@ -40,61 +181,18 @@ export default function ProjectLuxuryShowcase({
       aria-label={`${project.title} showcase`}
     >
       <div className="grid min-h-[calc(100dvh-5.5rem)] lg:min-h-[calc(100vh-7rem)] lg:grid-cols-[minmax(0,1fr)_minmax(300px,38%)]">
-        {/* —— Visual column —— */}
-        <div className="relative flex min-h-[52vh] flex-col lg:min-h-full">
-          <div className="relative min-h-[42vh] flex-1 overflow-hidden bg-neutral-950 lg:min-h-0">
-            <div
-              key={activeSrc}
-              className="absolute inset-0 animate-[luxury-slide-fade_0.45s_cubic-bezier(0.22,1,0.36,1)_both]"
-            >
-              {/* Inner layer carries the slow breathing zoom so the fade-in on activeSrc still reads cleanly */}
-              <div className="lux-hero-breathe absolute inset-0 transform-gpu">
-                <SafeListingImage
-                  src={activeSrc}
-                  alt={project.title}
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 62vw"
-                />
-              </div>
-            </div>
-            <div
-              className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/65 lg:to-black/85"
-              aria-hidden
-            />
-          </div>
 
-          {slides.length > 1 ? (
-            <div className="border-t border-white/10 bg-black/80 px-3 py-3 backdrop-blur-md lg:px-4 lg:py-4">
-              <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory">
-                {slides.map((url, index) => (
-                  <button
-                    key={url}
-                    type="button"
-                    onClick={() => setActiveIndex(index)}
-                    className={`relative h-14 w-[4.5rem] shrink-0 snap-start overflow-hidden rounded-md border-2 transition-all duration-300 sm:h-16 sm:w-[5.25rem] ${
-                      index === activeIndex
-                        ? 'border-white shadow-[0_0_0_1px_rgba(255,255,255,0.4)]'
-                        : 'border-white/15 opacity-80 hover:border-white/40 hover:opacity-100'
-                    }`}
-                    aria-label={`Show image ${index + 1}`}
-                    aria-current={index === activeIndex ? 'true' : undefined}
-                  >
-                    <SafeListingImage src={url} alt="" fill className="object-cover" sizes="80px" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : null}
-        </div>
+        {/* —— Visual column — carousel —— */}
+        <CarouselImage slides={slides} activeIndex={activeIndex} onGo={setActiveIndex} />
 
         {/* —— Editorial panel —— */}
         <aside className="relative flex flex-col border-t border-white/10 bg-[#050505] px-6 py-10 sm:px-8 sm:py-12 lg:border-l lg:border-t-0 lg:py-14">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_0%,rgba(197,168,128,0.07),transparent_50%)]" />
 
           <div className="relative flex items-start justify-between gap-4">
-            <p className="font-playfair text-lg tracking-[0.2em] text-white sm:text-xl">The Plot Sale</p>
+            <p className="font-[family-name:var(--font-playfair)] text-lg tracking-[0.2em] text-white sm:text-xl">
+              The Plot Sale
+            </p>
             <Link
               href={backHref}
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/25 text-white/80 transition-colors hover:border-[#C5A880] hover:text-[#C5A880]"
@@ -104,13 +202,21 @@ export default function ProjectLuxuryShowcase({
             </Link>
           </div>
 
-          <div className="relative mt-8">
-            <ListingLogo src={project.primaryLogo} name={project.title} className="h-12 w-12 sm:h-14 sm:w-14" />
-          </div>
+          {project.primaryLogo ? (
+            <div className="relative mt-8">
+              <ListingLogo src={project.primaryLogo} name={project.title} className="h-12 w-12 sm:h-14 sm:w-14" />
+            </div>
+          ) : null}
 
-          <h1 className="relative mt-6 font-playfair text-[clamp(1.75rem,4vw,2.75rem)] font-light italic leading-[1.1] text-white">
+          <h1 className="relative mt-6 font-[family-name:var(--font-playfair)] text-[clamp(1.75rem,4vw,2.75rem)] font-light italic leading-[1.1] text-white">
             {project.title}
           </h1>
+
+          {project.location ? (
+            <p className="relative mt-3 font-[family-name:var(--font-manrope)] text-[11px] font-light tracking-[0.18em] text-[#C5A880]/70">
+              {project.location}
+            </p>
+          ) : null}
 
           <p className="relative mt-5 font-[family-name:var(--font-manrope)] text-sm font-light leading-relaxed text-white/65 sm:text-[15px]">
             {descriptionExcerpt || 'Premium development curated by The Plot Sale. Full details below.'}
@@ -133,7 +239,7 @@ export default function ProjectLuxuryShowcase({
 
           {areaStat ? (
             <div className="relative mt-12 border-t border-white/10 pt-10">
-              <p className="font-playfair text-sm italic text-white/80">Development scale</p>
+              <p className="font-[family-name:var(--font-playfair)] text-sm italic text-white/80">Development scale</p>
               <p className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <CountUpNumber
                   end={areaStat.value}
@@ -151,12 +257,41 @@ export default function ProjectLuxuryShowcase({
             </div>
           ) : (
             <div className="relative mt-12 border-t border-white/10 pt-10">
-              <p className="font-playfair text-sm italic text-white/80">Location</p>
-              <p className="mt-3 font-[family-name:var(--font-manrope)] text-lg text-white/80">{project.location}</p>
+              <p className="font-[family-name:var(--font-playfair)] text-sm italic text-white/80">Location</p>
+              <p className="mt-3 font-[family-name:var(--font-manrope)] text-base text-white/80">
+                {project.location}
+              </p>
             </div>
           )}
 
-          <div className="relative mt-auto hidden pt-10 text-[10px] uppercase tracking-[0.25em] text-white/25 lg:block">
+          {/* Gallery count indicator — tells the user there are more images */}
+          {slides.length > 1 ? (
+            <div className="relative mt-6 flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(slides.length, 8) }).map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setActiveIndex(i)}
+                    className={`h-1 rounded-full transition-all duration-300 ${
+                      i === activeIndex ? 'w-6 bg-[#C5A880]' : 'w-2 bg-white/20 hover:bg-white/40'
+                    }`}
+                    aria-label={`View image ${i + 1}`}
+                  />
+                ))}
+                {slides.length > 8 ? (
+                  <span className="ml-1 font-[family-name:var(--font-manrope)] text-[10px] text-white/30">
+                    +{slides.length - 8}
+                  </span>
+                ) : null}
+              </div>
+              <span className="font-[family-name:var(--font-manrope)] text-[10px] text-white/30">
+                {slides.length} images
+              </span>
+            </div>
+          ) : null}
+
+          <div className="relative mt-auto hidden pt-10 font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.25em] text-white/25 lg:block">
             Scroll for full brief
           </div>
         </aside>

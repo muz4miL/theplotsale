@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Instagram, Facebook, MessageCircle } from 'lucide-react';
+import BrandSocialLinks from '@/components/layout/BrandSocialLinks';
+import ConciergeTextReveal from '@/components/layout/ConciergeTextReveal';
 
 const exploreLinks = [
   { label: 'Home', href: '/' },
@@ -13,12 +14,6 @@ const exploreLinks = [
 const projectsLinks = [
   { label: 'UK Residences', href: '/uk-properties' },
   { label: 'Pakistan Developments', href: '/pakistan-projects' },
-];
-
-const socialIcons = [
-  { icon: Instagram, href: 'https://instagram.com/theplotsale', label: 'Instagram' },
-  { icon: Facebook, href: 'https://facebook.com/theplotsale', label: 'Facebook' },
-  { icon: MessageCircle, href: 'https://wa.me/923211222999', label: 'WhatsApp' },
 ];
 
 export default function Footer() {
