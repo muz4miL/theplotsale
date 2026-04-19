@@ -3,6 +3,13 @@
 import { Playfair_Display, Manrope } from 'next/font/google';
 import PublicChrome from '@/components/layout/PublicChrome';
 import { DisplayCurrencyProvider } from '@/contexts/DisplayCurrencyContext';
+import JsonLd from '@/components/seo/JsonLd';
+import {
+  baseMetadata,
+  organizationLd,
+  localBusinessesLd,
+  websiteLd,
+} from '@/lib/seo';
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -19,19 +26,11 @@ const manrope = Manrope({
   weight: ['300', '400', '500', '600', '700'],
 });
 
-// The metadata block now correctly follows the font definitions
-export const metadata = {
-  title: "The Plot Sale",
-  description: "Premium real estate consultancy. Expert guidance for luxury property investments and land acquisitions.",
-  keywords: "real estate, property investment, land acquisition, luxury properties, plot sale",
-
-  // Logo and Favicon
-  icons: {
-    icon: '/newLogo.png',
-    shortcut: '/newLogo.png',
-    apple: '/newLogo.png',
-  },
-};
+/**
+ * Root metadata. Everything route-specific inherits from here via the
+ * `title.template` pattern and the `pageMetadata()` factory in lib/seo.js.
+ */
+export const metadata = baseMetadata;
 
 /** Notch / home-indicator aware layout; pairs with safe-area padding in chrome + sections */
 export const viewport = {
@@ -42,8 +41,20 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }) {
+  // Global JSON-LD graph: Organization + WebSite + both LocalBusiness offices.
+  // Per-page schemas (BreadcrumbList, Product/Residence) are injected at the
+  // route level on top of this — Google merges the graph correctly.
+  const globalLd = [organizationLd(), websiteLd(), ...localBusinessesLd()];
+
   return (
     <html lang="en" className={`${playfair.variable} ${manrope.variable}`}>
+      <head>
+        {/* Pre-warm the two biggest third-party origins we depend on for LCP. */}
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://www.google.com" crossOrigin="" />
+        <link rel="dns-prefetch" href="https://www.google.com" />
+      </head>
       <body className="antialiased selection:bg-[#C5A880]/35 selection:text-white">
         <DisplayCurrencyProvider>
           <PublicChrome>{children}</PublicChrome>
@@ -68,6 +79,7 @@ export default function RootLayout({ children }) {
             <rect width="100%" height="100%" filter="url(#noise)" />
           </svg>
         </div>
+        <JsonLd data={globalLd} />
       </body>
     </html>
   );

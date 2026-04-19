@@ -43,6 +43,95 @@ function tryPlayNow(video, onPlaying, onBlocked) {
   }
 }
 
+/**
+ * iOS-hardened user-gesture play.
+ *
+ * Two common failure modes we survive here:
+ *   1. preload="metadata" means the decoder has no frames yet, so play() rejects.
+ *      Fix: load() inside the gesture, then listen for canplay/loadeddata and retry
+ *      — the gesture token stays valid for follow-up play() calls on WebKit.
+ *   2. Low-power mode on iOS aborts autoplay but still honours user-tap play(),
+ *      provided the element has muted + playsinline attributes at the moment of call.
+ *      applyIosVideoAttrs() re-asserts these every time before we try.
+ */
+function playWithUserGesture(video, onPlaying, onNeedsTap) {
+  if (!video) {
+    onNeedsTap?.();
+    return;
+  }
+  applyIosVideoAttrs(video);
+
+  // Ensure the source is actively fetching — synchronous, still inside gesture window.
+  if (video.readyState < 2) {
+    try {
+      video.load();
+    } catch {
+      /* no-op */
+    }
+  }
+
+  let settled = false;
+  const markPlaying = () => {
+    if (settled) return;
+    settled = true;
+    cleanup();
+    onPlaying?.();
+  };
+  const markNeedsTap = () => {
+    if (settled) return;
+    settled = true;
+    cleanup();
+    onNeedsTap?.();
+  };
+
+  const onReady = () => {
+    try {
+      const p = video.play();
+      if (p && typeof p.then === 'function') {
+        p.then(markPlaying).catch(() => {
+          /* keep listening — a subsequent canplay event may resolve */
+        });
+      } else {
+        markPlaying();
+      }
+    } catch {
+      /* keep listening */
+    }
+  };
+  const onPlayingEvt = () => markPlaying();
+
+  function cleanup() {
+    video.removeEventListener('canplay', onReady);
+    video.removeEventListener('loadeddata', onReady);
+    video.removeEventListener('playing', onPlayingEvt);
+  }
+
+  video.addEventListener('canplay', onReady);
+  video.addEventListener('loadeddata', onReady);
+  video.addEventListener('playing', onPlayingEvt);
+
+  // Primary attempt inside the gesture.
+  try {
+    const p = video.play();
+    if (p && typeof p.then === 'function') {
+      p.then(markPlaying).catch(() => {
+        /* fall through — canplay/loadeddata retry will fire */
+      });
+    } else {
+      markPlaying();
+    }
+  } catch {
+    /* listeners remain */
+  }
+
+  // Final safety net: if nothing ever resolves, show the button again so the
+  // visitor can try a second time. 3.2s is long enough for a 4G first-frame
+  // on the compressed hero clips we ship (≤5MB).
+  window.setTimeout(() => {
+    if (!settled && video.paused) markNeedsTap();
+  }, 3200);
+}
+
 export default function MobileHeroVideo() {
   const videoRef = useRef(null);
   const heroAreaRef = useRef(null);
@@ -146,11 +235,16 @@ export default function MobileHeroVideo() {
   /** User gesture: must stay synchronous — no async/await. */
   const handleUserPlayIntent = () => {
     const now = Date.now();
-    if (now - lastUserPlayRef.current < 350) return;
+    if (now - lastUserPlayRef.current < 300) return;
     lastUserPlayRef.current = now;
 
     const video = videoRef.current;
-    tryPlayNow(
+
+    // Optimistic UX: hide the button immediately so a tap always *feels* like
+    // something happened, even if the decoder needs a beat to spin up.
+    setPhase('buffering');
+
+    playWithUserGesture(
       video,
       () => setPhase('playing'),
       () => setPhase('needs_tap')
@@ -174,17 +268,20 @@ export default function MobileHeroVideo() {
                 phase === 'playing' ? 'opacity-100' : 'opacity-0'
               }`}
               poster={POSTER}
-              /* `metadata` keeps first paint fast on mobile data plans; we escalate via events. */
-              preload="metadata"
+              /* The hero is our #1 above-the-fold asset — we want the decoder warmed
+                 up so a user tap is always met with an immediate first frame, not
+                 a wait-for-buffering stall that makes iOS reject play(). */
+              preload="auto"
               muted
               playsInline
-              autoPlay
+              webkit-playsinline="true"
+              x5-playsinline="true"
+              x5-video-player-type="h5"
               controls={false}
               disablePictureInPicture
               onEnded={handleEnded}
-            >
-              <source src={VIDEOS[index]} type="video/mp4" />
-            </video>
+              src={VIDEOS[index]}
+            />
           </>
         ) : (
           <div className="absolute inset-0 z-[1]">
