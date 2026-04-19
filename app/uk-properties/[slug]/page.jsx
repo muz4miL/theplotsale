@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { Bed, Bath, MapPin, ArrowLeft } from 'lucide-react';
+import { Bed, Bath, Maximize2, MapPin, ArrowLeft, ArrowUpRight } from 'lucide-react';
 import ListingLogo from '@/components/ListingLogo';
 import ProjectLuxuryShowcase from '@/components/projects/ProjectLuxuryShowcase';
 import { useDisplayCurrency } from '@/contexts/DisplayCurrencyContext';
@@ -92,61 +92,103 @@ export default function PropertyDetailPage() {
         priceLine={priceLine}
       />
 
-      <section className="border-b border-white/10 bg-black px-6 py-8">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-6 text-sm text-gray-300 sm:text-base">
-            <div className="flex items-center gap-2">
-              <Bed className="h-5 w-5 text-[#C5A880]" />
-              <span>{property.beds != null ? `${property.beds} bed` : '—'}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Bath className="h-5 w-5 text-[#C5A880]" />
-              <span>{property.baths != null ? `${property.baths} bath` : '—'}</span>
-            </div>
-            <div className="flex items-center">
-              <MapPin className="mr-2 h-5 w-5 shrink-0 text-[#C5A880]" />
-              {property.location}
-            </div>
-          </div>
+      {/* Stat strip — luxury hotel-register band */}
+      <section className="relative border-y border-white/[0.07] bg-[#050706] px-5 py-6 sm:px-8 sm:py-7">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C5A880]/40 to-transparent" aria-hidden />
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-y-5 sm:grid-cols-4 sm:gap-0">
+          <StatCell icon={Bed} label="Bedrooms" value={property.beds != null ? property.beds : '—'} />
+          <StatCell icon={Bath} label="Bathrooms" value={property.baths != null ? property.baths : '—'} />
+          <StatCell icon={Maximize2} label="Internal area" value={property.areaSqFt != null ? `${property.areaSqFt.toLocaleString()} sqft` : '—'} />
+          <StatCell icon={MapPin} label="Location" value={property.location} last />
         </div>
       </section>
 
-      {/* Property Details */}
-      <section className="relative py-20 px-6">
-        <div className="max-w-7xl mx-auto">
+      {/* Editorial details */}
+      <section className="relative px-5 py-20 sm:px-8 lg:px-12">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_40%_at_50%_0%,rgba(197,168,128,0.05),transparent)]" />
+        <div className="relative mx-auto max-w-[1200px]">
 
-          {/* Description */}
-          <div className="lux-animate-featured-in mb-16 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
-            <h2 className="text-3xl font-bold text-white mb-6">About This Property</h2>
-            <p className="text-gray-300 text-lg leading-relaxed">
-              {property.description || 'Property details will be updated shortly.'}
-            </p>
+          {/* Description — magazine column */}
+          <div className="lux-animate-featured-in grid grid-cols-1 gap-10 border-b border-white/[0.06] pb-16 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-16">
+            <div>
+              <p className="font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.4em] text-[#C5A880]/80">
+                The residence
+              </p>
+              <h2 className="mt-3 font-playfair text-[clamp(1.75rem,3.2vw,2.5rem)] font-light leading-tight text-white">
+                About this <span className="italic text-[#e8dcc4]">property</span>
+              </h2>
+              <div className="mt-5 h-px w-12 bg-gradient-to-r from-[#C5A880] to-transparent" />
+            </div>
+            <div>
+              <p className="font-[family-name:var(--font-manrope)] text-base font-light leading-[1.75] text-white/70 sm:text-[17px]">
+                {property.description || 'Property details will be updated shortly.'}
+              </p>
+
+              <div className="mt-8 flex flex-wrap items-center gap-5">
+                <Link
+                  href="/contact"
+                  className="group/cta inline-flex items-center gap-3 rounded-full bg-[#f5f0e8] px-7 py-3 font-[family-name:var(--font-manrope)] text-[11px] font-semibold uppercase tracking-[0.22em] text-[#0a0a0a] transition-all duration-500 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_16px_34px_-14px_rgba(245,240,232,0.45)]"
+                >
+                  Enquire privately
+                  <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/cta:-translate-y-0.5 group-hover/cta:translate-x-0.5" strokeWidth={1.75} />
+                </Link>
+                <span className="font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.28em] text-white/35">
+                  London · by appointment
+                </span>
+              </div>
+            </div>
           </div>
 
           {videoMedia.length > 0 && (
-            <div className="lux-animate-featured-in rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
-              <h2 className="mb-2 text-3xl font-bold text-white">Property film</h2>
-              <p className="mb-6 text-sm text-white/50">Video tours and walkthroughs.</p>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="lux-animate-featured-in mt-16 grid grid-cols-1 gap-10 border-b border-white/[0.06] pb-16 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-16">
+              <div>
+                <p className="font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.4em] text-[#C5A880]/80">
+                  On camera
+                </p>
+                <h2 className="mt-3 font-playfair text-[clamp(1.75rem,3.2vw,2.5rem)] font-light leading-tight text-white">
+                  Walk the <span className="italic text-[#e8dcc4]">residence</span>
+                </h2>
+                <div className="mt-5 h-px w-12 bg-gradient-to-r from-[#C5A880] to-transparent" />
+              </div>
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 {videoMedia.map((videoUrl) => (
-                  <video
+                  <div
                     key={videoUrl}
-                    src={videoUrl}
-                    controls
-                    playsInline
-                    className="h-64 w-full rounded-xl border border-white/10 bg-black/40 object-cover"
-                  />
+                    className="group relative overflow-hidden rounded-[4px] border border-white/10 bg-black/40"
+                  >
+                    <video
+                      src={videoUrl}
+                      controls
+                      playsInline
+                      preload="metadata"
+                      className="aspect-video w-full object-cover transition-transform duration-700 group-hover:scale-[1.01]"
+                    />
+                    <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-[#C5A880]/0 transition-all duration-500 group-hover:ring-[#C5A880]/30" />
+                  </div>
                 ))}
               </div>
             </div>
           )}
 
           {!!property.floatingLogos?.length && (
-            <div className="lux-animate-featured-in mt-12 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
-              <h2 className="mb-6 text-3xl font-bold text-white">Brand Partners</h2>
-              <div className="flex flex-wrap gap-4">
+            <div className="lux-animate-featured-in mt-16 grid grid-cols-1 gap-10 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-16">
+              <div>
+                <p className="font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.4em] text-[#C5A880]/80">
+                  Development partners
+                </p>
+                <h2 className="mt-3 font-playfair text-[clamp(1.75rem,3.2vw,2.5rem)] font-light leading-tight text-white">
+                  In good <span className="italic text-[#e8dcc4]">company</span>
+                </h2>
+                <div className="mt-5 h-px w-12 bg-gradient-to-r from-[#C5A880] to-transparent" />
+              </div>
+              <div className="flex flex-wrap items-center gap-6">
                 {property.floatingLogos.map((logoUrl) => (
-                  <ListingLogo key={logoUrl} src={logoUrl} name={property.title} className="h-14 w-14" />
+                  <div
+                    key={logoUrl}
+                    className="flex h-20 w-20 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] p-3 backdrop-blur-md transition-colors hover:border-[#C5A880]/40"
+                  >
+                    <ListingLogo src={logoUrl} name={property.title} className="h-full w-full" />
+                  </div>
                 ))}
               </div>
             </div>
@@ -154,6 +196,26 @@ export default function PropertyDetailPage() {
         </div>
       </section>
 
+    </div>
+  );
+}
+
+function StatCell({ icon: Icon, label, value, last }) {
+  return (
+    <div
+      className={`flex items-start gap-3 px-5 sm:px-6 sm:border-r sm:border-white/[0.07] ${last ? 'sm:border-r-0' : ''}`}
+    >
+      <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#C5A880]/25 bg-[#C5A880]/[0.06] text-[#C5A880]">
+        <Icon className="h-4 w-4" strokeWidth={1.5} />
+      </span>
+      <div className="min-w-0">
+        <p className="font-[family-name:var(--font-manrope)] text-[9.5px] font-semibold uppercase tracking-[0.32em] text-[#C5A880]/70">
+          {label}
+        </p>
+        <p className="mt-1 truncate font-[family-name:var(--font-playfair)] text-base font-light text-white sm:text-lg">
+          {value}
+        </p>
+      </div>
     </div>
   );
 }

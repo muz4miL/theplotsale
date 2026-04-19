@@ -128,7 +128,7 @@ export default function FeaturedExxensSpotlight({ project }) {
         </div>
 
         {/* ── Content ── */}
-        <div className="relative z-10 flex min-h-[100svh] flex-col justify-between px-[max(1.5rem,calc(env(safe-area-inset-left,0px)+1rem))] py-8 lg:px-14 lg:py-12">
+        <div className="relative z-10 flex min-h-[100svh] flex-col justify-between px-[max(1.5rem,calc(env(safe-area-inset-left,0px)+1rem))] pt-[calc(env(safe-area-inset-top,0px)+6.5rem)] pb-8 sm:pt-[calc(env(safe-area-inset-top,0px)+7rem)] lg:px-14 lg:pb-12 lg:pt-[calc(env(safe-area-inset-top,0px)+7.5rem)]">
 
           {/* ── Top bar ── breadcrumb-style, no status badge ── */}
           <div className="flex items-center justify-between">

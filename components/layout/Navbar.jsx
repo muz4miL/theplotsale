@@ -92,6 +92,32 @@ export default function Navbar() {
   const toggleDrawer = () => setIsDrawerOpen((prev) => !prev);
   const closeDrawer = () => setIsDrawerOpen(false);
 
+  /**
+   * Mobile navigation tap: close the drawer AND scroll the destination page to
+   * the top. Without this, Next's client-side routing preserves the current
+   * scroll offset — users tap a menu item from deep in the footer and stay
+   * pinned to the footer on the new page, which reads as "the tap did nothing".
+   *
+   * We defer the scroll to the next frame so the route change has committed
+   * before we reset position; this also dodges the iOS Safari quirk where
+   * scroll commands inside a tap handler can be ignored.
+   */
+  const handleMobileNavTap = (href) => {
+    closeDrawer();
+    const isSamePath = pathname === href;
+    // For same-path taps, do an instant smooth scroll up. For route changes,
+    // wait for the new route's first paint.
+    if (isSamePath) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      });
+    });
+  };
+
   /** Pages whose hero is a full-bleed cinematic — nav sits flush in the scene
    *  until the user starts scrolling, then hardens into the frosted solid state.
    *  Home has a full-screen video hero, About has a cinematic video hero,
@@ -282,7 +308,7 @@ export default function Navbar() {
               >
                 <Link
                   href={item.href}
-                  onClick={closeDrawer}
+                  onClick={() => handleMobileNavTap(item.href)}
                   className={`group relative block border-b border-white/[0.06] py-5 pl-4 no-underline transition-colors ${
                     active ? 'text-white' : 'text-white/65 hover:text-white'
                   }`}
@@ -307,7 +333,7 @@ export default function Navbar() {
         <div className="border-t border-white/[0.06] pt-5">
           <Link
             href="/contact"
-            onClick={closeDrawer}
+            onClick={() => handleMobileNavTap('/contact')}
             className="lux-button flex w-full items-center justify-center rounded-full border border-[#C5A880] bg-[#C5A880] py-3.5 font-[family-name:var(--font-manrope)] text-[11px] font-semibold uppercase tracking-[0.22em] text-[#111111] hover:bg-[#d4b896]"
           >
             Book appointment

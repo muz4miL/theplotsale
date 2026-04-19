@@ -241,53 +241,64 @@ export default function MobileHeroVideo() {
           aria-hidden
         />
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[20] lux-mobile-page-gutter pb-[max(1.25rem,env(safe-area-inset-bottom,0px))]">
-          <div className="rounded-t-2xl bg-gradient-to-t from-black via-black/94 to-transparent px-1 pb-2 pt-12 sm:pt-14">
-            <div className="mb-3 flex items-center gap-3">
-              <div className="h-px w-10 shrink-0 bg-gradient-to-r from-[#C5A880] to-transparent sm:w-12" />
-              <span
-                className="font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase leading-snug tracking-[0.28em] text-[#C5A880] sm:text-[11px]"
-                style={{ textShadow: '0 2px 12px rgba(0,0,0,0.85)' }}
-              >
-                Premier real estate consultancy
-              </span>
-            </div>
+        {/* Caption stack. The backdrop gradient is now a single, long, multi-stop
+            black fade that starts far above the first line of text and ends below
+            the safe-area — no rounded card edges, no visible seam. The text just
+            floats out of the film. */}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[16] h-[62%]"
+          aria-hidden
+          style={{
+            background:
+              'linear-gradient(to top, rgba(3,4,3,0.96) 0%, rgba(3,4,3,0.88) 22%, rgba(3,4,3,0.66) 48%, rgba(3,4,3,0.32) 72%, rgba(3,4,3,0.08) 88%, rgba(3,4,3,0) 100%)',
+          }}
+        />
 
-            <h1
-              className="max-w-[22ch] font-[family-name:var(--font-playfair)] text-[clamp(1.75rem,6.2vw,2.5rem)] font-light leading-[1.1] tracking-[-0.02em] text-white text-balance"
-              style={{ textShadow: '0 6px 28px rgba(0,0,0,0.78)' }}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[20] lux-mobile-page-gutter pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-10">
+          <div className="mb-3 flex items-center gap-3">
+            <div className="h-px w-10 shrink-0 bg-gradient-to-r from-[#C5A880] to-transparent sm:w-12" />
+            <span
+              className="font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase leading-snug tracking-[0.28em] text-[#C5A880] sm:text-[11px]"
+              style={{ textShadow: '0 2px 12px rgba(0,0,0,0.85)' }}
             >
-              Cultivating Futures
-            </h1>
-
-            <p
-              className="mt-3 max-w-prose font-[family-name:var(--font-playfair)] text-[clamp(1rem,3.5vw,1.25rem)] font-light italic leading-snug text-[#e8d4bc] text-pretty"
-              style={{ textShadow: '0 4px 22px rgba(0,0,0,0.82)' }}
-            >
-              We are not just building homes. We are shaping dreams into addresses.
-            </p>
-
-            <p
-              className="mt-5 font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.3em] text-white/50"
-              style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}
-            >
-              London · Lahore
-            </p>
-
-            {phase === 'playing' && (
-              <div className="mt-8 flex flex-col items-center gap-2 border-t border-white/[0.06] pt-6">
-                <span className="font-[family-name:var(--font-manrope)] text-[9px] uppercase tracking-[0.3em] text-[#C5A880]/85">
-                  Explore
-                </span>
-                <div className="relative h-9 w-px overflow-hidden rounded-full bg-white/10">
-                  <div
-                    className="absolute top-0 h-4 w-full animate-scroll-indicator rounded-full"
-                    style={{ background: 'linear-gradient(to bottom, #C5A880, transparent)' }}
-                  />
-                </div>
-              </div>
-            )}
+              Premier real estate consultancy
+            </span>
           </div>
+
+          <h1
+            className="max-w-[22ch] font-[family-name:var(--font-playfair)] text-[clamp(1.75rem,6.2vw,2.5rem)] font-light leading-[1.1] tracking-[-0.02em] text-white text-balance"
+            style={{ textShadow: '0 6px 28px rgba(0,0,0,0.78)' }}
+          >
+            Cultivating Futures
+          </h1>
+
+          <p
+            className="mt-3 max-w-prose font-[family-name:var(--font-playfair)] text-[clamp(1rem,3.5vw,1.25rem)] font-light italic leading-snug text-[#e8d4bc] text-pretty"
+            style={{ textShadow: '0 4px 22px rgba(0,0,0,0.82)' }}
+          >
+            We are not just building homes. We are shaping dreams into addresses.
+          </p>
+
+          <p
+            className="mt-5 font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.3em] text-white/55"
+            style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}
+          >
+            London · Lahore
+          </p>
+
+          {phase === 'playing' && (
+            <div className="mt-7 flex flex-col items-center gap-2 border-t border-white/[0.06] pt-5">
+              <span className="font-[family-name:var(--font-manrope)] text-[9px] uppercase tracking-[0.3em] text-[#C5A880]/85">
+                Explore
+              </span>
+              <div className="relative h-9 w-px overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="absolute top-0 h-4 w-full animate-scroll-indicator rounded-full"
+                  style={{ background: 'linear-gradient(to bottom, #C5A880, transparent)' }}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

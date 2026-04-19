@@ -14,12 +14,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 
-const VIDEO_SRC = '/Extraordinary_Plot_Sale_Video_Generation.mp4';
-const POSTER_SRC = '/images/architecture.png';
+/**
+ * Source is a portrait (9:16) film. We present it two ways:
+ *  - Mobile: native portrait frame, full width.
+ *  - Desktop: centered portrait player with an ambient blurred duplicate filling
+ *    the wider cinema frame — the same treatment Apple / Samsung use for
+ *    vertical product reels.
+ */
+const VIDEO_SRC = '/about/AboutUsVIdeo.mp4';
+const POSTER_SRC = '/about/about-hero.png';
 
 export default function CinematicVision() {
   const sectionRef = useRef(null);
   const videoRef = useRef(null);
+  const backdropRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
@@ -35,11 +43,13 @@ export default function CinematicVision() {
       ([entry]) => {
         setVisible(entry.isIntersecting || entry.intersectionRatio > 0);
         const v = videoRef.current;
-        if (!v) return;
+        const bg = backdropRef.current;
         if (entry.isIntersecting) {
-          v.play().catch(() => {});
+          v?.play().catch(() => {});
+          bg?.play().catch(() => {});
         } else {
-          v.pause();
+          v?.pause();
+          bg?.pause();
         }
       },
       { threshold: [0, 0.18, 0.5], rootMargin: '-8% 0px -8% 0px' }
@@ -50,13 +60,16 @@ export default function CinematicVision() {
 
   const togglePlay = () => {
     const v = videoRef.current;
+    const bg = backdropRef.current;
     if (!v) return;
     if (v.paused) {
       v.play()
         .then(() => setIsPlaying(true))
         .catch(() => {});
+      bg?.play().catch(() => {});
     } else {
       v.pause();
+      bg?.pause();
       setIsPlaying(false);
     }
   };
@@ -91,39 +104,27 @@ export default function CinematicVision() {
       />
 
       <div className="relative mx-auto w-full max-w-[1240px] px-5 sm:px-8 lg:px-10">
-        {/* Editorial masthead */}
+        {/* Editorial masthead — a single whisper above the reel. The film carries the rest. */}
         <div className="mb-10 flex flex-col items-center text-center md:mb-14">
           <div
             className={`flex items-center gap-4 ${fadeBase} ${fadeState}`}
             style={{ transitionDelay: '80ms' }}
           >
-            <div className="h-px w-10 bg-gradient-to-r from-transparent to-[#C5A880]/70" />
-            <p className="font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.42em] text-[#C5A880]">
-              Signature Reel
+            <div className="h-px w-12 bg-gradient-to-r from-transparent to-[#C5A880]/70" />
+            <p
+              id="cinematic-vision-title"
+              className="font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.48em] text-[#C5A880]"
+            >
+              Signature Reel · 2026
             </p>
-            <div className="h-px w-10 bg-gradient-to-l from-transparent to-[#C5A880]/70" />
+            <div className="h-px w-12 bg-gradient-to-l from-transparent to-[#C5A880]/70" />
           </div>
-
-          <h2
-            id="cinematic-vision-title"
-            className={`mt-6 max-w-4xl font-playfair text-[clamp(2rem,5.5vw,3.75rem)] font-light leading-[1.05] tracking-tight text-white ${fadeBase} ${fadeState}`}
-            style={{ transitionDelay: '160ms' }}
-          >
-            A vision worth <span className="italic text-[#e8dcc4]">investing in.</span>
-          </h2>
-
-          <p
-            className={`mt-5 max-w-2xl font-[family-name:var(--font-manrope)] text-sm font-light leading-relaxed text-white/55 sm:text-base ${fadeBase} ${fadeState}`}
-            style={{ transitionDelay: '220ms' }}
-          >
-            Twenty-four seconds of the ThePlotSale world — from London boardrooms to master-planned skylines
-            rising over Sialkot, Lahore and Murree. Every asset we put our name on is held to one standard: legacy.
-          </p>
         </div>
 
-        {/* Cinema frame */}
+        {/* Cinema frame — portrait on mobile, cinematic landscape on desktop with an
+            ambient blurred backdrop filling the wider frame around the portrait video. */}
         <div
-          className={`relative mx-auto aspect-[16/9] w-full overflow-hidden rounded-[4px] sm:rounded-[6px] ${fadeBase} ${fadeState}`}
+          className={`relative mx-auto aspect-[9/16] w-full max-w-[min(420px,92vw)] overflow-hidden rounded-[4px] sm:rounded-[6px] md:aspect-[16/9] md:max-w-none ${fadeBase} ${fadeState}`}
           style={{ transitionDelay: '300ms' }}
         >
           {/* Outer gold filament */}
@@ -145,11 +146,32 @@ export default function CinematicVision() {
             aria-hidden
           />
 
-          {/* Video surface */}
-          <div className="absolute inset-0">
+          {/* Ambient backdrop video — desktop only. A scaled, blurred duplicate of
+              the source film fills the wider frame, turning a portrait reel into a
+              true cinema-scope presentation. Pointer-events disabled; audio muted. */}
+          <video
+            ref={backdropRef}
+            className="pointer-events-none absolute inset-0 hidden h-full w-full scale-125 object-cover opacity-[0.55] blur-3xl saturate-[1.15] md:block"
+            src={VIDEO_SRC}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-0 hidden bg-black/45 md:block"
+            aria-hidden
+          />
+
+          {/* Primary video surface — on mobile the frame matches the video aspect so
+              object-cover fills cleanly; on desktop we contain (letterbox-safe) and
+              center at the natural 9:16 ratio, sitting over the blurred backdrop. */}
+          <div className="absolute inset-0 flex items-center justify-center">
             <video
               ref={videoRef}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover md:h-full md:w-auto md:object-contain md:drop-shadow-[0_20px_60px_rgba(0,0,0,0.55)]"
               src={VIDEO_SRC}
               poster={POSTER_SRC}
               autoPlay
@@ -167,13 +189,14 @@ export default function CinematicVision() {
             />
           </div>
 
-          {/* Cinematic grade — subtle, only darkens the bottom so caption reads */}
+          {/* Cinematic grade — subtle, only darkens the bottom so caption reads.
+              Vignette kept for all breakpoints to pull the eye inward. */}
           <div
             className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-t from-black/55 via-transparent to-black/15"
             aria-hidden
           />
           <div
-            className="pointer-events-none absolute inset-0 z-[2] bg-[radial-gradient(ellipse_at_center,transparent_70%,rgba(0,0,0,0.35)_100%)]"
+            className="pointer-events-none absolute inset-0 z-[2] bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(0,0,0,0.45)_100%)]"
             aria-hidden
           />
 

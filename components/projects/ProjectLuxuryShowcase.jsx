@@ -177,96 +177,97 @@ export default function ProjectLuxuryShowcase({
 
   return (
     <section
-      className="relative min-h-[100dvh] bg-black pt-24 lg:min-h-screen lg:pt-28"
+      className="relative bg-black pt-24 lg:pt-28"
       aria-label={`${project.title} showcase`}
     >
-      <div className="grid min-h-[calc(100dvh-5.5rem)] lg:min-h-[calc(100vh-7rem)] lg:grid-cols-[minmax(0,1fr)_minmax(300px,38%)]">
+      {/* Framed, right-sized showcase. Desktop is a refined editorial band — not a full viewport. */}
+      <div className="grid min-h-[calc(100dvh-5.5rem)] lg:min-h-0 lg:h-[min(78vh,780px)] lg:grid-cols-[minmax(0,1fr)_minmax(320px,36%)]">
 
         {/* —— Visual column — carousel —— */}
         <CarouselImage slides={slides} activeIndex={activeIndex} onGo={setActiveIndex} />
 
-        {/* —— Editorial panel —— */}
-        <aside className="relative flex flex-col border-t border-white/10 bg-[#050505] px-6 py-10 sm:px-8 sm:py-12 lg:border-l lg:border-t-0 lg:py-14">
+        {/* —— Editorial panel — right-column dossier —— */}
+        <aside className="relative flex flex-col border-t border-white/10 bg-[#050505] px-6 py-9 sm:px-8 sm:py-11 lg:h-full lg:overflow-y-auto lg:border-l lg:border-t-0 lg:px-9 lg:py-10 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_0%,rgba(197,168,128,0.07),transparent_50%)]" />
 
           <div className="relative flex items-start justify-between gap-4">
-            <p className="font-[family-name:var(--font-playfair)] text-lg tracking-[0.2em] text-white sm:text-xl">
+            <p className="font-[family-name:var(--font-playfair)] text-base tracking-[0.2em] text-white sm:text-lg">
               The Plot Sale
             </p>
             <Link
               href={backHref}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/25 text-white/80 transition-colors hover:border-[#C5A880] hover:text-[#C5A880]"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/25 text-white/80 transition-colors hover:border-[#C5A880] hover:text-[#C5A880]"
               aria-label="Close and return to listing"
             >
-              <X className="h-5 w-5" strokeWidth={1.25} />
+              <X className="h-4 w-4" strokeWidth={1.25} />
             </Link>
           </div>
 
           {project.primaryLogo ? (
-            <div className="relative mt-8">
-              <ListingLogo src={project.primaryLogo} name={project.title} className="h-12 w-12 sm:h-14 sm:w-14" />
+            <div className="relative mt-6">
+              <ListingLogo src={project.primaryLogo} name={project.title} className="h-11 w-11 sm:h-12 sm:w-12" />
             </div>
           ) : null}
 
-          <h1 className="relative mt-6 font-[family-name:var(--font-playfair)] text-[clamp(1.75rem,4vw,2.75rem)] font-light italic leading-[1.1] text-white">
+          <h1 className="relative mt-5 font-[family-name:var(--font-playfair)] text-[clamp(1.65rem,2.8vw,2.25rem)] font-light italic leading-[1.08] text-white">
             {project.title}
           </h1>
 
           {project.location ? (
-            <p className="relative mt-3 font-[family-name:var(--font-manrope)] text-[11px] font-light tracking-[0.18em] text-[#C5A880]/70">
+            <p className="relative mt-2.5 font-[family-name:var(--font-manrope)] text-[11px] font-light tracking-[0.18em] text-[#C5A880]/70">
               {project.location}
             </p>
           ) : null}
 
-          <p className="relative mt-5 font-[family-name:var(--font-manrope)] text-sm font-light leading-relaxed text-white/65 sm:text-[15px]">
+          <p className="relative mt-4 font-[family-name:var(--font-manrope)] text-[13.5px] font-light leading-relaxed text-white/62 sm:text-sm">
             {descriptionExcerpt || 'Premium development curated by The Plot Sale. Full details below.'}
           </p>
 
           {priceLine ? (
-            <p className="relative mt-6 inline-flex rounded-full border border-[#C5A880]/40 bg-[#C5A880]/10 px-4 py-2 font-[family-name:var(--font-manrope)] text-sm font-semibold tracking-wide text-[#E8DCC4]">
+            <p className="relative mt-5 inline-flex rounded-full border border-[#C5A880]/40 bg-[#C5A880]/10 px-4 py-1.5 font-[family-name:var(--font-manrope)] text-[13px] font-semibold tracking-wide text-[#E8DCC4]">
               {priceLine}
             </p>
           ) : null}
 
-          <div className="relative mt-8">
+          <div className="relative mt-6">
             <Link
               href="/contact"
-              className="lux-button inline-flex w-full items-center justify-center rounded-full bg-[#f5f0e8] py-3.5 font-[family-name:var(--font-manrope)] text-[11px] font-semibold uppercase tracking-[0.22em] text-[#0a0a0a] transition-colors hover:bg-white sm:w-auto sm:min-w-[220px] sm:px-10"
+              className="lux-button inline-flex w-full items-center justify-center rounded-full bg-[#f5f0e8] py-3 font-[family-name:var(--font-manrope)] text-[10.5px] font-semibold uppercase tracking-[0.22em] text-[#0a0a0a] transition-colors hover:bg-white sm:w-auto sm:min-w-[200px] sm:px-9"
             >
               Book appointment
             </Link>
           </div>
 
           {areaStat ? (
-            <div className="relative mt-12 border-t border-white/10 pt-10">
-              <p className="font-[family-name:var(--font-playfair)] text-sm italic text-white/80">Development scale</p>
-              <p className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <div className="relative mt-8 border-t border-white/10 pt-6">
+              <p className="font-[family-name:var(--font-playfair)] text-[13px] italic text-white/80">Development scale</p>
+              <p className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <CountUpNumber
                   end={areaStat.value}
-                  className="font-[family-name:var(--font-manrope)] text-5xl font-semibold tabular-nums tracking-tight text-white sm:text-6xl"
+                  className="font-[family-name:var(--font-manrope)] text-[2.75rem] font-semibold tabular-nums tracking-tight text-white sm:text-[3rem]"
                 />
                 {areaStat.suffix ? (
-                  <span className="font-[family-name:var(--font-manrope)] text-lg font-light text-white/55 sm:text-xl">
+                  <span className="font-[family-name:var(--font-manrope)] text-base font-light text-white/55 sm:text-lg">
                     {areaStat.suffix}
                   </span>
                 ) : null}
               </p>
-              <p className="mt-2 font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.28em] text-white/35">
+              <p className="mt-1.5 font-[family-name:var(--font-manrope)] text-[9.5px] uppercase tracking-[0.28em] text-white/35">
                 As listed for this project
               </p>
             </div>
           ) : (
-            <div className="relative mt-12 border-t border-white/10 pt-10">
-              <p className="font-[family-name:var(--font-playfair)] text-sm italic text-white/80">Location</p>
-              <p className="mt-3 font-[family-name:var(--font-manrope)] text-base text-white/80">
+            <div className="relative mt-8 border-t border-white/10 pt-6">
+              <p className="font-[family-name:var(--font-playfair)] text-[13px] italic text-white/80">Location</p>
+              <p className="mt-2 font-[family-name:var(--font-manrope)] text-sm text-white/80">
                 {project.location}
               </p>
             </div>
           )}
 
-          {/* Gallery count indicator — tells the user there are more images */}
+          {/* Gallery count indicator — compact */}
           {slides.length > 1 ? (
-            <div className="relative mt-6 flex items-center gap-2">
+            <div className="relative mt-5 flex items-center gap-2">
               <div className="flex items-center gap-1">
                 {Array.from({ length: Math.min(slides.length, 8) }).map((_, i) => (
                   <button
@@ -274,7 +275,7 @@ export default function ProjectLuxuryShowcase({
                     type="button"
                     onClick={() => setActiveIndex(i)}
                     className={`h-1 rounded-full transition-all duration-300 ${
-                      i === activeIndex ? 'w-6 bg-[#C5A880]' : 'w-2 bg-white/20 hover:bg-white/40'
+                      i === activeIndex ? 'w-5 bg-[#C5A880]' : 'w-1.5 bg-white/20 hover:bg-white/40'
                     }`}
                     aria-label={`View image ${i + 1}`}
                   />
@@ -291,7 +292,7 @@ export default function ProjectLuxuryShowcase({
             </div>
           ) : null}
 
-          <div className="relative mt-auto hidden pt-10 font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.25em] text-white/25 lg:block">
+          <div className="relative mt-auto hidden pt-8 font-[family-name:var(--font-manrope)] text-[9.5px] uppercase tracking-[0.25em] text-white/25 lg:block">
             Scroll for full brief
           </div>
         </aside>

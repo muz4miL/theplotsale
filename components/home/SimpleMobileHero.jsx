@@ -181,9 +181,20 @@ export default function SimpleMobileHero() {
           aria-hidden
         />
 
+        {/* Smooth, long, multi-stop fade — no rounded card edge, no visible seam.
+            Text floats out of the film naturally. */}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[22] h-[62%]"
+          aria-hidden
+          style={{
+            background:
+              'linear-gradient(to top, rgba(3,4,3,0.96) 0%, rgba(3,4,3,0.88) 22%, rgba(3,4,3,0.66) 48%, rgba(3,4,3,0.32) 72%, rgba(3,4,3,0.08) 88%, rgba(3,4,3,0) 100%)',
+          }}
+        />
+
         {/* Single stacked column: copy first, then explore — avoids overlap with headline */}
-        <div className="absolute inset-x-0 bottom-0 z-[25] lux-mobile-page-gutter pb-[max(1.25rem,env(safe-area-inset-bottom,0px))]">
-          <div className="rounded-t-2xl bg-gradient-to-t from-black via-black/92 to-black/40 px-1 pt-10 pb-2 sm:pt-12">
+        <div className="absolute inset-x-0 bottom-0 z-[25] lux-mobile-page-gutter pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-10 sm:pt-12">
+          <div className="px-1">
             <div className="mb-3 flex items-center gap-3">
               <div className="h-px w-10 shrink-0 bg-gradient-to-r from-[#C5A880] to-transparent sm:w-12" />
               <span
