@@ -177,7 +177,7 @@ export default function AboutHero() {
         <div className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-white/[0.14] bg-black/40 px-3 py-1.5 backdrop-blur-md">
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#C5A880] shadow-[0_0_10px_rgba(197,168,128,0.6)]" />
           <span className="font-[family-name:var(--font-manrope)] text-[9px] font-semibold uppercase tracking-[0.32em] text-white/70">
-            ThePlotSale · Est. 2020
+            ThePlotSale · Est. 1998
           </span>
         </div>
         <div className="pointer-events-auto hidden items-center gap-2 rounded-full border border-white/[0.14] bg-black/40 px-3 py-1.5 backdrop-blur-md sm:inline-flex">
@@ -210,7 +210,7 @@ export default function AboutHero() {
         </p>
 
         <p className="about-hero-stagger-3 mx-auto mt-6 max-w-xl font-[family-name:var(--font-manrope)] text-[11px] font-light leading-relaxed tracking-[0.08em] text-white/50 md:text-[13px]">
-          A private advisory bridging London residences and Pakistan flagships — curated by the Siddique family since 2020.
+          A private advisory bridging London residences and Pakistan flagships — curated by the Siddique family since 1998.
         </p>
       </div>
 

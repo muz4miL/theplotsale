@@ -25,15 +25,28 @@ function isStockDefaultImage(url) {
   );
 }
 
-/** Editorial stat block — three numbers in a clean column. */
+/** Editorial stat block — award-level luxury treatment. */
 function StatPill({ label, value }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <span className="font-[family-name:var(--font-manrope)] text-[8px] font-semibold uppercase tracking-[0.35em] text-[#C5A880]/65">
-        {label}
-      </span>
-      <span className="font-[family-name:var(--font-playfair)] text-[clamp(2rem,4.5vw,3.5rem)] font-light leading-none text-white">
+    <div className="group relative flex flex-col items-start gap-0">
+      {/* Thin gold top rule — the "serif" of a number */}
+      <div className="mb-3 h-px w-8 bg-gradient-to-r from-[#C5A880] to-transparent transition-all duration-700 group-hover:w-14" />
+
+      {/* The number itself */}
+      <span
+        className="font-[family-name:var(--font-playfair)] font-light leading-none text-white"
+        style={{
+          fontSize: 'clamp(2.8rem, 5.5vw, 4.5rem)',
+          letterSpacing: '-0.02em',
+          textShadow: '0 8px 40px rgba(197,168,128,0.18)',
+        }}
+      >
         {value}
+      </span>
+
+      {/* Label below — extra micro spacing */}
+      <span className="mt-2.5 font-[family-name:var(--font-manrope)] text-[8px] font-semibold uppercase tracking-[0.42em] text-[#C5A880]/60">
+        {label}
       </span>
     </div>
   );
@@ -174,10 +187,22 @@ export default function FeaturedExxensSpotlight({ project }) {
             <div className="flex flex-col gap-8 lg:items-end lg:gap-10">
               {/* Stats — only rendered when we have actual values */}
               {(statFloors || statCommercial || statResidential) ? (
-                <div className="flex items-end gap-8 sm:gap-12 lg:justify-end">
-                  {statFloors      ? <StatPill label="Floors"      value={statFloors}      /> : null}
-                  {statCommercial  ? <StatPill label="Commercial"  value={statCommercial}  /> : null}
-                  {statResidential ? <StatPill label="Residential" value={statResidential} /> : null}
+                <div className="relative flex items-end gap-0 overflow-hidden rounded-xl border border-white/[0.09] bg-black/30 backdrop-blur-md lg:justify-end">
+                  {/* Subtle top gold line */}
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C5A880]/35 to-transparent" aria-hidden />
+
+                  {[
+                    statFloors      ? { label: 'Floors',      value: statFloors      } : null,
+                    statCommercial  ? { label: 'Commercial',  value: statCommercial  } : null,
+                    statResidential ? { label: 'Residential', value: statResidential } : null,
+                  ].filter(Boolean).map((stat, i, arr) => (
+                    <div
+                      key={stat.label}
+                      className={`relative flex-1 px-7 py-6 sm:px-9 sm:py-7 ${i < arr.length - 1 ? 'border-r border-white/[0.08]' : ''}`}
+                    >
+                      <StatPill label={stat.label} value={stat.value} />
+                    </div>
+                  ))}
                 </div>
               ) : null}
 

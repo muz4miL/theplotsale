@@ -6,9 +6,9 @@ import CountUpNumber from '@/components/projects/CountUpNumber';
 
 const heritageData = [
   {
-    year: '2020',
+    year: '1998',
     title: 'Foundation of Trust',
-    body: 'ThePlotSale is founded by the Siddique family with a single mandate — bridge the gap between developers and homeowners through transparent, integrity-driven real estate across London and Lahore. The first handshake becomes the company charter: quality in every detail, dedication in every project.',
+    body: 'ThePlotSale is founded by the Siddique family with a single mandate — bridge the gap between developers and homeowners through transparent, integrity-driven real estate across London and Lahore. Over two decades, the first handshake became the company charter: quality in every detail, dedication in every project.',
     image: '/images/TheGreenValley.png',
   },
   {

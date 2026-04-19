@@ -317,7 +317,7 @@ export default function Hero() {
               {/* Glassmorphic Badge Container */}
               <div className="relative px-6 py-2.5 backdrop-blur-md bg-gradient-to-r from-[#C5A880]/20 to-[#C5A880]/10 border border-[#C5A880]/30 rounded-full shadow-[0_8px_32px_rgba(197,168,128,0.15)]">
                 <p className="text-[#C5A880] tracking-[0.25em] text-[10px] md:text-xs font-bold uppercase">
-                  Trusted Since 2020
+                  Est. 1998 · Two Decades of Trust
                 </p>
                 {/* Subtle inner glow */}
                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#C5A880]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

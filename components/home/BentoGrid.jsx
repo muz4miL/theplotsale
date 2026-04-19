@@ -2,6 +2,8 @@
 
 import { useLayoutEffect, useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { ArrowUpRight } from 'lucide-react';
 import { useStickyPinProgress } from '@/hooks/useSectionScrollProgress';
 
 // Flagship portfolio — real, client-delivered assets. Update imagery here when
@@ -11,10 +13,11 @@ const experienceItems = [
     id: 1,
     url: '/images/UnionTown.png',
     title: 'UNION TOWN',
-    label: 'Sialkot · Current',
+    label: 'Lahore · Current',
     description:
       "ThePlotSale's flagship master-planned community — road infrastructure, mosque, schools, sports complex and a residential grid built to international standards.",
     isPortrait: true,
+    href: '/pakistan-projects/union-town-lahore',
   },
   {
     id: 2,
@@ -24,6 +27,7 @@ const experienceItems = [
     description:
       'Contemporary vertical development under construction — luxury finishes, panoramic views and a structural programme that rewards early investors.',
     isPortrait: false,
+    href: '/pakistan-projects/exxsn-heights-etihad-town',
   },
   {
     id: 3,
@@ -33,24 +37,27 @@ const experienceItems = [
     description:
       'Completed hillside retreat in Murree — the handcrafted calling card of the Siddique family, blending alpine landscape with quiet residential luxury.',
     isPortrait: true,
+    href: '/pakistan-projects/green-valley-murree',
   },
   {
     id: 4,
     url: '/images/UnionTown3Mosque.png',
     title: 'UNION MOSQUE',
-    label: 'Sialkot · Civic',
+    label: 'Lahore · Civic',
     description:
       "Union Town's spiritual centrepiece — a civic-scale mosque anchoring the community plan and setting the architectural language for every block around it.",
     isPortrait: true,
+    href: '/pakistan-projects/union-town-lahore',
   },
   {
     id: 5,
     url: '/images/UnionTown4CityView.png',
     title: 'UNION TOWN · CITY VIEW',
-    label: 'Sialkot · Masterplan',
+    label: 'Lahore · Masterplan',
     description:
       'The Union Town masterplan from above — avenues, blocks and civic anchors knitted into one investor-grade community, ready for phased delivery.',
     isPortrait: false,
+    href: '/pakistan-projects/union-town-lahore',
   },
 ];
 
@@ -163,7 +170,7 @@ function DesktopExperience({ targetRef, scrollP }) {
                   </div>
                 )}
 
-                <div className="group relative flex-shrink-0">
+                <Link href={item.href} className="group relative flex-shrink-0 cursor-pointer">
                   <div
                     className="relative overflow-hidden rounded-sm"
                     style={{
@@ -178,20 +185,37 @@ function DesktopExperience({ targetRef, scrollP }) {
                       className="object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
                       sizes={isPortrait ? '(max-width: 768px) 30vw, 320px' : '(max-width: 768px) 45vw, 500px'}
                     />
-                    <div className="absolute inset-0 border border-white/10 transition-colors duration-700 group-hover:border-[#C5A880]/20" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-100 transition-opacity duration-700 group-hover:opacity-100" />
+                    {/* Permanent gradient for text legibility */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                    {/* Hover reveal: golden overlay sweeps up */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#C5A880]/18 via-transparent to-transparent opacity-0 transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:opacity-100" />
+                    {/* Hover border glow */}
+                    <div className="absolute inset-0 border border-white/10 transition-colors duration-700 group-hover:border-[#C5A880]/45" />
+
+                    {/* Bottom content panel */}
                     <div className="absolute bottom-0 left-0 right-0 z-10 p-6">
                       <div className="mb-2">
                         <span className="text-[10px] font-medium uppercase tracking-[0.25em] text-[#C5A880] transition-colors duration-500 group-hover:text-[#D4AF8A]">
                           {item.label}
                         </span>
                       </div>
-                      <p className="text-xs font-light leading-relaxed text-white/70 transition-colors duration-500 group-hover:text-white md:text-sm">
+                      <p className="text-xs font-light leading-relaxed text-white/70 transition-colors duration-500 group-hover:text-white/90 md:text-sm">
                         {item.description}
                       </p>
+
+                      {/* CTA — slides up from nothing on hover */}
+                      <div className="mt-4 flex items-center gap-3 translate-y-3 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-y-0 group-hover:opacity-100">
+                        <span className="h-px w-8 bg-gradient-to-r from-[#C5A880] to-transparent" />
+                        <span className="font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.3em] text-[#C5A880]">
+                          View Project
+                        </span>
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[#C5A880]/50 bg-[#C5A880]/10 text-[#C5A880]">
+                          <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={1.75} />
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               </div>
             );
           })}
@@ -278,23 +302,33 @@ function MobileExperience() {
         >
           {experienceItems.map((item, index) => (
             <div key={item.id} className="relative flex-shrink-0 snap-center" style={{ width: '80vw' }}>
-              <div className="flex flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-[#080c0b]/90 shadow-[0_28px_80px_rgba(0,0,0,0.5)] backdrop-blur-md">
-                <div className="relative h-[min(42vh,380px)] overflow-hidden sm:h-[40vh]">
-                  <Image src={item.url} alt={item.title} fill className="object-cover" sizes="80vw" />
+              <Link href={item.href} className="block">
+                <div className="flex flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-[#080c0b]/90 shadow-[0_28px_80px_rgba(0,0,0,0.5)] backdrop-blur-md active:border-[#C5A880]/30 transition-colors duration-300">
+                  <div className="relative h-[min(42vh,380px)] overflow-hidden sm:h-[40vh]">
+                    <Image src={item.url} alt={item.title} fill className="object-cover" sizes="80vw" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                  </div>
+
+                  <div className="space-y-4 bg-[#060908] p-6 sm:p-7">
+                    <h3 className="text-balance font-playfair text-[clamp(1.5rem,4.5vw,1.85rem)] font-light tracking-tight text-white/90">
+                      {item.title}
+                    </h3>
+
+                    <div className="h-[1px] w-12 bg-[#C5A880]/60" />
+
+                    <span className="block text-[10px] font-medium uppercase tracking-[0.25em] text-[#C5A880]">{item.label}</span>
+
+                    <p className="text-sm font-light leading-relaxed text-white/70">{item.description}</p>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <span className="font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.28em] text-[#C5A880]/80">
+                        View Project
+                      </span>
+                      <ArrowUpRight className="h-3.5 w-3.5 text-[#C5A880]/80" strokeWidth={1.75} />
+                    </div>
+                  </div>
                 </div>
-
-                <div className="space-y-4 bg-[#060908] p-6 sm:p-7">
-                  <h3 className="text-balance font-playfair text-[clamp(1.5rem,4.5vw,1.85rem)] font-light tracking-tight text-white/90">
-                    {item.title}
-                  </h3>
-
-                  <div className="h-[1px] w-12 bg-[#C5A880]/60" />
-
-                  <span className="block text-[10px] font-medium uppercase tracking-[0.25em] text-[#C5A880]">{item.label}</span>
-
-                  <p className="text-sm font-light leading-relaxed text-white/70">{item.description}</p>
-                </div>
-              </div>
+              </Link>
 
               {index < experienceItems.length - 1 ? (
                 <div className="pointer-events-none absolute bottom-0 right-0 top-0 w-4" />
