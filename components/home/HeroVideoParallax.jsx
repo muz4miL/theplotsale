@@ -6,6 +6,28 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import MobileHeroVideo from './MobileHeroVideo';
 import { LuxurySkylineGlyph } from '@/components/shared/LuxuryMotionAccents';
 
+const HERO_VIDEOS = ['/videos/1.mp4', '/videos/2.mp4', '/videos/3.mp4'];
+const HERO_POSTER = '/lifestyle-hero.png';
+
+/**
+ * Kick off the hero video + poster fetch the moment this module is evaluated
+ * on the client. Runs before the component even mounts, so by the time the
+ * <video> element is in the DOM the first clip is already partly — often
+ * fully — in cache. Paired with <link rel="preload"> in app/layout.jsx so
+ * the very first paint on direct navigations benefits too.
+ */
+if (typeof window !== 'undefined') {
+  import('react-dom').then((mod) => {
+    try {
+      mod.preload?.(HERO_VIDEOS[0], { as: 'video', fetchPriority: 'high' });
+      mod.preload?.(HERO_POSTER, { as: 'image', fetchPriority: 'high' });
+      mod.preload?.(HERO_VIDEOS[1], { as: 'video', fetchPriority: 'low' });
+    } catch {
+      /* react-dom < 19 — safe to ignore */
+    }
+  });
+}
+
 export default function HeroVideoParallax() {
   // All refs
   const sectionRef = useRef(null);
@@ -28,11 +50,7 @@ export default function HeroVideoParallax() {
   const [ready, setReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   
-  const videos = [
-    '/videos/1.mp4',
-    '/videos/2.mp4',
-    '/videos/3.mp4'
-  ];
+  const videos = HERO_VIDEOS;
 
   useLayoutEffect(() => {
     /* Touch-first viewports: dedicated hero (no ScrollTrigger pin / heavy video stack). */
@@ -56,13 +74,17 @@ export default function HeroVideoParallax() {
     let inactiveVideo = video2;
     let activeIndex = 0;
 
-    // Initial setup: active starts at first video, inactive preloads second
+    // Initial setup: active starts at first video, inactive preloads second.
+    // video1.src is already bound via JSX (src={HERO_VIDEOS[0]}) so the
+    // browser can begin buffering it during the initial HTML parse. We
+    // deliberately do NOT reassign/reload it here or we would throw away
+    // those already-buffered bytes and restart the fetch.
     video1.style.opacity = '1';
     video2.style.opacity = '0';
-    video1.src = videos[0];
-    video2.src = videos[1];
-    video1.load();
-    video2.load();
+    if (!video2.src || !video2.src.includes(videos[1])) {
+      video2.src = videos[1];
+      video2.load();
+    }
 
     const attemptVideoPlay = async (video) => {
       if (!video) return;
@@ -241,10 +263,18 @@ export default function HeroVideoParallax() {
   }, [ready, isMobile]);
 
   if (!ready) {
+    /* First-paint skeleton. Shows the cinematic poster immediately with a dark
+       overlay so the hero never renders as a flat black block while we decide
+       mobile vs desktop and React hydrates. */
     return (
       <div
-        className="min-h-screen w-full"
-        style={{ background: 'linear-gradient(to bottom right, #111111, #0A0A0A, #050505)' }}
+        className="relative min-h-screen w-full overflow-hidden"
+        style={{
+          backgroundImage: `linear-gradient(to bottom, rgba(10,10,10,0.55), rgba(10,10,10,0.9)), url(${HERO_POSTER})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundColor: '#0A0A0A',
+        }}
         aria-hidden
       />
     );
@@ -264,14 +294,20 @@ export default function HeroVideoParallax() {
       <>
           <div ref={videoContainerRef} className="absolute z-20 overflow-hidden bg-black/20 w-full h-full right-0 top-0 rounded-none shadow-none">
             <div className="relative h-full w-full overflow-hidden z-10 bg-black">
+              {/* Primary hero clip — src, poster and preload="auto" baked into
+                  the JSX so the browser's preload scanner picks it up from the
+                  initial HTML, before React hydrates. This is the single most
+                  impactful change for time-to-first-frame. */}
               <video
                 ref={videoRef}
                 className="h-full w-full object-cover absolute inset-0"
-                autoPlay 
-                loop={false} 
-                muted 
-                playsInline 
-                preload="metadata"
+                src={HERO_VIDEOS[0]}
+                poster={HERO_POSTER}
+                autoPlay
+                loop={false}
+                muted
+                playsInline
+                preload="auto"
                 webkit-playsinline="true"
                 x5-playsinline="true"
                 x5-video-player-type="h5"
@@ -280,9 +316,10 @@ export default function HeroVideoParallax() {
               <video
                 ref={video2Ref}
                 className="h-full w-full object-cover absolute inset-0"
-                loop={false} 
-                muted 
-                playsInline 
+                poster={HERO_POSTER}
+                loop={false}
+                muted
+                playsInline
                 preload="none"
                 webkit-playsinline="true"
                 x5-playsinline="true"

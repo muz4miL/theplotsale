@@ -1,3 +1,4 @@
+import ReactDOM from 'react-dom';
 import JsonLd from '@/components/seo/JsonLd';
 import { pageMetadata, breadcrumbLd } from '@/lib/seo';
 
@@ -16,6 +17,13 @@ export const metadata = pageMetadata({
 });
 
 export default function AboutLayout({ children }) {
+  /* Kick off the cinematic /About_Hero_Cinematic.mp4 fetch during SSR so the
+     preload scanner starts it in parallel with JS/CSS. The module-scope
+     ReactDOM.preload() inside AboutHero.jsx only fires after hydration, which
+     is too late on cold loads — this closes that gap. */
+  ReactDOM.preload('/About_Hero_Cinematic.mp4', { as: 'video', fetchPriority: 'high' });
+  ReactDOM.preload('/images/architecture.png', { as: 'image', fetchPriority: 'high' });
+
   return (
     <>
       <JsonLd
