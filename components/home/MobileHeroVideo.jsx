@@ -38,8 +38,8 @@ export default function MobileHeroVideo() {
   
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [videoError, setVideoError] = useState(false);
-  const [showFallback, setShowFallback] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showPlayButton, setShowPlayButton] = useState(true);
   
   // Touch handling
   const touchStartY = useRef(0);
@@ -63,10 +63,16 @@ export default function MobileHeroVideo() {
         video.load();
         
         // Try to play the new video
-        video.play().catch((err) => {
-          console.log('Video play failed:', err.name);
-          // Don't set fallback here, just let it show poster
-        });
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            setIsPlaying(true);
+            setShowPlayButton(false);
+          }).catch((err) => {
+            console.log('Video play failed:', err.name);
+            setShowPlayButton(true);
+          });
+        }
       },
     });
 
@@ -136,17 +142,28 @@ export default function MobileHeroVideo() {
     const video = videoRef.current;
     if (!video) return;
 
-    const handleLoaded = () => {
-      video.play().catch((err) => {
-        console.log('Autoplay blocked, showing fallback:', err.name);
-        setShowFallback(true);
-      });
+    const attemptPlay = async () => {
+      try {
+        await video.play();
+        setIsPlaying(true);
+        setShowPlayButton(false);
+      } catch (err) {
+        console.log('Autoplay prevented:', err.name);
+        setShowPlayButton(true);
+      }
     };
 
-    const handleError = () => {
-      console.error('Video failed to load:', HERO_VIDEOS[currentSlide]);
-      setVideoError(true);
-      setShowFallback(true);
+    const handleCanPlay = () => {
+      attemptPlay();
+    };
+
+    const handlePlay = () => {
+      setIsPlaying(true);
+      setShowPlayButton(false);
+    };
+
+    const handlePause = () => {
+      setIsPlaying(false);
     };
 
     const handleEnded = () => {
@@ -155,40 +172,35 @@ export default function MobileHeroVideo() {
       }
     };
 
-    // Handle user interaction to enable video playback
-    const handleUserInteraction = () => {
-      if (video.paused) {
-        video.play().catch(() => {
-          setShowFallback(true);
-        });
-      }
-    };
-
-    video.addEventListener('loadeddata', handleLoaded);
-    video.addEventListener('error', handleError);
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handlePause);
     video.addEventListener('ended', handleEnded);
-    
-    // Add interaction listeners for mobile
-    document.addEventListener('touchstart', handleUserInteraction, { once: true });
-    document.addEventListener('click', handleUserInteraction, { once: true });
 
-    // Timeout fallback - if video doesn't load in 3 seconds, show poster
-    const timeout = setTimeout(() => {
-      if (video.readyState < 2) {
-        console.log('Video load timeout, showing fallback');
-        setShowFallback(true);
-      }
-    }, 3000);
+    // Try to play immediately
+    attemptPlay();
 
     return () => {
-      video.removeEventListener('loadeddata', handleLoaded);
-      video.removeEventListener('error', handleError);
+      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('pause', handlePause);
       video.removeEventListener('ended', handleEnded);
-      document.removeEventListener('touchstart', handleUserInteraction);
-      document.removeEventListener('click', handleUserInteraction);
-      clearTimeout(timeout);
     };
   }, [currentSlide, isTransitioning, goToSlide]);
+
+  // Handle manual play button click
+  const handlePlayClick = async () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    try {
+      await video.play();
+      setIsPlaying(true);
+      setShowPlayButton(false);
+    } catch (err) {
+      console.error('Play failed:', err);
+    }
+  };
 
   const content = SLIDE_CONTENT[currentSlide];
 
@@ -203,26 +215,44 @@ export default function MobileHeroVideo() {
     >
       {/* Video Layer with Fallback */}
       <div className="absolute inset-0 z-10">
-        {!showFallback ? (
-          <video
-            ref={videoRef}
-            className="h-full w-full object-cover"
-            src={HERO_VIDEOS[currentSlide]}
-            poster={HERO_POSTER}
-            autoPlay
-            muted
-            playsInline
-            preload="auto"
-            webkit-playsinline="true"
-            x5-playsinline="true"
-            x5-video-player-type="h5"
-            aria-hidden="true"
-          />
-        ) : (
+        <video
+          ref={videoRef}
+          className="h-full w-full object-cover"
+          src={HERO_VIDEOS[currentSlide]}
+          poster={HERO_POSTER}
+          muted
+          playsInline
+          preload="auto"
+          webkit-playsinline="true"
+          x5-playsinline="true"
+          x5-video-player-type="h5"
+          aria-hidden="true"
+        />
+        
+        {/* Play Button Overlay */}
+        {showPlayButton && (
           <div 
-            className="h-full w-full bg-cover bg-center"
-            style={{ backgroundImage: `url(${HERO_POSTER})` }}
-          />
+            className="absolute inset-0 z-30 flex items-center justify-center bg-black/20 backdrop-blur-sm cursor-pointer"
+            onClick={handlePlayClick}
+          >
+            <div className="flex flex-col items-center gap-4">
+              <button
+                className="w-20 h-20 rounded-full bg-[#C5A880]/90 flex items-center justify-center hover:bg-[#C5A880] transition-all duration-300 hover:scale-110"
+                aria-label="Play video"
+              >
+                <svg 
+                  className="w-10 h-10 text-white ml-1" 
+                  fill="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </button>
+              <span className="text-white text-sm tracking-wider uppercase font-light">
+                Tap to Play
+              </span>
+            </div>
+          </div>
         )}
         
         {/* Gradient overlays */}
