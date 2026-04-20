@@ -142,19 +142,29 @@ export default function MobileHeroVideo() {
     const video = videoRef.current;
     if (!video) return;
 
+    let playAttempted = false;
+
     const attemptPlay = async () => {
+      if (playAttempted) return;
+      playAttempted = true;
+      
       try {
         await video.play();
         setIsPlaying(true);
         setShowPlayButton(false);
       } catch (err) {
         console.log('Autoplay prevented:', err.name);
-        setShowPlayButton(true);
+        // Only show play button if it's a user interaction requirement
+        if (err.name === 'NotAllowedError') {
+          setShowPlayButton(true);
+        }
       }
     };
 
     const handleCanPlay = () => {
-      attemptPlay();
+      if (!playAttempted) {
+        attemptPlay();
+      }
     };
 
     const handlePlay = () => {
@@ -163,7 +173,10 @@ export default function MobileHeroVideo() {
     };
 
     const handlePause = () => {
-      setIsPlaying(false);
+      // Don't show play button on programmatic pause during transitions
+      if (!isTransitioning) {
+        setIsPlaying(false);
+      }
     };
 
     const handleEnded = () => {
@@ -172,19 +185,36 @@ export default function MobileHeroVideo() {
       }
     };
 
+    const handleWaiting = () => {
+      // Video is buffering, don't show play button
+      setIsPlaying(false);
+    };
+
+    const handlePlaying = () => {
+      // Video resumed after buffering
+      setIsPlaying(true);
+      setShowPlayButton(false);
+    };
+
     video.addEventListener('canplay', handleCanPlay);
     video.addEventListener('play', handlePlay);
     video.addEventListener('pause', handlePause);
     video.addEventListener('ended', handleEnded);
+    video.addEventListener('waiting', handleWaiting);
+    video.addEventListener('playing', handlePlaying);
 
-    // Try to play immediately
-    attemptPlay();
+    // Try to play immediately if video is ready
+    if (video.readyState >= 3) {
+      attemptPlay();
+    }
 
     return () => {
       video.removeEventListener('canplay', handleCanPlay);
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
       video.removeEventListener('ended', handleEnded);
+      video.removeEventListener('waiting', handleWaiting);
+      video.removeEventListener('playing', handlePlaying);
     };
   }, [currentSlide, isTransitioning, goToSlide]);
 
@@ -207,14 +237,19 @@ export default function MobileHeroVideo() {
   return (
     <section 
       ref={containerRef}
-      className="relative h-screen w-full overflow-hidden bg-black touch-pan-y"
-      style={{ background: 'linear-gradient(to bottom, #111, #0A0A0A)' }}
+      className="relative h-screen w-full overflow-hidden bg-black"
+      style={{ 
+        background: 'linear-gradient(to bottom, #111, #0A0A0A)',
+        // Extend into safe areas on mobile
+        paddingTop: 'env(safe-area-inset-top)',
+        marginTop: 'calc(-1 * env(safe-area-inset-top))',
+      }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Video Layer with Fallback */}
-      <div className="absolute inset-0 z-10">
+      {/* Video Layer */}
+      <div className="absolute inset-0 z-10 bg-black">
         <video
           ref={videoRef}
           className="h-full w-full object-cover"
@@ -226,29 +261,41 @@ export default function MobileHeroVideo() {
           webkit-playsinline="true"
           x5-playsinline="true"
           x5-video-player-type="h5"
+          x5-video-player-fullscreen="true"
           aria-hidden="true"
         />
         
-        {/* Play Button Overlay */}
-        {showPlayButton && (
+        {/* Play Button Overlay - Only show when explicitly needed */}
+        {showPlayButton && !isPlaying && (
           <div 
-            className="absolute inset-0 z-30 flex items-center justify-center bg-black/20 backdrop-blur-sm cursor-pointer"
+            className="absolute inset-0 z-40 flex items-center justify-center cursor-pointer"
             onClick={handlePlayClick}
+            style={{ 
+              background: 'radial-gradient(circle, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 100%)',
+              backdropFilter: 'blur(2px)'
+            }}
           >
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-3 animate-fade-in">
               <button
-                className="w-20 h-20 rounded-full bg-[#C5A880]/90 flex items-center justify-center hover:bg-[#C5A880] transition-all duration-300 hover:scale-110"
+                className="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-2xl"
+                style={{
+                  background: 'linear-gradient(135deg, #C5A880 0%, #B8986E 100%)',
+                  boxShadow: '0 8px 32px rgba(197, 168, 128, 0.4)'
+                }}
                 aria-label="Play video"
               >
                 <svg 
-                  className="w-10 h-10 text-white ml-1" 
+                  className="w-9 h-9 text-white ml-1" 
                   fill="currentColor" 
                   viewBox="0 0 24 24"
                 >
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </button>
-              <span className="text-white text-sm tracking-wider uppercase font-light">
+              <span 
+                className="text-white text-xs tracking-[0.3em] uppercase font-light"
+                style={{ textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}
+              >
                 Tap to Play
               </span>
             </div>
@@ -257,13 +304,13 @@ export default function MobileHeroVideo() {
         
         {/* Gradient overlays */}
         <div 
-          className="absolute inset-0"
+          className="absolute inset-0 pointer-events-none"
           style={{ 
             background: 'linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.4) 40%, transparent 70%)' 
           }} 
         />
         <div 
-          className="absolute inset-0"
+          className="absolute inset-0 pointer-events-none"
           style={{ 
             background: 'linear-gradient(to right, rgba(10,10,10,0.6), transparent 30%, transparent 70%, rgba(10,10,10,0.4))' 
           }} 
