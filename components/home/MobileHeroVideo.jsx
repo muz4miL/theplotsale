@@ -38,8 +38,6 @@ export default function MobileHeroVideo() {
   
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [showPlayButton, setShowPlayButton] = useState(true);
   
   // Touch handling
   const touchStartY = useRef(0);
@@ -62,17 +60,7 @@ export default function MobileHeroVideo() {
         video.currentTime = 0;
         video.load();
         
-        // Try to play the new video
-        const playPromise = video.play();
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
-            setIsPlaying(true);
-            setShowPlayButton(false);
-          }).catch((err) => {
-            console.log('Video play failed:', err.name);
-            setShowPlayButton(true);
-          });
-        }
+        // Video will autoplay due to autoPlay attribute
       },
     });
 
@@ -137,47 +125,10 @@ export default function MobileHeroVideo() {
     }
   };
 
-  // Initialize video
+  // Initialize video - simple approach like AboutHero
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-
-    let playAttempted = false;
-
-    const attemptPlay = async () => {
-      if (playAttempted) return;
-      playAttempted = true;
-      
-      try {
-        await video.play();
-        setIsPlaying(true);
-        setShowPlayButton(false);
-      } catch (err) {
-        console.log('Autoplay prevented:', err.name);
-        // Only show play button if it's a user interaction requirement
-        if (err.name === 'NotAllowedError') {
-          setShowPlayButton(true);
-        }
-      }
-    };
-
-    const handleCanPlay = () => {
-      if (!playAttempted) {
-        attemptPlay();
-      }
-    };
-
-    const handlePlay = () => {
-      setIsPlaying(true);
-      setShowPlayButton(false);
-    };
-
-    const handlePause = () => {
-      // Don't show play button on programmatic pause during transitions
-      if (!isTransitioning) {
-        setIsPlaying(false);
-      }
-    };
 
     const handleEnded = () => {
       if (!isTransitioning) {
@@ -185,52 +136,12 @@ export default function MobileHeroVideo() {
       }
     };
 
-    const handleWaiting = () => {
-      // Video is buffering, don't show play button
-      setIsPlaying(false);
-    };
-
-    const handlePlaying = () => {
-      // Video resumed after buffering
-      setIsPlaying(true);
-      setShowPlayButton(false);
-    };
-
-    video.addEventListener('canplay', handleCanPlay);
-    video.addEventListener('play', handlePlay);
-    video.addEventListener('pause', handlePause);
     video.addEventListener('ended', handleEnded);
-    video.addEventListener('waiting', handleWaiting);
-    video.addEventListener('playing', handlePlaying);
-
-    // Try to play immediately if video is ready
-    if (video.readyState >= 3) {
-      attemptPlay();
-    }
 
     return () => {
-      video.removeEventListener('canplay', handleCanPlay);
-      video.removeEventListener('play', handlePlay);
-      video.removeEventListener('pause', handlePause);
       video.removeEventListener('ended', handleEnded);
-      video.removeEventListener('waiting', handleWaiting);
-      video.removeEventListener('playing', handlePlaying);
     };
   }, [currentSlide, isTransitioning, goToSlide]);
-
-  // Handle manual play button click
-  const handlePlayClick = async () => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    try {
-      await video.play();
-      setIsPlaying(true);
-      setShowPlayButton(false);
-    } catch (err) {
-      console.error('Play failed:', err);
-    }
-  };
 
   const content = SLIDE_CONTENT[currentSlide];
 
@@ -255,7 +166,9 @@ export default function MobileHeroVideo() {
           className="h-full w-full object-cover"
           src={HERO_VIDEOS[currentSlide]}
           poster={HERO_POSTER}
+          autoPlay
           muted
+          loop={false}
           playsInline
           preload="auto"
           webkit-playsinline="true"
@@ -264,43 +177,6 @@ export default function MobileHeroVideo() {
           x5-video-player-fullscreen="true"
           aria-hidden="true"
         />
-        
-        {/* Play Button Overlay - Only show when explicitly needed */}
-        {showPlayButton && !isPlaying && (
-          <div 
-            className="absolute inset-0 z-40 flex items-center justify-center cursor-pointer"
-            onClick={handlePlayClick}
-            style={{ 
-              background: 'radial-gradient(circle, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 100%)',
-              backdropFilter: 'blur(2px)'
-            }}
-          >
-            <div className="flex flex-col items-center gap-3 animate-fade-in">
-              <button
-                className="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-2xl"
-                style={{
-                  background: 'linear-gradient(135deg, #C5A880 0%, #B8986E 100%)',
-                  boxShadow: '0 8px 32px rgba(197, 168, 128, 0.4)'
-                }}
-                aria-label="Play video"
-              >
-                <svg 
-                  className="w-9 h-9 text-white ml-1" 
-                  fill="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </button>
-              <span 
-                className="text-white text-xs tracking-[0.3em] uppercase font-light"
-                style={{ textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}
-              >
-                Tap to Play
-              </span>
-            </div>
-          </div>
-        )}
         
         {/* Gradient overlays */}
         <div 
