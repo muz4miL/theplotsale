@@ -22,9 +22,7 @@ if (typeof window !== 'undefined') {
       mod.preload?.(HERO_VIDEOS[0], { as: 'video', fetchPriority: 'high' });
       mod.preload?.(HERO_POSTER, { as: 'image', fetchPriority: 'high' });
       mod.preload?.(HERO_VIDEOS[1], { as: 'video', fetchPriority: 'low' });
-    } catch {
-      /* react-dom < 19 — safe to ignore */
-    }
+    } catch { /* react-dom < 19 — safe to ignore */ }
   });
 }
 
@@ -49,7 +47,6 @@ export default function HeroVideoParallax() {
   // then branch once — avoids swapping the entire tree after effects touch video nodes.
   const [ready, setReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  
   const videos = HERO_VIDEOS;
 
   useLayoutEffect(() => {
@@ -65,7 +62,6 @@ export default function HeroVideoParallax() {
   // Seamless video transition logic (desktop hero only)
   useEffect(() => {
     if (!ready || isMobile) return;
-
     const video1 = videoRef.current;
     const video2 = video2Ref.current;
     if (!video1 || !video2) return;
@@ -88,12 +84,10 @@ export default function HeroVideoParallax() {
 
     const attemptVideoPlay = async (video) => {
       if (!video) return;
-      
       try {
         await video.play();
       } catch (err) {
         console.log('Video play attempt:', err.name);
-        
         // For mobile devices, try again after a short delay
         if (err.name === 'NotAllowedError' || err.name === 'AbortError') {
           setTimeout(async () => {
@@ -149,7 +143,7 @@ export default function HeroVideoParallax() {
 
     video1.addEventListener('ended', handleVideoEnd);
     video2.addEventListener('ended', handleVideoEnd);
-    
+
     // Add mobile interaction listeners
     document.addEventListener('touchstart', handleUserInteraction, { once: true });
     document.addEventListener('click', handleUserInteraction, { once: true });
@@ -170,7 +164,6 @@ export default function HeroVideoParallax() {
   // commitDeletion). Sticky wrapper below keeps the hero in view for ~400vh while we scrub.
   useLayoutEffect(() => {
     if (!ready || isMobile || typeof window === 'undefined' || !sectionRef.current) return;
-
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
@@ -196,7 +189,10 @@ export default function HeroVideoParallax() {
       // 2. Video container transforms to side panel
       if (videoContainerRef.current) {
         tl.to(videoContainerRef.current, {
-          width: '45vw', height: '75vh', right: '4%', top: '12.5%',
+          width: '45vw',
+          height: '75vh',
+          right: '4%',
+          top: '12.5%',
           borderRadius: '32px',
           border: '1px solid rgba(255, 255, 255, 0.1)',
           boxShadow: '0 60px 120px -30px rgba(0, 0, 0, 0.9), 0 0 60px rgba(197, 168, 128, 0.1) inset',
@@ -291,7 +287,7 @@ export default function HeroVideoParallax() {
       style={{ background: 'linear-gradient(to bottom right, #111111, #0A0A0A, #050505)' }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-      <>
+        <>
           <div ref={videoContainerRef} className="absolute z-20 overflow-hidden bg-black/20 w-full h-full right-0 top-0 rounded-none shadow-none">
             <div className="relative h-full w-full overflow-hidden z-10 bg-black">
               {/* Primary hero clip — src, poster and preload="auto" baked into
@@ -333,13 +329,10 @@ export default function HeroVideoParallax() {
 
           <div ref={revealRef} className="absolute left-0 top-0 z-30 flex h-full w-full items-center justify-start pl-[5%] md:pl-[10%] pr-[5%] md:pr-[52%] opacity-0 pt-20 md:pt-0">
             <div className="relative w-full max-w-2xl text-left">
-
               <div ref={luxuryLabelRef} className="mb-8 md:mb-12 opacity-0">
                 <div className="flex items-center gap-4">
                   <div className="h-[1px] w-12" style={{ background: 'linear-gradient(to right, #C5A880, rgba(197, 168, 128, 0.3))' }} />
-                  <span className="text-[10px] tracking-[0.35em] font-sans uppercase font-medium" style={{ color: '#C5A880' }}>
-                    THEPLOTSALE
-                  </span>
+                  <span className="text-[10px] tracking-[0.35em] font-sans uppercase font-medium" style={{ color: '#C5A880' }}>THEPLOTSALE</span>
                 </div>
               </div>
 
@@ -381,9 +374,7 @@ export default function HeroVideoParallax() {
 
                 <div className="mt-14 md:mt-20 flex items-center gap-6 group cursor-pointer">
                   <div className="h-[1px] w-12 transition-all duration-700 ease-out group-hover:w-16" style={{ background: 'linear-gradient(to right, #C5A880, transparent)' }} />
-                  <span className="text-[10px] tracking-[0.35em] uppercase font-sans font-light transition-all duration-700 ease-out group-hover:translate-x-1 group-hover:tracking-[0.4em]" style={{ color: '#C5A880' }}>
-                    DISCOVER OUR CANVAS
-                  </span>
+                  <span className="text-[10px] tracking-[0.35em] uppercase font-sans font-light transition-all duration-700 ease-out group-hover:translate-x-1 group-hover:tracking-[0.4em]" style={{ color: '#C5A880' }}>DISCOVER OUR CANVAS</span>
                 </div>
               </div>
             </div>
@@ -395,24 +386,15 @@ export default function HeroVideoParallax() {
           {/* Initial Full Screen Overlay - LEFT ALIGNED */}
           <div ref={overlayRef} className="absolute inset-0 z-40 flex flex-col items-start justify-center pointer-events-none pb-12 md:pb-16 pl-[5%] md:pl-[10%]">
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2), transparent)' }} />
-
             <div className="text-left px-4 relative z-10 w-full">
               <div className="mb-8 md:mb-10">
-                <span className="text-xs md:text-sm tracking-[0.3em] text-white/90 font-sans uppercase font-light">
-                  PREMIER REAL ESTATE CONSULTANCY
-                </span>
+                <span className="text-xs md:text-sm tracking-[0.3em] text-white/90 font-sans uppercase font-light">PREMIER REAL ESTATE CONSULTANCY</span>
               </div>
               <h1 className="mb-8 md:mb-10 font-serif text-4xl md:text-6xl lg:text-7xl font-medium leading-[0.9] text-white px-4">
-                <span className="block mb-4 md:mb-6" style={{ textShadow: '0 2px 12px rgba(0, 0, 0, 0.6)' }}>
-                  Cultivating Futures
-                </span>
-                <span className="block italic font-light text-2xl md:text-3xl lg:text-4xl text-[#C5A880]" style={{ textShadow: '0 4px 20px rgba(0, 0, 0, 0.6)' }}>
-                  We are not just building homes. We are shaping dreams into addresses.
-                </span>
+                <span className="block mb-4 md:mb-6" style={{ textShadow: '0 2px 12px rgba(0, 0, 0, 0.6)' }}>Cultivating Futures</span>
+                <span className="block italic font-light text-2xl md:text-3xl lg:text-4xl text-[#C5A880]" style={{ textShadow: '0 4px 20px rgba(0, 0, 0, 0.6)' }}>We are not just building homes. We are shaping dreams into addresses.</span>
               </h1>
-              <p className="max-w-xs md:max-w-md text-xs tracking-[0.3em] text-white/80 font-sans uppercase font-light mt-12 md:mt-14" style={{ textShadow: '0 1px 6px rgba(0, 0, 0, 0.5)' }}>
-                LONDON • LAHORE
-              </p>
+              <p className="max-w-xs md:max-w-md text-xs tracking-[0.3em] text-white/80 font-sans uppercase font-light mt-12 md:mt-14" style={{ textShadow: '0 1px 6px rgba(0, 0, 0, 0.5)' }}>LONDON • LAHORE</p>
             </div>
           </div>
 
@@ -424,15 +406,13 @@ export default function HeroVideoParallax() {
 
           <div ref={scrollIndicatorRef} className="absolute bottom-8 md:bottom-12 left-1/2 z-50 -translate-x-1/2">
             <div className="flex flex-col items-center">
-              <span className="mb-3 md:mb-4 text-[10px] md:text-xs tracking-[0.25em] md:tracking-[0.3em] font-sans uppercase font-light" style={{ color: '#C5A880', textShadow: '0 1px 4px rgba(0, 0, 0, 0.5)' }}>
-                EXPLORE
-              </span>
+              <span className="mb-3 md:mb-4 text-[10px] md:text-xs tracking-[0.25em] md:tracking-[0.3em] font-sans uppercase font-light" style={{ color: '#C5A880', textShadow: '0 1px 4px rgba(0, 0, 0, 0.5)' }}>EXPLORE</span>
               <div className="relative h-10 md:h-16 overflow-hidden bg-white/10 backdrop-blur-sm" style={{ width: '0.5px' }}>
                 <div className="absolute top-0 h-5 md:h-8 w-full animate-scroll-indicator" style={{ background: 'linear-gradient(to bottom, #C5A880, transparent)' }} />
               </div>
             </div>
           </div>
-      </>
+        </>
       </div>
     </section>
   );

@@ -1,447 +1,321 @@
 'use client';
 
-/**
- * Mobile-only hero: full-bleed video + luxury copy. Desktop uses HeroVideoParallax unchanged.
- * iOS Safari: muted + playsInline + play() must run synchronously inside tap/click (no async handler).
- * Overlay z-index must sit above hero copy so “Tap to play” receives touches.
- */
-
-import { useRef, useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { LuxurySkylineGlyph } from '@/components/shared/LuxuryMotionAccents';
 
-const VIDEOS = ['/videos/1.mp4', '/videos/2.mp4', '/videos/3.mp4'];
-const POSTER = '/lifestyle-hero.png';
+const HERO_VIDEOS = ['/videos/1.mp4', '/videos/2.mp4', '/videos/3.mp4'];
+const HERO_POSTER = '/lifestyle-hero.png';
 
-function applyIosVideoAttrs(video) {
-  if (!video) return;
-  video.muted = true;
-  video.defaultMuted = true;
-  video.volume = 0;
-  video.playsInline = true;
-  video.setAttribute('playsinline', '');
-  video.setAttribute('webkit-playsinline', '');
-  video.setAttribute('muted', '');
-}
-
-/** Call play() synchronously — required for user-activation on WebKit. */
-function tryPlayNow(video, onPlaying, onBlocked) {
-  if (!video) {
-    onBlocked?.();
-    return;
-  }
-  applyIosVideoAttrs(video);
-  try {
-    const p = video.play();
-    if (p !== undefined) {
-      p.then(() => onPlaying?.()).catch(() => onBlocked?.());
-    } else {
-      onPlaying?.();
-    }
-  } catch {
-    onBlocked?.();
-  }
-}
-
-/**
- * iOS-hardened user-gesture play.
- *
- * Two common failure modes we survive here:
- *   1. preload="metadata" means the decoder has no frames yet, so play() rejects.
- *      Fix: load() inside the gesture, then listen for canplay/loadeddata and retry
- *      — the gesture token stays valid for follow-up play() calls on WebKit.
- *   2. Low-power mode on iOS aborts autoplay but still honours user-tap play(),
- *      provided the element has muted + playsinline attributes at the moment of call.
- *      applyIosVideoAttrs() re-asserts these every time before we try.
- */
-function playWithUserGesture(video, onPlaying, onNeedsTap) {
-  if (!video) {
-    onNeedsTap?.();
-    return;
-  }
-  applyIosVideoAttrs(video);
-
-  // Ensure the source is actively fetching — synchronous, still inside gesture window.
-  if (video.readyState < 2) {
-    try {
-      video.load();
-    } catch {
-      /* no-op */
-    }
-  }
-
-  let settled = false;
-  const markPlaying = () => {
-    if (settled) return;
-    settled = true;
-    cleanup();
-    onPlaying?.();
-  };
-  const markNeedsTap = () => {
-    if (settled) return;
-    settled = true;
-    cleanup();
-    onNeedsTap?.();
-  };
-
-  const onReady = () => {
-    try {
-      const p = video.play();
-      if (p && typeof p.then === 'function') {
-        p.then(markPlaying).catch(() => {
-          /* keep listening — a subsequent canplay event may resolve */
-        });
-      } else {
-        markPlaying();
-      }
-    } catch {
-      /* keep listening */
-    }
-  };
-  const onPlayingEvt = () => markPlaying();
-
-  function cleanup() {
-    video.removeEventListener('canplay', onReady);
-    video.removeEventListener('loadeddata', onReady);
-    video.removeEventListener('playing', onPlayingEvt);
-  }
-
-  video.addEventListener('canplay', onReady);
-  video.addEventListener('loadeddata', onReady);
-  video.addEventListener('playing', onPlayingEvt);
-
-  // Primary attempt inside the gesture.
-  try {
-    const p = video.play();
-    if (p && typeof p.then === 'function') {
-      p.then(markPlaying).catch(() => {
-        /* fall through — canplay/loadeddata retry will fire */
-      });
-    } else {
-      markPlaying();
-    }
-  } catch {
-    /* listeners remain */
-  }
-
-  // Final safety net: if nothing ever resolves, show the button again so the
-  // visitor can try a second time. 3.2s is long enough for a 4G first-frame
-  // on the compressed hero clips we ship (≤5MB).
-  window.setTimeout(() => {
-    if (!settled && video.paused) markNeedsTap();
-  }, 3200);
-}
+const SLIDE_CONTENT = [
+  {
+    title: 'Cultivating Futures',
+    subtitle: 'We are not just building homes. We are shaping dreams into addresses.',
+    location: 'LONDON • LAHORE',
+    cta: 'DISCOVER OUR CANVAS',
+  },
+  {
+    title: 'Aspirations into',
+    subtitle: 'At ThePlotSale, we bridge developers and homeowners in trusted partnership.',
+    location: 'PREMIER CONSULTANCY',
+    cta: 'EXPLORE PROPERTIES',
+  },
+  {
+    title: 'Foundations',
+    subtitle: 'Every property is not just an asset, but a space people are proud to call home.',
+    location: 'SUSTAINABLE FUTURE',
+    cta: 'MEET OUR TEAM',
+  },
+];
 
 export default function MobileHeroVideo() {
+  const containerRef = useRef(null);
   const videoRef = useRef(null);
-  const heroAreaRef = useRef(null);
-  const lastUserPlayRef = useRef(0);
-  const [index, setIndex] = useState(0);
-  /** buffering | playing | needs_tap | error */
-  const [phase, setPhase] = useState('buffering');
+  const overlayRef = useRef(null);
+  const contentRefs = useRef({});
+  const slideIndicatorsRef = useRef([]);
+  
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const [showFallback, setShowFallback] = useState(false);
+  
+  // Touch handling
+  const touchStartY = useRef(0);
+  const touchEndY = useRef(0);
 
-  useEffect(() => {
-    setPhase('buffering');
-  }, [index]);
+  const goToSlide = useCallback((index) => {
+    if (isTransitioning || index === currentSlide) return;
+    setIsTransitioning(true);
 
-  const markPlaying = useCallback(() => setPhase('playing'), []);
-  const markNeedsTap = useCallback(() => setPhase('needs_tap'), []);
+    const video = videoRef.current;
+    if (!video) return;
 
+    const tl = gsap.timeline({
+      onComplete: () => {
+        setCurrentSlide(index);
+        setIsTransitioning(false);
+        video.currentTime = 0;
+        video.src = HERO_VIDEOS[index];
+        video.load();
+        video.play().catch(() => {
+          setShowFallback(true);
+        });
+      },
+    });
+
+    tl.to(overlayRef.current, { opacity: 0, duration: 0.3, ease: 'power2.in' }, 0);
+    
+    Object.values(contentRefs.current).forEach((el) => {
+      if (el) tl.to(el, { y: -20, opacity: 0, duration: 0.25, stagger: 0.05 }, 0);
+    });
+
+    slideIndicatorsRef.current.forEach((dot, i) => {
+      if (dot) {
+        gsap.to(dot, {
+          backgroundColor: i === index ? '#C5A880' : 'rgba(255,255,255,0.3)',
+          width: i === index ? '24px' : '8px',
+          duration: 0.3,
+          ease: 'power2.out',
+        });
+      }
+    });
+
+    tl.to(overlayRef.current, { opacity: 1, duration: 0.4, delay: 0.1 }, '+=0.1');
+    Object.entries(contentRefs.current).forEach(([key, el], i) => {
+      if (el) {
+        tl.fromTo(
+          el,
+          { y: 15, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
+          `+=${i * 0.05}`
+        );
+      }
+    });
+
+  }, [currentSlide, isTransitioning]);
+
+  const handleIndicatorClick = (index) => {
+    if (!isTransitioning) goToSlide(index);
+  };
+
+  // Touch event handlers
+  const handleTouchStart = (e) => {
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchMove = (e) => {
+    touchEndY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = () => {
+    if (isTransitioning) return;
+    
+    const swipeThreshold = 50;
+    const diff = touchStartY.current - touchEndY.current;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) {
+        // Swipe up - next slide
+        goToSlide((currentSlide + 1) % HERO_VIDEOS.length);
+      } else {
+        // Swipe down - previous slide
+        goToSlide((currentSlide - 1 + HERO_VIDEOS.length) % HERO_VIDEOS.length);
+      }
+    }
+  };
+
+  // Initialize video
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    let cancelled = false;
-    applyIosVideoAttrs(video);
-
-    const tryAutoplay = () => {
-      if (cancelled) return;
-      tryPlayNow(
-        video,
-        () => {
-          if (!cancelled) markPlaying();
-        },
-        () => {
-          if (!cancelled) markNeedsTap();
-        }
-      );
+    const handleLoaded = () => {
+      video.play().catch(() => {
+        setShowFallback(true);
+      });
     };
 
-    const onPlaying = () => {
-      if (!cancelled) markPlaying();
-    };
-    const onError = () => {
-      if (!cancelled) setPhase('error');
-    };
-
-    /* React to real media state, not just timers — ensures autoplay fires the moment
-       the decoder has enough frames, which is how high-end mobile sites feel instant. */
-    const onLoadedData = () => {
-      if (!cancelled && video.paused) tryAutoplay();
-    };
-    const onCanPlay = () => {
-      if (!cancelled && video.paused) tryAutoplay();
+    const handleError = () => {
+      console.error('Video failed to load:', HERO_VIDEOS[currentSlide]);
+      setVideoError(true);
+      setShowFallback(true);
     };
 
-    video.addEventListener('playing', onPlaying);
-    video.addEventListener('error', onError);
-    video.addEventListener('loadeddata', onLoadedData);
-    video.addEventListener('canplay', onCanPlay);
+    const handleEnded = () => {
+      if (!isTransitioning) {
+        goToSlide((currentSlide + 1) % HERO_VIDEOS.length);
+      }
+    };
 
-    // Defer one frame so layout + decoder can attach (helps first paint on iOS)
-    const raf = requestAnimationFrame(() => {
-      tryAutoplay();
-    });
+    video.addEventListener('loadeddata', handleLoaded);
+    video.addEventListener('error', handleError);
+    video.addEventListener('ended', handleEnded);
 
-    const t1 = window.setTimeout(tryAutoplay, 250);
-    const t2 = window.setTimeout(tryAutoplay, 900);
-    /* More forgiving — mobile networks and Safari low-power mode can legitimately take a while.
-       We prefer the poster to sit elegantly instead of prematurely demanding a tap. */
-    const softFail = window.setTimeout(() => {
-      if (!cancelled && video.paused) markNeedsTap();
-    }, 5200);
-
-    const root = heroAreaRef.current;
-    let io;
-    if (root && typeof IntersectionObserver !== 'undefined') {
-      io = new IntersectionObserver(
-        (entries) => {
-          const vis = entries.some((e) => e.isIntersecting && e.intersectionRatio > 0.15);
-          if (vis && video.paused) tryAutoplay();
-        },
-        { threshold: [0, 0.15, 0.35] }
-      );
-      io.observe(root);
-    }
+    const timeout = setTimeout(() => {
+      if (!video.readyState) {
+        setShowFallback(true);
+      }
+    }, 3000);
 
     return () => {
-      cancelled = true;
-      cancelAnimationFrame(raf);
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-      window.clearTimeout(softFail);
-      video.removeEventListener('playing', onPlaying);
-      video.removeEventListener('error', onError);
-      video.removeEventListener('loadeddata', onLoadedData);
-      video.removeEventListener('canplay', onCanPlay);
-      io?.disconnect();
+      video.removeEventListener('loadeddata', handleLoaded);
+      video.removeEventListener('error', handleError);
+      video.removeEventListener('ended', handleEnded);
+      clearTimeout(timeout);
     };
-  }, [index, markPlaying, markNeedsTap]);
+  }, [currentSlide, isTransitioning, goToSlide]);
 
-  const handleEnded = () => {
-    setIndex((i) => (i + 1) % VIDEOS.length);
-  };
-
-  /** User gesture: must stay synchronous — no async/await. */
-  const handleUserPlayIntent = () => {
-    const now = Date.now();
-    if (now - lastUserPlayRef.current < 300) return;
-    lastUserPlayRef.current = now;
-
-    const video = videoRef.current;
-
-    // Optimistic UX: hide the button immediately so a tap always *feels* like
-    // something happened, even if the decoder needs a beat to spin up.
-    setPhase('buffering');
-
-    playWithUserGesture(
-      video,
-      () => setPhase('playing'),
-      () => setPhase('needs_tap')
-    );
-  };
+  const content = SLIDE_CONTENT[currentSlide];
 
   return (
-    <section ref={heroAreaRef} className="relative min-h-[100svh] w-full overflow-hidden bg-[#030303]">
-      <div className="relative min-h-[min(72svh,720px)] w-full overflow-hidden">
-        {phase !== 'error' ? (
-          <>
-            {/* Poster under the video — always rendered so the first frame looks expensive even
-                if the decoder is still spinning up (iOS Safari / low-power mode). */}
-            <div className="absolute inset-0 z-[0]" aria-hidden>
-              <Image src={POSTER} alt="" fill className="object-cover" sizes="100vw" priority />
-            </div>
-            <video
-              ref={videoRef}
-              key={index}
-              className={`absolute inset-0 z-[1] h-full w-full object-cover transition-opacity duration-700 ease-out ${
-                phase === 'playing' ? 'opacity-100' : 'opacity-0'
-              }`}
-              poster={POSTER}
-              /* The hero is our #1 above-the-fold asset — we want the decoder warmed
-                 up so a user tap is always met with an immediate first frame, not
-                 a wait-for-buffering stall that makes iOS reject play(). */
-              preload="auto"
-              muted
-              playsInline
-              webkit-playsinline="true"
-              x5-playsinline="true"
-              x5-video-player-type="h5"
-              controls={false}
-              disablePictureInPicture
-              onEnded={handleEnded}
-              src={VIDEOS[index]}
-            />
-          </>
+    <section 
+      ref={containerRef}
+      className="relative h-screen w-full overflow-hidden bg-black touch-pan-y"
+      style={{ background: 'linear-gradient(to bottom, #111, #0A0A0A)' }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Video Layer with Fallback */}
+      <div className="absolute inset-0 z-10">
+        {!showFallback ? (
+          <video
+            ref={videoRef}
+            className="h-full w-full object-cover"
+            poster={HERO_POSTER}
+            muted
+            playsInline
+            preload="auto"
+            webkit-playsinline="true"
+            x5-playsinline="true"
+            aria-hidden="true"
+          >
+            <source src={HERO_VIDEOS[currentSlide]} type="video/mp4" />
+          </video>
         ) : (
-          <div className="absolute inset-0 z-[1]">
-            <Image src={POSTER} alt="" fill className="object-cover" sizes="100vw" priority />
-          </div>
+          <div 
+            className="h-full w-full bg-cover bg-center"
+            style={{ backgroundImage: `url(${HERO_POSTER})` }}
+          />
         )}
-
-        <div
-          className="pointer-events-none absolute inset-0 z-[2]"
-          style={{
-            background:
-              'linear-gradient(to top, rgba(3,3,3,0.98) 0%, rgba(3,3,3,0.5) 45%, rgba(0,0,0,0.2) 72%, transparent 100%), linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 32%)',
-          }}
+        
+        {/* Gradient overlays */}
+        <div 
+          className="absolute inset-0"
+          style={{ 
+            background: 'linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.4) 40%, transparent 70%)' 
+          }} 
         />
+        <div 
+          className="absolute inset-0"
+          style={{ 
+            background: 'linear-gradient(to right, rgba(10,10,10,0.6), transparent 30%, transparent 70%, rgba(10,10,10,0.4))' 
+          }} 
+        />
+      </div>
 
-        {phase === 'buffering' && (
-          <div className="pointer-events-none absolute right-4 top-[max(5.5rem,env(safe-area-inset-top,0px))] z-[18] flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3 py-1.5 backdrop-blur-md">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#C5A880]" />
-            <span className="font-[family-name:var(--font-manrope)] text-[9px] uppercase tracking-[0.28em] text-[#C5A880]/90">
-              Loading
-            </span>
-          </div>
-        )}
-
-        {phase === 'needs_tap' && (
-          <button
-            type="button"
-            className="absolute inset-0 z-[200] flex cursor-pointer touch-manipulation flex-col items-center justify-center border-0 bg-black/35 backdrop-blur-[1px] active:bg-black/45"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
-            onClick={handleUserPlayIntent}
-            aria-label="Play video"
+      {/* Content Overlay */}
+      <div 
+        ref={overlayRef}
+        className="absolute inset-0 z-20 flex flex-col justify-end pb-16 px-6 md:px-8"
+      >
+        <div 
+          ref={(el) => (contentRefs.current.label = el)}
+          className="mb-6 flex items-center gap-3"
+        >
+          <div 
+            className="h-[1px] w-10"
+            style={{ background: 'linear-gradient(to right, #C5A880, rgba(197,168,128,0.3))' }}
+          />
+          <span 
+            className="text-[10px] tracking-[0.35em] font-sans uppercase font-medium"
+            style={{ color: '#C5A880' }}
           >
-            <div className="pointer-events-none flex flex-col items-center gap-3 px-6">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full border border-[#C5A880]/45 bg-[#C5A880]/10 shadow-[0_0_40px_rgba(197,168,128,0.15)]">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#C5A880" aria-hidden>
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-              <p className="font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.3em] text-white/85">
-                Tap to play
-              </p>
-            </div>
-          </button>
-        )}
+            THEPLOTSALE
+          </span>
+        </div>
 
-        {phase === 'playing' && (
-          <div className="pointer-events-none absolute right-[max(0.75rem,env(safe-area-inset-right,0px))] top-[max(5.5rem,env(safe-area-inset-top,0px))] z-[14] opacity-[0.16]">
-            <LuxurySkylineGlyph className="h-9 w-24" />
-          </div>
-        )}
-
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-px bg-gradient-to-r from-transparent via-[#C5A880]/35 to-transparent"
-          aria-hidden
-        />
-
-        {/* Caption stack. The backdrop gradient is now a single, long, multi-stop
-            black fade that starts far above the first line of text and ends below
-            the safe-area — no rounded card edges, no visible seam. The text just
-            floats out of the film. */}
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-[16] h-[62%]"
-          aria-hidden
-          style={{
-            background:
-              'linear-gradient(to top, rgba(3,4,3,0.96) 0%, rgba(3,4,3,0.88) 22%, rgba(3,4,3,0.66) 48%, rgba(3,4,3,0.32) 72%, rgba(3,4,3,0.08) 88%, rgba(3,4,3,0) 100%)',
-          }}
-        />
-
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[20] lux-mobile-page-gutter pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-10">
-          <div className="mb-3 flex items-center gap-3">
-            <div className="h-px w-10 shrink-0 bg-gradient-to-r from-[#C5A880] to-transparent sm:w-12" />
-            <span
-              className="font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase leading-snug tracking-[0.28em] text-[#C5A880] sm:text-[11px]"
-              style={{ textShadow: '0 2px 12px rgba(0,0,0,0.85)' }}
-            >
-              Premier real estate consultancy
-            </span>
-          </div>
-
-          <h1
-            className="max-w-[22ch] font-[family-name:var(--font-playfair)] text-[clamp(1.75rem,6.2vw,2.5rem)] font-light leading-[1.1] tracking-[-0.02em] text-white text-balance"
-            style={{ textShadow: '0 6px 28px rgba(0,0,0,0.78)' }}
+        <div className="mb-4">
+          <span 
+            ref={(el) => (contentRefs.current.tagline = el)}
+            className="text-xs tracking-[0.25em] font-sans uppercase font-light block mb-3"
+            style={{ color: '#C5A880' }}
           >
-            Cultivating Futures
+            {content.location}
+          </span>
+          <h1 
+            ref={(el) => (contentRefs.current.title = el)}
+            className="text-3xl md:text-4xl font-serif font-light leading-[1.1] text-white"
+            style={{ textShadow: '0 2px 12px rgba(0,0,0,0.6)' }}
+          >
+            {content.title}
           </h1>
-
-          <p
-            className="mt-3 max-w-prose font-[family-name:var(--font-playfair)] text-[clamp(1rem,3.5vw,1.25rem)] font-light italic leading-snug text-[#e8d4bc] text-pretty"
-            style={{ textShadow: '0 4px 22px rgba(0,0,0,0.82)' }}
-          >
-            We are not just building homes. We are shaping dreams into addresses.
-          </p>
-
-          <p
-            className="mt-5 font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.3em] text-white/55"
-            style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}
-          >
-            London · Lahore
-          </p>
-
-          {phase === 'playing' && (
-            <div className="mt-7 flex flex-col items-center gap-2 border-t border-white/[0.06] pt-5">
-              <span className="font-[family-name:var(--font-manrope)] text-[9px] uppercase tracking-[0.3em] text-[#C5A880]/85">
-                Explore
-              </span>
-              <div className="relative h-9 w-px overflow-hidden rounded-full bg-white/10">
-                <div
-                  className="absolute top-0 h-4 w-full animate-scroll-indicator rounded-full"
-                  style={{ background: 'linear-gradient(to bottom, #C5A880, transparent)' }}
-                />
-              </div>
-            </div>
+          {content.title.includes('into') && (
+            <h1 
+              ref={(el) => (contentRefs.current.titleItalic = el)}
+              className="text-3xl md:text-4xl font-serif font-light italic leading-[1.1] mt-2"
+              style={{ color: '#C5A880', textShadow: '0 2px 12px rgba(0,0,0,0.6)' }}
+            >
+              Foundations
+            </h1>
           )}
+        </div>
+
+        <p 
+          ref={(el) => (contentRefs.current.description = el)}
+          className="max-w-sm text-sm md:text-base font-light font-sans leading-relaxed mb-8"
+          style={{ color: 'rgba(242,244,246,0.85)' }}
+        >
+          {content.subtitle}
+        </p>
+
+        <div 
+          ref={(el) => (contentRefs.current.cta = el)}
+          className="flex items-center gap-4 group cursor-pointer"
+        >
+          <div 
+            className="h-[1px] w-10 transition-all duration-500 group-hover:w-14"
+            style={{ background: 'linear-gradient(to right, #C5A880, transparent)' }}
+          />
+          <span 
+            className="text-[10px] tracking-[0.3em] uppercase font-sans font-light"
+            style={{ color: '#C5A880' }}
+          >
+            {content.cta}
+          </span>
         </div>
       </div>
 
-      <div className="relative border-t border-white/[0.06] bg-[linear-gradient(180deg,#060807_0%,#0a0a0a_45%,#080a09_100%)]">
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-32 opacity-40"
-          style={{
-            background: 'radial-gradient(ellipse 120% 100% at 50% 0%, rgba(197,168,128,0.12), transparent 55%)',
-          }}
-        />
-
-        <div className="relative mx-auto max-w-lg lux-mobile-page-gutter py-16 sm:py-20">
-          <div
-            className="rounded-2xl border border-white/[0.07] bg-[#0c1010]/80 px-6 py-10 shadow-[0_32px_80px_rgba(0,0,0,0.55)] backdrop-blur-md sm:rounded-3xl sm:px-8 sm:py-12"
+      {/* Slide Indicators */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-2">
+        {HERO_VIDEOS.map((_, i) => (
+          <button
+            key={i}
+            ref={(el) => (slideIndicatorsRef.current[i] = el)}
+            onClick={() => handleIndicatorClick(i)}
+            className="h-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#C5A880]/50"
             style={{
-              boxShadow:
-                '0 32px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04), 0 0 0 1px rgba(197,168,128,0.06)',
+              width: i === currentSlide ? '24px' : '8px',
+              backgroundColor: i === currentSlide ? '#C5A880' : 'rgba(255,255,255,0.3)',
             }}
-          >
-            <div className="mx-auto mb-8 h-px w-20 bg-gradient-to-r from-transparent via-[#C5A880]/55 to-transparent sm:mb-10 sm:w-24" />
-            <div className="mb-5 text-center">
-              <span className="font-[family-name:var(--font-manrope)] text-[11px] uppercase tracking-[0.28em] text-[#C5A880]">
-                London · Lahore
-              </span>
-            </div>
-            <div className="text-center">
-              <h2
-                className="font-[family-name:var(--font-playfair)] text-[clamp(1.65rem,5vw,2.15rem)] font-light leading-tight tracking-tight text-[#f2f4f6] text-balance"
-                style={{ textShadow: '0 4px 28px rgba(0,0,0,0.45)' }}
-              >
-                Aspirations into
-              </h2>
-              <h2
-                className="mt-1 font-[family-name:var(--font-playfair)] text-[clamp(1.65rem,5vw,2.15rem)] font-light italic leading-tight tracking-tight text-[#C5A880] text-balance"
-                style={{ textShadow: '0 4px 28px rgba(0,0,0,0.45)' }}
-              >
-                Foundations
-              </h2>
-            </div>
-            <p className="mx-auto mt-8 max-w-prose text-center font-[family-name:var(--font-manrope)] text-[15px] font-light leading-[1.75] tracking-[0.01em] text-white/[0.78] text-pretty sm:text-base sm:leading-[1.8]">
-              At ThePlotSale, we are committed to delivering real estate solutions marked by transparency and
-              integrity, bridging developers and homeowners in a trusted partnership. We envision a sustainable future
-              where every property is not just an asset, but a space people are proud to call home.
-            </p>
-          </div>
-        </div>
+            aria-label={`Go to slide ${i + 1}`}
+          />
+        ))}
+      </div>
+
+      <div className="absolute bottom-20 right-4 z-25 opacity-20 pointer-events-none">
+        <LuxurySkylineGlyph className="h-10 w-28" />
+      </div>
+
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 animate-pulse">
+        <span 
+          className="text-[9px] tracking-[0.3em] uppercase font-sans font-light"
+          style={{ color: 'rgba(197,168,128,0.7)' }}
+        >
+          SWIPE
+        </span>
       </div>
     </section>
   );

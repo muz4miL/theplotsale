@@ -916,3 +916,10 @@ html.has-scroll-dragging {
     opacity: 1 !important;
   }
 }
+
+
+
+/* In your global CSS */
+html.mobile-hero-active {
+  overscroll-behavior-y: contain;
+}
