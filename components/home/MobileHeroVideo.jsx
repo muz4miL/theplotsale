@@ -56,11 +56,16 @@ export default function MobileHeroVideo() {
       onComplete: () => {
         setCurrentSlide(index);
         setIsTransitioning(false);
-        video.currentTime = 0;
+        
+        // Change video source
         video.src = HERO_VIDEOS[index];
+        video.currentTime = 0;
         video.load();
-        video.play().catch(() => {
-          setShowFallback(true);
+        
+        // Try to play the new video
+        video.play().catch((err) => {
+          console.log('Video play failed:', err.name);
+          // Don't set fallback here, just let it show poster
         });
       },
     });
@@ -132,7 +137,8 @@ export default function MobileHeroVideo() {
     if (!video) return;
 
     const handleLoaded = () => {
-      video.play().catch(() => {
+      video.play().catch((err) => {
+        console.log('Autoplay blocked, showing fallback:', err.name);
         setShowFallback(true);
       });
     };
@@ -149,12 +155,27 @@ export default function MobileHeroVideo() {
       }
     };
 
+    // Handle user interaction to enable video playback
+    const handleUserInteraction = () => {
+      if (video.paused) {
+        video.play().catch(() => {
+          setShowFallback(true);
+        });
+      }
+    };
+
     video.addEventListener('loadeddata', handleLoaded);
     video.addEventListener('error', handleError);
     video.addEventListener('ended', handleEnded);
+    
+    // Add interaction listeners for mobile
+    document.addEventListener('touchstart', handleUserInteraction, { once: true });
+    document.addEventListener('click', handleUserInteraction, { once: true });
 
+    // Timeout fallback - if video doesn't load in 3 seconds, show poster
     const timeout = setTimeout(() => {
-      if (!video.readyState) {
+      if (video.readyState < 2) {
+        console.log('Video load timeout, showing fallback');
         setShowFallback(true);
       }
     }, 3000);
@@ -163,6 +184,8 @@ export default function MobileHeroVideo() {
       video.removeEventListener('loadeddata', handleLoaded);
       video.removeEventListener('error', handleError);
       video.removeEventListener('ended', handleEnded);
+      document.removeEventListener('touchstart', handleUserInteraction);
+      document.removeEventListener('click', handleUserInteraction);
       clearTimeout(timeout);
     };
   }, [currentSlide, isTransitioning, goToSlide]);
@@ -184,16 +207,17 @@ export default function MobileHeroVideo() {
           <video
             ref={videoRef}
             className="h-full w-full object-cover"
+            src={HERO_VIDEOS[currentSlide]}
             poster={HERO_POSTER}
+            autoPlay
             muted
             playsInline
             preload="auto"
             webkit-playsinline="true"
             x5-playsinline="true"
+            x5-video-player-type="h5"
             aria-hidden="true"
-          >
-            <source src={HERO_VIDEOS[currentSlide]} type="video/mp4" />
-          </video>
+          />
         ) : (
           <div 
             className="h-full w-full bg-cover bg-center"
