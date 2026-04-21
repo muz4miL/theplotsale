@@ -100,7 +100,7 @@ export default function Preloader() {
 
             <div className="preloader-logo-slot absolute left-1/2 top-1/2">
               <Image
-                src="/newLogo.png"
+                src="/newLogo2.png"
                 alt=""
                 width={128}
                 height={128}

@@ -259,7 +259,7 @@ export default function MarqueeControlPage() {
               {!isLoading && rows.length === 0 ? <tr><td colSpan={6} className="px-6 py-8 text-center text-sm text-neutral-400">No marquee logos in the database.</td></tr> : null}
               {rows.map((row) => (
                 <tr key={row._id} className="text-sm text-neutral-200 transition-all hover:bg-white/[0.04]">
-                  <td className="px-6 py-4"><img src={row.logoUrl || '/newLogo.png'} alt={row.name} className="h-14 w-14 rounded-lg border border-white/10 bg-black/30 object-contain p-1" /></td>
+                  <td className="px-6 py-4"><img src={row.logoUrl || '/newLogo2.png'} alt={row.name} className="h-14 w-14 rounded-lg border border-white/10 bg-black/30 object-contain p-1" /></td>
                   <td className="px-6 py-4 font-medium text-white">{row.name}</td>
                   <td className="px-6 py-4 text-neutral-300">{row.detail || '-'}</td>
                   <td className="px-6 py-4 text-neutral-300">{row.sortOrder ?? 0}</td>

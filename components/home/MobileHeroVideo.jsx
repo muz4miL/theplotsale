@@ -32,6 +32,7 @@ const SLIDE_CONTENT = [
 export default function MobileHeroVideo() {
   const containerRef = useRef(null);
   const videoRef = useRef(null);
+  const video2Ref = useRef(null);
   const overlayRef = useRef(null);
   const contentRefs = useRef({});
   const slideIndicatorsRef = useRef([]);
@@ -47,29 +48,29 @@ export default function MobileHeroVideo() {
     if (isTransitioning || index === currentSlide) return;
     setIsTransitioning(true);
 
-    const video = videoRef.current;
-    if (!video) return;
+    const video1 = videoRef.current;
+    const video2 = video2Ref.current;
+    if (!video1 || !video2) return;
+
+    // Determine which video is currently active
+    const activeVideo = video1.style.opacity === '0' ? video2 : video1;
+    const inactiveVideo = activeVideo === video1 ? video2 : video1;
 
     const tl = gsap.timeline({
       onComplete: () => {
         setCurrentSlide(index);
         setIsTransitioning(false);
-        
-        // Change video source
-        video.src = HERO_VIDEOS[index];
-        video.currentTime = 0;
-        video.load();
-        
-        // Video will autoplay due to autoPlay attribute
       },
     });
 
+    // Fade out content
     tl.to(overlayRef.current, { opacity: 0, duration: 0.3, ease: 'power2.in' }, 0);
     
     Object.values(contentRefs.current).forEach((el) => {
       if (el) tl.to(el, { y: -20, opacity: 0, duration: 0.25, stagger: 0.05 }, 0);
     });
 
+    // Update slide indicators
     slideIndicatorsRef.current.forEach((dot, i) => {
       if (dot) {
         gsap.to(dot, {
@@ -81,14 +82,32 @@ export default function MobileHeroVideo() {
       }
     });
 
-    tl.to(overlayRef.current, { opacity: 1, duration: 0.4, delay: 0.1 }, '+=0.1');
+    // Prepare inactive video with new source
+    inactiveVideo.src = HERO_VIDEOS[index];
+    inactiveVideo.currentTime = 0;
+    inactiveVideo.load();
+    
+    // Start playing the new video
+    const playPromise = inactiveVideo.play();
+    if (playPromise) {
+      playPromise.catch(() => {
+        // Fallback if play fails
+      });
+    }
+
+    // Crossfade videos
+    tl.to(activeVideo, { opacity: 0, duration: 0.8, ease: 'power2.inOut' }, 0.2);
+    tl.to(inactiveVideo, { opacity: 1, duration: 0.8, ease: 'power2.inOut' }, 0.2);
+
+    // Fade in new content
+    tl.to(overlayRef.current, { opacity: 1, duration: 0.4 }, 0.6);
     Object.entries(contentRefs.current).forEach(([key, el], i) => {
       if (el) {
         tl.fromTo(
           el,
           { y: 15, opacity: 0 },
           { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
-          `+=${i * 0.05}`
+          `0.7+=${i * 0.05}`
         );
       }
     });
@@ -125,21 +144,39 @@ export default function MobileHeroVideo() {
     }
   };
 
-  // Initialize video - simple approach like AboutHero
+  // Initialize videos - dual video setup like desktop
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+    const video1 = videoRef.current;
+    const video2 = video2Ref.current;
+    if (!video1 || !video2) return;
 
-    const handleEnded = () => {
-      if (!isTransitioning) {
-        goToSlide((currentSlide + 1) % HERO_VIDEOS.length);
-      }
+    // Initial setup
+    video1.style.opacity = '1';
+    video2.style.opacity = '0';
+    
+    // Preload second video
+    if (!video2.src || !video2.src.includes(HERO_VIDEOS[1])) {
+      video2.src = HERO_VIDEOS[1];
+      video2.load();
+    }
+
+    const handleVideoEnd = (event) => {
+      // Only handle end from the currently visible video
+      const video = event.target;
+      const isVideo1Active = video1.style.opacity !== '0';
+      const activeVideo = isVideo1Active ? video1 : video2;
+      
+      if (video !== activeVideo || isTransitioning) return;
+
+      goToSlide((currentSlide + 1) % HERO_VIDEOS.length);
     };
 
-    video.addEventListener('ended', handleEnded);
+    video1.addEventListener('ended', handleVideoEnd);
+    video2.addEventListener('ended', handleVideoEnd);
 
     return () => {
-      video.removeEventListener('ended', handleEnded);
+      video1.removeEventListener('ended', handleVideoEnd);
+      video2.removeEventListener('ended', handleVideoEnd);
     };
   }, [currentSlide, isTransitioning, goToSlide]);
 
@@ -159,13 +196,13 @@ export default function MobileHeroVideo() {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Video Layer */}
+      {/* Dual Video Layer - No Poster */}
       <div className="absolute inset-0 z-10 bg-black">
+        {/* Primary Video */}
         <video
           ref={videoRef}
-          className="h-full w-full object-cover"
-          src={HERO_VIDEOS[currentSlide]}
-          poster={HERO_POSTER}
+          className="h-full w-full object-cover absolute inset-0"
+          src={HERO_VIDEOS[0]}
           autoPlay
           muted
           loop={false}
@@ -174,8 +211,23 @@ export default function MobileHeroVideo() {
           webkit-playsinline="true"
           x5-playsinline="true"
           x5-video-player-type="h5"
-          x5-video-player-fullscreen="true"
           aria-hidden="true"
+          style={{ transition: 'opacity 0.8s ease-in-out' }}
+        />
+        
+        {/* Secondary Video */}
+        <video
+          ref={video2Ref}
+          className="h-full w-full object-cover absolute inset-0"
+          muted
+          loop={false}
+          playsInline
+          preload="none"
+          webkit-playsinline="true"
+          x5-playsinline="true"
+          x5-video-player-type="h5"
+          aria-hidden="true"
+          style={{ opacity: 0, transition: 'opacity 0.8s ease-in-out' }}
         />
         
         {/* Gradient overlays */}

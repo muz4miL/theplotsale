@@ -30,7 +30,7 @@ export default function Footer() {
           <div className="flex items-start gap-6 border-l border-[#C5A880]/30 pl-6">
             <div className="flex-shrink-0">
               <Image
-                src="/newLogo.png"
+                src="/newLogo2.png"
                 alt="The Plot Sale"
                 width={70}
                 height={70}

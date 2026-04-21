@@ -57,7 +57,7 @@ export default function AdminLoginPage() {
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/35 to-transparent" />
         <div className="mb-8 text-center">
           <img
-            src="/newLogo.png"
+            src="/newLogo2.png"
             alt="The Plot Sale logo"
             className="mx-auto mb-4 h-16 w-16 object-contain drop-shadow-[0_8px_20px_rgba(245,158,11,0.25)]"
           />

@@ -156,7 +156,7 @@ export default function Navbar() {
             <div className="relative flex shrink-0 items-center">
               <span className="absolute -inset-1 rounded-full bg-[#C5A880]/0 opacity-0 blur-md transition-all duration-500 group-hover:bg-[#C5A880]/15 group-hover:opacity-100" />
               <Image
-                src="/newLogo.png"
+                src="/newLogo2.png"
                 alt=""
                 width={44}
                 height={44}
