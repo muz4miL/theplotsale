@@ -121,12 +121,15 @@ export default function Navbar() {
   /** Pages whose hero is a full-bleed cinematic — nav sits flush in the scene
    *  until the user starts scrolling, then hardens into the frosted solid state.
    *  Home has a full-screen video hero, About has a cinematic video hero,
-   *  Projects / PK-Projects has the flagship image hero. */
+   *  Projects / PK-Projects has the flagship image hero.
+   *  Property detail pages also have immersive heroes that the nav melts into. */
   const isImmersiveRoute =
     pathname === '/' ||
     pathname === '/projects' ||
     pathname === '/pakistan-projects' ||
-    pathname === '/about';
+    pathname === '/about' ||
+    pathname.startsWith('/uk-properties/') ||
+    pathname.startsWith('/pakistan-projects/');
   const immersiveNav = isImmersiveRoute && !isScrolled;
 
   return (

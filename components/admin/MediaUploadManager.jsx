@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowDown, ArrowUp, Trash2, UploadCloud } from 'lucide-react';
+import { ArrowDown, ArrowUp, Image as ImageIcon, Trash2, UploadCloud } from 'lucide-react';
 import { uploadToCloudinary } from '@/lib/cloudinary-upload';
 
 function moveItem(items, fromIndex, toIndex) {
@@ -18,6 +18,7 @@ export default function MediaUploadManager({
   setStatus,
   setProgressLabel,
   onSetMainImage,
+  currentMainImage,
 }) {
   const uploadMedia = async (files, mode = 'gallery') => {
     if (!files?.length) return;
@@ -77,23 +78,69 @@ export default function MediaUploadManager({
       </div>
 
       {!!media?.length && (
-        <div className="grid gap-2 rounded-xl border border-white/10 bg-black/30 p-3 text-xs text-neutral-300">
-          {media.map((url, index) => (
-            <div key={url} className="flex items-center justify-between gap-2">
-              <p className="truncate">{url}</p>
-              <div className="flex items-center gap-1">
-                <button type="button" className="rounded p-1 hover:bg-white/10" onClick={() => setMedia(moveItem(media, index, index - 1))}>
-                  <ArrowUp className="h-3.5 w-3.5" />
-                </button>
-                <button type="button" className="rounded p-1 hover:bg-white/10" onClick={() => setMedia(moveItem(media, index, index + 1))}>
-                  <ArrowDown className="h-3.5 w-3.5" />
-                </button>
-                <button type="button" className="rounded p-1 text-red-300 hover:bg-red-400/10" onClick={() => setMedia(media.filter((item) => item !== url))}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </div>
-          ))}
+        <div className="space-y-2 rounded-xl border border-white/10 bg-black/30 p-3">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Gallery Media ({media.length})</p>
+          <div className="grid gap-2 text-xs text-neutral-300">
+            {media.map((url, index) => {
+              const isVideo = url.includes('/video/upload/');
+              const isCurrentMain = currentMainImage === url;
+              return (
+                <div
+                  key={url}
+                  className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2 ${
+                    isCurrentMain
+                      ? 'border-[#C5A880]/40 bg-[#C5A880]/10'
+                      : 'border-white/10 bg-black/20'
+                  }`}
+                >
+                  <div className="flex min-w-0 flex-1 items-center gap-2">
+                    {isCurrentMain && (
+                      <span className="shrink-0 rounded bg-[#C5A880]/20 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-[#C5A880]">
+                        Main
+                      </span>
+                    )}
+                    <p className="truncate">{url}</p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    {!isVideo && typeof onSetMainImage === 'function' && (
+                      <button
+                        type="button"
+                        title="Set as main image"
+                        className="rounded p-1 text-[#C5A880] hover:bg-[#C5A880]/10"
+                        onClick={() => onSetMainImage(url)}
+                      >
+                        <ImageIcon className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      title="Move up"
+                      className="rounded p-1 hover:bg-white/10"
+                      onClick={() => setMedia(moveItem(media, index, index - 1))}
+                    >
+                      <ArrowUp className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      title="Move down"
+                      className="rounded p-1 hover:bg-white/10"
+                      onClick={() => setMedia(moveItem(media, index, index + 1))}
+                    >
+                      <ArrowDown className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      title="Remove"
+                      className="rounded p-1 text-red-300 hover:bg-red-400/10"
+                      onClick={() => setMedia(media.filter((item) => item !== url))}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

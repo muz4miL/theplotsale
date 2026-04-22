@@ -324,6 +324,7 @@ export default function UkInventoryPage() {
             setStatus={setStatus}
             setProgressLabel={setProgressLabel}
             onSetMainImage={(url) => setForm((prev) => ({ ...prev, mainImage: url }))}
+            currentMainImage={form.mainImage}
           />
 
           {progressLabel ? (

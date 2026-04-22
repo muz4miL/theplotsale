@@ -306,6 +306,7 @@ export default function PkProjectsPage() {
             setStatus={setStatus}
             setProgressLabel={setProgressLabel}
             onSetMainImage={(url) => setForm((prev) => ({ ...prev, mainImage: url }))}
+            currentMainImage={form.mainImage}
           />
 
           {progressLabel ? (
