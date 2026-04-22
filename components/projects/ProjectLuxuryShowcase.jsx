@@ -9,8 +9,18 @@ import CountUpNumber from '@/components/projects/CountUpNumber';
 import { parseAreaForStat } from '@/lib/parse-area-stat';
 
 function buildImageSlides(project) {
-  const raw = [project?.mainImage, ...(project?.galleryMedia || [])].filter(Boolean);
-  const images = raw.filter((url) => typeof url === 'string' && !url.includes('/video/upload/'));
+  const mainImg = project?.mainImage;
+  const galleryMedia = project?.galleryMedia || [];
+  
+  // Filter out videos and the main image from gallery to avoid duplicates
+  const galleryImages = galleryMedia.filter(
+    (url) => typeof url === 'string' && 
+    !url.includes('/video/upload/') && 
+    url !== mainImg
+  );
+  
+  // Start with main image, then add unique gallery images
+  const images = [mainImg, ...galleryImages].filter(Boolean);
   return [...new Set(images)];
 }
 

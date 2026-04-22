@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ArrowUpRight, MapPin } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
+import CountUpNumber from '@/components/projects/CountUpNumber';
 import {
   getExxsnHeightsEditorialSpecs,
   projectUsesExxsnEditorialSpecs,
@@ -32,17 +33,17 @@ function StatPill({ label, value }) {
       {/* Thin gold top rule — the "serif" of a number */}
       <div className="mb-3 h-px w-8 bg-gradient-to-r from-[#C5A880] to-transparent transition-all duration-700 group-hover:w-14" />
 
-      {/* The number itself */}
-      <span
+      {/* The number itself with count-up animation */}
+      <CountUpNumber
+        end={parseInt(value) || 0}
+        duration={2500}
         className="font-[family-name:var(--font-playfair)] font-light leading-none text-white"
         style={{
           fontSize: 'clamp(2.8rem, 5.5vw, 4.5rem)',
           letterSpacing: '-0.02em',
           textShadow: '0 8px 40px rgba(197,168,128,0.18)',
         }}
-      >
-        {value}
-      </span>
+      />
 
       {/* Label below — extra micro spacing */}
       <span className="mt-2.5 font-[family-name:var(--font-manrope)] text-[8px] font-semibold uppercase tracking-[0.42em] text-[#C5A880]/60">
@@ -68,6 +69,7 @@ export default function FeaturedExxensSpotlight({ project }) {
   const statFloors   = project.floors   ?? (isExxsnEditorial ? '8' : null);
   const statCommercial = project.commercialUnits ?? (isExxsnEditorial ? '2' : null);
   const statResidential = project.residentialUnits ?? (isExxsnEditorial ? '4' : null);
+  const statOffices = project.offices ?? (isExxsnEditorial ? '2' : null);
 
   const descriptionText =
     project.description && project.description.length > 10
@@ -186,7 +188,7 @@ export default function FeaturedExxensSpotlight({ project }) {
             {/* Right: stats + CTA */}
             <div className="flex flex-col gap-8 lg:items-end lg:gap-10">
               {/* Stats — only rendered when we have actual values */}
-              {(statFloors || statCommercial || statResidential) ? (
+              {(statFloors || statCommercial || statResidential || statOffices) ? (
                 <div className="relative flex items-end gap-0 overflow-hidden rounded-xl border border-white/[0.09] bg-black/30 backdrop-blur-md lg:justify-end">
                   {/* Subtle top gold line */}
                   <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C5A880]/35 to-transparent" aria-hidden />
@@ -195,6 +197,7 @@ export default function FeaturedExxensSpotlight({ project }) {
                     statFloors      ? { label: 'Floors',      value: statFloors      } : null,
                     statCommercial  ? { label: 'Commercial',  value: statCommercial  } : null,
                     statResidential ? { label: 'Residential', value: statResidential } : null,
+                    statOffices     ? { label: 'Offices',     value: statOffices     } : null,
                   ].filter(Boolean).map((stat, i, arr) => (
                     <div
                       key={stat.label}

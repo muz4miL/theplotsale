@@ -249,14 +249,27 @@ export default function UkInventoryPage() {
       >
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="grid gap-4 md:grid-cols-2">
-            <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required placeholder="Title" className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
-            <input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} required placeholder="Location" className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+            <div>
+              <label className="mb-1.5 block text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+                Property Title *
+              </label>
+              <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required placeholder="e.g., 2 Bed Flat for sale" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+                Location *
+              </label>
+              <input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} required placeholder="e.g., Selbourne Avenue, Hounslow TW3" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+            </div>
             <div className="space-y-1.5">
+              <label className="block text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+                Price (GBP)
+              </label>
               <input
                 type="number"
                 value={form.price}
                 onChange={(e) => setForm({ ...form, price: e.target.value })}
-                placeholder="Price in GBP (optional, stored)"
+                placeholder="e.g., 198250"
                 className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none"
               />
               {form.price !== '' && Number.isFinite(Number(form.price)) ? (
@@ -266,19 +279,48 @@ export default function UkInventoryPage() {
                 </p>
               ) : null}
             </div>
-            <input type="number" value={form.areaSqFt} onChange={(e) => setForm({ ...form, areaSqFt: e.target.value })} placeholder="Area sqft (optional)" className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
-            <input type="number" value={form.beds} onChange={(e) => setForm({ ...form, beds: e.target.value })} placeholder="Beds (optional)" className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
-            <input type="number" value={form.baths} onChange={(e) => setForm({ ...form, baths: e.target.value })} placeholder="Baths (optional)" className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+            <div>
+              <label className="mb-1.5 block text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+                Internal Area (sq ft)
+              </label>
+              <input type="number" value={form.areaSqFt} onChange={(e) => setForm({ ...form, areaSqFt: e.target.value })} placeholder="e.g., 556" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+                Bedrooms
+              </label>
+              <input type="number" value={form.beds} onChange={(e) => setForm({ ...form, beds: e.target.value })} placeholder="e.g., 2" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+                Bathrooms
+              </label>
+              <input type="number" value={form.baths} onChange={(e) => setForm({ ...form, baths: e.target.value })} placeholder="e.g., 1" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+            </div>
           </div>
-          <input value={form.mainImage} onChange={(e) => setForm({ ...form, mainImage: e.target.value })} placeholder="Main image URL (optional if uploaded)" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+          
+          <div>
+            <label className="mb-1.5 block text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+              Main Image URL
+            </label>
+            <input value={form.mainImage} onChange={(e) => setForm({ ...form, mainImage: e.target.value })} placeholder="Paste URL or upload below" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+            <p className="mt-1 text-[10px] text-neutral-500">This will be the hero image on the property detail page</p>
+          </div>
 
           <div className="grid gap-3 md:grid-cols-2">
-            <input value={form.primaryLogo} onChange={(e) => setForm({ ...form, primaryLogo: e.target.value })} placeholder="Primary logo URL (transparent PNG/WebP recommended)" className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
-            <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#C5A880]/50 bg-[#C5A880]/10 px-4 py-3 text-xs text-[#E4D3B4]">
-              <UploadCloud className="h-4 w-4" />
-              Upload Primary Logo
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadLogoFiles(e.target.files, 'primary')} />
-            </label>
+            <div>
+              <label className="mb-1.5 block text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+                Primary Logo URL
+              </label>
+              <input value={form.primaryLogo} onChange={(e) => setForm({ ...form, primaryLogo: e.target.value })} placeholder="Transparent PNG/WebP recommended" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+            </div>
+            <div className="flex items-end">
+              <label className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#C5A880]/50 bg-[#C5A880]/10 px-4 py-3 text-xs text-[#E4D3B4]">
+                <UploadCloud className="h-4 w-4" />
+                Upload Primary Logo
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadLogoFiles(e.target.files, 'primary')} />
+              </label>
+            </div>
           </div>
 
           <div className="space-y-3 rounded-xl border border-white/10 bg-black/20 p-3">
@@ -333,7 +375,13 @@ export default function UkInventoryPage() {
             </p>
           ) : null}
 
-          <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} placeholder="Description (optional)" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+          <div>
+            <label className="mb-1.5 block text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+              Property Description
+            </label>
+            <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} placeholder="Detailed description of the property..." className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+          </div>
+          
           <button disabled={isSaving || !!progressLabel} className="rounded-xl border border-[#C5A880]/70 bg-[#C5A880]/15 px-5 py-3 text-sm font-semibold text-[#C5A880] disabled:opacity-60">
             {isSaving ? 'Saving...' : mode === 'create' ? 'Create Listing' : 'Update Listing'}
           </button>
