@@ -158,20 +158,13 @@ export default function Navbar() {
               <Image
                 src="/newLogo2.png"
                 alt=""
-                width={44}
-                height={44}
+                width={140}
+                height={140}
                 priority
-                className="relative object-contain transition-transform duration-500 group-hover:scale-[1.03]"
+                className="h-auto w-32 md:w-36 object-contain relative transition-transform duration-500 group-hover:scale-[1.03]"
               />
             </div>
-            <div className="hidden flex-col leading-none sm:flex">
-              <span className="font-[family-name:var(--font-playfair)] text-[0.95rem] tracking-[0.32em] text-[var(--text-light)] transition-colors group-hover:text-white sm:text-[1.02rem]">
-                ThePlotSale
-              </span>
-              <span className="font-[family-name:var(--font-manrope)] text-[0.5rem] tracking-[0.38em] text-[#C5A880] sm:text-[0.55rem]">
-                .com
-              </span>
-            </div>
+
           </Link>
 
           {/* Desktop — pill rail + sliding active indicator */}

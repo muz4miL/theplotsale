@@ -102,9 +102,9 @@ export default function Preloader() {
               <Image
                 src="/newLogo2.png"
                 alt=""
-                width={128}
-                height={128}
-                className="h-28 w-28 object-contain drop-shadow-[0_8px_40px_rgba(0,0,0,0.65)] sm:h-36 sm:w-36 md:h-44 md:w-44"
+                width={180}
+                height={180}
+                className="h-auto w-44 object-contain drop-shadow-[0_8px_40px_rgba(0,0,0,0.65)]"
                 priority
               />
               <div

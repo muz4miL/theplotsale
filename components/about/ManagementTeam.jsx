@@ -6,23 +6,26 @@ import { useInViewOnce } from '@/hooks/useInViewOnce';
 const teamMembers = [
   {
     name: 'Bilal Siddique',
-    role: 'Managing Director - UK',
-    image: '/images/1.png',
+    role: 'Chairman',
+    image: '/images/11.png',
+    bio: 'Leading UK operations with strategic vision and market expertise across premium London properties.',
   },
   {
     name: 'Muhammad Siddique',
-    role: 'CEO',
-    image: '/images/2.png',
+    role: 'Founder',
+    image: '/images/22.png',
+    bio: 'Visionary founder driving cross-border real estate excellence and luxury market innovation.',
   },
   {
     name: 'Hamza Siddique',
-    role: 'Managing Director - Pakistan',
-    image: '/images/3.png',
+    role: 'Vice Chairman',
+    image: '/images/33.png',
+    bio: 'Pioneering development projects across Pakistan with precision and architectural excellence.',
   },
 ];
 
 export default function ManagementTeam() {
-  const [sectionRef, visible] = useInViewOnce({ threshold: 0.1, rootMargin: '-60px 0px' });
+  const [sectionRef, visible] = useInViewOnce({ threshold: 0.15, rootMargin: '-60px 0px' });
 
   return (
     <section ref={sectionRef} className="relative bg-[#0A0A0A] py-20 lg:py-32">
@@ -35,7 +38,7 @@ export default function ManagementTeam() {
 
       <div className="container mx-auto px-6 lg:px-12">
         <div
-          className={`mb-16 text-center transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 lg:mb-24 ${
+          className={`mb-20 text-center transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 lg:mb-32 ${
             visible ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
           }`}
         >
@@ -43,39 +46,75 @@ export default function ManagementTeam() {
           <h2 className="font-serif text-4xl font-light text-white lg:text-5xl xl:text-6xl">Management Team</h2>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-12">
+        <div className="space-y-20 lg:space-y-28">
           {teamMembers.map((member, index) => (
             <div
               key={member.name}
               className={`group relative transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
                 visible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
               }`}
-              style={{ transitionDelay: visible ? `${200 + index * 100}ms` : '0ms' }}
+              style={{ transitionDelay: visible ? `${200 + index * 120}ms` : '0ms' }}
             >
-              <div className="relative mb-6 aspect-[4/5] overflow-hidden rounded-lg border border-white/10 bg-gradient-to-b from-white/5 to-transparent">
-                <Image
-                  src={member.image}
-                  alt={member.name}
-                  fill
-                  className="object-contain transition-transform duration-700 group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  priority={index === 0}
-                  unoptimized
-                />
+              <div className="grid grid-cols-1 gap-12 items-center lg:grid-cols-2 lg:gap-16">
+                {/* Left: Text Content */}
+                <div className={`space-y-6 ${index % 2 === 1 ? 'lg:order-2' : ''}`}>
+                  <div>
+                    <p className="mb-3 font-sans text-xs uppercase tracking-[0.3em] text-[#C5A880]/70">
+                      {index === 0 ? 'UK Leadership' : index === 1 ? 'Executive' : 'Pakistan Leadership'}
+                    </p>
+                    <h3 className="font-serif text-3xl lg:text-4xl font-light text-white mb-2 transition-colors duration-300 group-hover:text-[#C5A880]">
+                      {member.name}
+                    </h3>
+                    <p className="font-sans text-sm uppercase tracking-[0.15em] text-gray-400">{member.role}</p>
+                  </div>
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  <div className="h-px w-12 bg-gradient-to-r from-[#C5A880] to-transparent" />
 
-                <div className="absolute inset-0 rounded-lg border border-[#C5A880]/0 transition-all duration-500 group-hover:border-[#C5A880]/30" />
+                  <p className="font-sans text-base leading-relaxed text-white/70">
+                    {member.bio}
+                  </p>
+
+                  <div className="pt-2">
+                    <button className="group/btn inline-flex items-center gap-2 font-sans text-xs uppercase tracking-[0.2em] text-[#C5A880] transition-all duration-300 hover:text-white">
+                      <span>Learn More</span>
+                      <span className="transition-transform duration-300 group-hover/btn:translate-x-1">→</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Right: Floating Image */}
+                <div
+                  className={`group relative h-[420px] lg:h-[480px] transition-all duration-1000 ease-out ${index % 2 === 1 ? 'lg:order-1' : ''}`}
+                  style={{
+                    transform: visible ? 'translateY(0) scale(1)' : 'translateY(40px) scale(0.92)',
+                    opacity: visible ? 1 : 0,
+                    transitionDelay: visible ? `${350 + index * 150}ms` : '0ms',
+                  }}
+                >
+                  {/* Floating glow container */}
+                  <div className="absolute -inset-8 rounded-3xl bg-gradient-to-br from-[#C5A880]/0 to-transparent blur-2xl opacity-0 transition-all duration-700 group-hover:from-[#C5A880]/25 group-hover:opacity-100" />
+
+                  {/* Image container with refined border and drop shadow */}
+                  <div className="relative h-full w-full overflow-hidden rounded-2xl border border-[#C5A880]/30 bg-gradient-to-br from-white/8 to-transparent shadow-2xl drop-shadow-[0_8px_32px_rgba(197,168,128,0.25)]">
+                    <Image
+                      src={member.image}
+                      alt={member.name}
+                      fill
+                      className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 35vw"
+                      priority={index === 0}
+                      quality={85}
+                    />
+
+                    {/* Subtle gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+                    {/* Elegant corner accents */}
+                    <div className="absolute top-0 right-0 h-16 w-16 border-t border-r border-[#C5A880]/0 transition-all duration-500 group-hover:border-[#C5A880]/40 rounded-tr-2xl" />
+                    <div className="absolute bottom-0 left-0 h-16 w-16 border-b border-l border-[#C5A880]/0 transition-all duration-500 group-hover:border-[#C5A880]/40 rounded-bl-2xl" />
+                  </div>
+                </div>
               </div>
-
-              <div className="text-center lg:text-left">
-                <h3 className="mb-2 font-serif text-2xl font-light text-white transition-colors duration-300 group-hover:text-[#C5A880] lg:text-3xl">
-                  {member.name}
-                </h3>
-                <p className="font-sans text-sm uppercase tracking-[0.15em] text-gray-400">{member.role}</p>
-              </div>
-
-              <div className="absolute right-0 top-0 h-12 w-12 rounded-tr-lg border-t-2 border-r-2 border-[#C5A880]/0 transition-all duration-500 group-hover:border-[#C5A880]/40" />
             </div>
           ))}
         </div>

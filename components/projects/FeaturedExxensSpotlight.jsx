@@ -65,9 +65,9 @@ export default function FeaturedExxensSpotlight({ project }) {
       : project.mainImage || EXXSN_EDITORIAL_HERO;
 
   /** Use editorial fallbacks for the EXXNS stats, otherwise derive from project fields. */
-  const statFloors   = project.floors   ?? (isExxsnEditorial ? '10' : null);
+  const statFloors   = project.floors   ?? (isExxsnEditorial ? '8' : null);
   const statCommercial = project.commercialUnits ?? (isExxsnEditorial ? '2' : null);
-  const statResidential = project.residentialUnits ?? (isExxsnEditorial ? '6' : null);
+  const statResidential = project.residentialUnits ?? (isExxsnEditorial ? '4' : null);
 
   const descriptionText =
     project.description && project.description.length > 10

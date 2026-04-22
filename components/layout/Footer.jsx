@@ -32,9 +32,9 @@ export default function Footer() {
               <Image
                 src="/newLogo2.png"
                 alt="The Plot Sale"
-                width={70}
-                height={70}
-                className="object-contain"
+                width={180}
+                height={180}
+                className="h-auto w-40 md:w-44 object-contain"
               />
             </div>
             <div className="flex-1">
