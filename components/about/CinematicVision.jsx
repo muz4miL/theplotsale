@@ -13,6 +13,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import CountUpNumber from '@/components/projects/CountUpNumber';
 
 /**
  * Source is a portrait (9:16) film. We present it two ways:
@@ -261,17 +262,38 @@ export default function CinematicVision() {
           style={{ transitionDelay: '420ms' }}
         >
           {[
-            { k: '2', l: 'Continents' },
-            { k: '12+', l: 'Active Projects' },
-            { k: '£500M+', l: 'Curated Portfolio' },
-          ].map((row) => (
-            <div key={row.l} className="flex flex-col items-start gap-1.5">
-              <span className="font-playfair text-[clamp(1.6rem,4vw,2.4rem)] font-light tracking-tight text-white">
-                {row.k}
-              </span>
-              <span className="font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.32em] text-[#C5A880]/85">
-                {row.l}
-              </span>
+            { k: 2, l: 'Continents', prefix: '', suffix: '' },
+            { k: 12, l: 'Active Projects', prefix: '', suffix: '+' },
+            { k: 500, l: 'Curated Portfolio', prefix: '£', suffix: 'M+' },
+          ].map((row, idx) => (
+            <div 
+              key={row.l} 
+              className="group relative flex flex-col items-start gap-1.5 overflow-hidden"
+            >
+              {/* Elegant hover glow effect */}
+              <div className="absolute -inset-2 rounded-xl bg-gradient-to-br from-[#C5A880]/0 via-[#C5A880]/0 to-[#C5A880]/0 opacity-0 blur-xl transition-all duration-700 group-hover:from-[#C5A880]/10 group-hover:via-[#C5A880]/5 group-hover:to-transparent group-hover:opacity-100" />
+              
+              {/* Animated number with luxury styling */}
+              <div className="relative">
+                <CountUpNumber
+                  end={row.k}
+                  prefix={row.prefix}
+                  suffix={row.suffix}
+                  duration={2400 + idx * 200}
+                  className="font-playfair text-[clamp(1.6rem,4vw,2.4rem)] font-light tracking-tight text-white transition-all duration-500 group-hover:text-[#C5A880] group-hover:scale-105"
+                />
+                {/* Subtle shimmer effect on hover */}
+                <div className="absolute inset-0 -z-10 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 blur-sm transition-opacity duration-700 group-hover:opacity-100" />
+              </div>
+              
+              {/* Label with elegant underline animation */}
+              <div className="relative">
+                <span className="font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.32em] text-[#C5A880]/85 transition-all duration-500 group-hover:tracking-[0.36em] group-hover:text-[#C5A880]">
+                  {row.l}
+                </span>
+                {/* Animated underline */}
+                <div className="mt-1 h-[1px] w-0 bg-gradient-to-r from-[#C5A880] to-transparent transition-all duration-700 ease-out group-hover:w-full" />
+              </div>
             </div>
           ))}
         </div>

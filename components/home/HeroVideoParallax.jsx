@@ -77,26 +77,47 @@ export default function HeroVideoParallax() {
     // those already-buffered bytes and restart the fetch.
     video1.style.opacity = '1';
     video2.style.opacity = '0';
+    
+    // Ensure video1 is properly configured
+    video1.muted = true;
+    video1.playsInline = true;
+    
     if (!video2.src || !video2.src.includes(videos[1])) {
       video2.src = videos[1];
+      video2.muted = true;
+      video2.playsInline = true;
       video2.load();
     }
 
     const attemptVideoPlay = async (video) => {
       if (!video) return;
       try {
-        await video.play();
+        // Ensure video is muted before playing (required for autoplay)
+        video.muted = true;
+        video.playsInline = true;
+        const playPromise = await video.play();
+        console.log('Video playing successfully');
+        return playPromise;
       } catch (err) {
-        console.log('Video play attempt:', err.name);
-        // For mobile devices, try again after a short delay
-        if (err.name === 'NotAllowedError' || err.name === 'AbortError') {
-          setTimeout(async () => {
+        console.warn('Video autoplay blocked:', err.name, err.message);
+        // If autoplay is blocked, set up click handler to start video
+        if (err.name === 'NotAllowedError' || err.name === 'NotSupportedException') {
+          const playOnInteraction = async () => {
             try {
+              video.muted = true;
               await video.play();
+              console.log('Video started after user interaction');
+              document.removeEventListener('click', playOnInteraction);
+              document.removeEventListener('touchstart', playOnInteraction);
+              document.removeEventListener('scroll', playOnInteraction);
             } catch (retryErr) {
-              console.log('Video retry failed:', retryErr.name);
+              console.warn('Video play retry failed:', retryErr.name);
             }
-          }, 100);
+          };
+          
+          document.addEventListener('click', playOnInteraction, { once: true });
+          document.addEventListener('touchstart', playOnInteraction, { once: true });
+          document.addEventListener('scroll', playOnInteraction, { once: true });
         }
       }
     };
@@ -134,29 +155,38 @@ export default function HeroVideoParallax() {
       inactiveVideo.load();
     };
 
-    // Handle user interaction to start videos on mobile
-    const handleUserInteraction = () => {
+    // Handle user interaction to start videos
+    const handleUserInteraction = async () => {
       if (video1 && video1.paused) {
-        attemptVideoPlay(video1);
+        await attemptVideoPlay(video1);
+      }
+      if (video2 && video2.paused && video2.src) {
+        video2.muted = true;
+        video2.load();
       }
     };
 
     video1.addEventListener('ended', handleVideoEnd);
     video2.addEventListener('ended', handleVideoEnd);
 
-    // Add mobile interaction listeners
-    document.addEventListener('touchstart', handleUserInteraction, { once: true });
-    document.addEventListener('click', handleUserInteraction, { once: true });
+    // Add multiple interaction listeners for better coverage
+    const interactionEvents = ['click', 'touchstart', 'scroll', 'mousemove'];
+    interactionEvents.forEach(event => {
+      document.addEventListener(event, handleUserInteraction, { once: true, passive: true });
+    });
 
-    // Start first video
+    // Attempt to start first video immediately
     attemptVideoPlay(video1);
 
     return () => {
       gsap.killTweensOf([video1, video2]);
       video1.removeEventListener('ended', handleVideoEnd);
       video2.removeEventListener('ended', handleVideoEnd);
-      document.removeEventListener('touchstart', handleUserInteraction);
-      document.removeEventListener('click', handleUserInteraction);
+      // Clean up all interaction listeners
+      const interactionEvents = ['click', 'touchstart', 'scroll', 'mousemove'];
+      interactionEvents.forEach(event => {
+        document.removeEventListener(event, handleUserInteraction);
+      });
     };
   }, [ready, isMobile]);
 
@@ -307,6 +337,8 @@ export default function HeroVideoParallax() {
                 webkit-playsinline="true"
                 x5-playsinline="true"
                 x5-video-player-type="h5"
+                disablePictureInPicture
+                controlsList="nodownload nofullscreen noremoteplayback"
                 style={{ transition: 'opacity 1.5s ease-in-out' }}
               />
               <video
@@ -320,6 +352,8 @@ export default function HeroVideoParallax() {
                 webkit-playsinline="true"
                 x5-playsinline="true"
                 x5-video-player-type="h5"
+                disablePictureInPicture
+                controlsList="nodownload nofullscreen noremoteplayback"
                 style={{ opacity: 0, transition: 'opacity 1.5s ease-in-out' }}
               />
               <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(17, 17, 17, 0.9), rgba(17, 17, 17, 0.3), transparent)' }} />

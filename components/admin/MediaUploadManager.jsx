@@ -77,6 +77,34 @@ export default function MediaUploadManager({
         </label>
       </div>
 
+      {/* URL Input for Gallery Images */}
+      <div className="space-y-2">
+        <label className="block text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+          Or paste image/video URLs
+        </label>
+        <input
+          type="text"
+          placeholder="Paste image URL and press Enter (e.g., https://lid.zoocdn.com/...)"
+          className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs text-white outline-none placeholder:text-neutral-500"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              const url = e.currentTarget.value.trim();
+              if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+                setMedia([...(media || []), url]);
+                e.currentTarget.value = '';
+                setStatus('Image URL added to gallery');
+              } else if (url) {
+                setError('Please enter a valid URL starting with http:// or https://');
+              }
+            }
+          }}
+        />
+        <p className="text-[10px] text-neutral-500">
+          Paste a Zoopla image URL and press Enter to add it to the gallery
+        </p>
+      </div>
+
       {!!media?.length && (
         <div className="space-y-2 rounded-xl border border-white/10 bg-black/30 p-3">
           <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Gallery Media ({media.length})</p>

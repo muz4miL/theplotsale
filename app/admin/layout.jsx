@@ -17,12 +17,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { BarChart3, Building2, Home, LogOut, Menu, Newspaper, Sparkles, X } from 'lucide-react';
+import { BarChart3, Building2, Home, LogOut, Menu, Newspaper, Sparkles, X, Upload } from 'lucide-react';
 import CurrencyToggle from '@/components/layout/CurrencyToggle';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: BarChart3 },
   { href: '/admin/uk-inventory', label: 'UK Inventory', icon: Home },
+  { href: '/admin/uk-bulk-import', label: 'UK Bulk Import', icon: Upload },
   { href: '/admin/pk-projects', label: 'PK Projects', icon: Building2 },
   { href: '/admin/marquee-control', label: 'Marquee Control', icon: Sparkles },
   { href: '/admin/weekly-updates', label: 'Weekly Updates', icon: Newspaper },
