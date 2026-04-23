@@ -65,16 +65,9 @@ export default function PropertyDetailPage() {
   const galleryMedia = property.galleryMedia || [];
   const galleryImages = property.galleryImages || [];
   
-  console.log('🔍 UK Property Detail DEBUG:');
-  console.log('property.mainImage:', property.mainImage);
-  console.log('property.galleryMedia:', galleryMedia);
-  console.log('property.galleryImages:', galleryImages);
-  
   // Combine and deduplicate
   const allGalleryUrls = [...galleryMedia, ...galleryImages];
   const uniqueGalleryUrls = [...new Set(allGalleryUrls)];
-  
-  console.log('Combined gallery URLs:', uniqueGalleryUrls.length);
   
   const videoMedia = uniqueGalleryUrls.filter((url) => url.includes('/video/upload/'));
 

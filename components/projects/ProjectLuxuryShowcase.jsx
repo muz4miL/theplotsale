@@ -13,11 +13,6 @@ function buildImageSlides(project) {
   const mainImg = project?.mainImage;
   const galleryMedia = project?.galleryMedia || [];
   
-  console.log('🔍 buildImageSlides DEBUG:');
-  console.log('mainImg:', mainImg);
-  console.log('galleryMedia length:', galleryMedia.length);
-  console.log('galleryMedia:', galleryMedia);
-  
   // Filter out videos and empty strings
   const validGalleryImages = galleryMedia.filter(
     (url) => typeof url === 'string' && 
@@ -25,15 +20,10 @@ function buildImageSlides(project) {
     !url.includes('/video/upload/')
   );
   
-  console.log('validGalleryImages length:', validGalleryImages.length);
-  
   // Start with main image, then add gallery images
   // Use Set to remove duplicates, then convert back to array
   const allImages = [mainImg, ...validGalleryImages].filter(Boolean);
   const uniqueImages = [...new Set(allImages)];
-  
-  console.log('uniqueImages length:', uniqueImages.length);
-  console.log('uniqueImages:', uniqueImages);
   
   return uniqueImages;
 }

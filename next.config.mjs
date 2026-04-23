@@ -15,6 +15,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'lid.zoocdn.com',
+      },
     ],
   },
   /* Immutable, long-lived caching for the hero video assets so Vercel's edge
