@@ -1,0 +1,55 @@
+═══════════════════════════════════════════════════════════════════════════════
+📋 COPY THIS ENTIRE MESSAGE AND PASTE IT TO GEMINI
+═══════════════════════════════════════════════════════════════════════════════
+
+Hi Gemini! I need your help formatting UK property data from Zoopla for bulk import into my website.
+
+🎯 TASK:
+Extract property data from Zoopla URLs and format them in a specific pipe-separated format.
+
+📝 FORMAT REQUIRED (pipe-separated):
+Title | Location | Price | Beds | Baths | Receptions | SqFt | MainImageURL | Description | GalleryURLs
+
+📋 FIELD RULES:
+- Title: Property title from Zoopla (e.g., "2 Bed Flat for sale")
+- Location: Full address (e.g., "Selbourne Avenue, Hounslow TW3")
+- Price: NUMBER ONLY - no £ symbol, no commas (e.g., 198250)
+- Beds: Number of bedrooms (e.g., 2)
+- Baths: Number of bathrooms (e.g., 1)
+- Receptions: Number of reception rooms (leave empty if not listed)
+- SqFt: Square footage NUMBER ONLY (leave empty if not listed)
+- MainImageURL: Full image URL starting with https://
+- Description: Property description, keep under 200 characters
+- GalleryURLs: Multiple image URLs separated by commas (NO SPACES between URLs)
+
+⚠️ IMPORTANT:
+- Each property must be on ONE line
+- Use pipe symbol | to separate fields
+- NO spaces around the pipes
+- Gallery URLs: comma-separated with NO spaces (e.g., url1.jpg,url2.jpg,url3.jpg)
+- If a field is empty, still include the pipes (e.g., | | for empty field)
+
+✅ CORRECT EXAMPLE:
+2 Bed Flat for sale | Selbourne Avenue, Hounslow TW3 | 198250 | 2 | 1 | 1 | 556 | https://lid.zoocdn.com/645/430/image1.jpg | Beautiful flat in prime location with modern finishes | https://lid.zoocdn.com/645/430/img1.jpg,https://lid.zoocdn.com/645/430/img2.jpg,https://lid.zoocdn.com/645/430/img3.jpg
+
+❌ WRONG EXAMPLE:
+2 Bed Flat | Hounslow | £198,250 | 2 | 1 | 1 | 556 sq ft | image.jpg | Description | img1.jpg, img2.jpg
+(Problems: has £ symbol, incomplete URLs, spaces in gallery URLs)
+
+🔗 ZOOPLA PROPERTY URLS TO EXTRACT:
+
+[PASTE YOUR ZOOPLA URLS HERE - ONE PER LINE]
+
+Example:
+https://www.zoopla.co.uk/for-sale/details/12345678
+https://www.zoopla.co.uk/for-sale/details/87654321
+https://www.zoopla.co.uk/for-sale/details/11223344
+
+═══════════════════════════════════════════════════════════════════════════════
+📤 AFTER GEMINI RESPONDS:
+1. Copy all the formatted lines Gemini gives you
+2. Go to: https://theplotsale.vercel.app/admin/uk-bulk-import
+3. Paste into the text area
+4. Click "Import Properties"
+5. Done! ✅
+═══════════════════════════════════════════════════════════════════════════════

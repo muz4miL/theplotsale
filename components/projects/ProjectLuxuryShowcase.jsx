@@ -13,16 +13,21 @@ function buildImageSlides(project) {
   const mainImg = project?.mainImage;
   const galleryMedia = project?.galleryMedia || [];
   
-  // Filter out videos and the main image from gallery to avoid duplicates
-  const galleryImages = galleryMedia.filter(
+  // Filter out videos, ensure unique URLs
+  const allImages = [mainImg, ...galleryMedia].filter(
     (url) => typeof url === 'string' && 
-    !url.includes('/video/upload/') && 
-    url !== mainImg
+    url.trim() !== '' &&
+    !url.includes('/video/upload/')
   );
   
-  // Start with main image, then add unique gallery images
-  const images = [mainImg, ...galleryImages].filter(Boolean);
-  return [...new Set(images)];
+  // Remove duplicates by creating a Set, then convert back to array
+  const uniqueImages = [...new Set(allImages)];
+  
+  console.log('buildImageSlides - mainImg:', mainImg);
+  console.log('buildImageSlides - galleryMedia:', galleryMedia);
+  console.log('buildImageSlides - uniqueImages:', uniqueImages);
+  
+  return uniqueImages;
 }
 
 /**
