@@ -100,7 +100,7 @@ export default function ManagementTeam() {
                       src={member.image}
                       alt={member.name}
                       fill
-                      className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                      className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105 lg:object-contain lg:object-center lg:group-hover:scale-[1.01]"
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 35vw"
                       priority={index === 0}
                       quality={85}

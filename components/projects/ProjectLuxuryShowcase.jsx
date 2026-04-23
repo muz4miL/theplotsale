@@ -108,7 +108,7 @@ function CarouselImage({ slides, activeIndex, onGo, onFullscreen }) {
           type="button"
           onClick={() => onFullscreen(activeIndex)}
           aria-label="View fullscreen"
-          className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-white/18 bg-black/55 px-3.5 py-2 text-white/85 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/70 hover:text-[#E8DCC4] active:scale-[0.97] lg:top-auto lg:bottom-5"
+          className="absolute bottom-4 left-4 z-10 inline-flex items-center gap-2 rounded-full border border-white/18 bg-black/55 px-3.5 py-2 text-white/85 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/70 hover:text-[#E8DCC4] active:scale-[0.97] sm:bottom-5 lg:bottom-5"
         >
           <Maximize2 className="h-3.5 w-3.5" strokeWidth={1.7} />
           <span className="font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.2em]">
