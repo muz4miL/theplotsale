@@ -76,7 +76,7 @@ export default function PropertyDetailPage() {
   return (
     <div className="min-h-screen bg-black">
       {/* Back Button */}
-      <div className="fixed top-24 left-6 z-[100]">
+      <div className="fixed top-24 left-6 z-[100] lg:hidden">
         <Link
           href="/uk-properties"
           className="flex items-center space-x-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 font-semibold text-white backdrop-blur-md transition-all hover:bg-white/20 lux-animate-featured-in"

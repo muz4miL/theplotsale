@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
@@ -107,7 +108,7 @@ function CarouselImage({ slides, activeIndex, onGo, onFullscreen }) {
           type="button"
           onClick={() => onFullscreen(activeIndex)}
           aria-label="View fullscreen"
-          className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-white/18 bg-black/55 px-3.5 py-2 text-white/85 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/70 hover:text-[#E8DCC4] active:scale-[0.97]"
+          className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-white/18 bg-black/55 px-3.5 py-2 text-white/85 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/70 hover:text-[#E8DCC4] active:scale-[0.97] lg:top-auto lg:bottom-5"
         >
           <Maximize2 className="h-3.5 w-3.5" strokeWidth={1.7} />
           <span className="font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.2em]">
@@ -232,7 +233,7 @@ function FullscreenLightbox({ slides, initialIndex, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/98 backdrop-blur-xl"
+      className="fixed inset-0 z-[2147483647] flex items-center justify-center bg-black/98 backdrop-blur-xl"
       onClick={onClose}
     >
       {/* Close button */}
@@ -240,13 +241,13 @@ function FullscreenLightbox({ slides, initialIndex, onClose }) {
         type="button"
         onClick={onClose}
         aria-label="Close fullscreen"
-        className="absolute right-4 top-4 z-20 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white/80 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/80 hover:text-white active:scale-[0.94] sm:right-6 sm:top-6"
+        className="absolute right-[max(0.9rem,env(safe-area-inset-right))] top-[max(0.9rem,env(safe-area-inset-top))] z-20 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white/80 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/80 hover:text-white active:scale-[0.94]"
       >
         <X className="h-5 w-5" strokeWidth={1.5} />
       </button>
 
       {/* Image counter */}
-      <div className="absolute left-1/2 top-4 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/15 bg-black/60 px-4 py-2 backdrop-blur-md sm:top-6">
+      <div className="absolute left-1/2 top-[max(0.95rem,env(safe-area-inset-top))] z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/15 bg-black/60 px-4 py-2 backdrop-blur-md">
         <span className="font-[family-name:var(--font-manrope)] text-xs font-semibold tabular-nums text-white">
           {String(currentIndex + 1).padStart(2, '0')}
         </span>
@@ -303,6 +304,11 @@ function FullscreenLightbox({ slides, initialIndex, onClose }) {
   );
 }
 
+function FullscreenLightboxPortal({ children }) {
+  if (typeof document === 'undefined') return null;
+  return createPortal(children, document.body);
+}
+
 export default function ProjectLuxuryShowcase({
   project,
   backHref = '/pakistan-projects',
@@ -330,11 +336,13 @@ export default function ProjectLuxuryShowcase({
   return (
     <>
       {fullscreenIndex !== null && (
-        <FullscreenLightbox
-          slides={slides}
-          initialIndex={fullscreenIndex}
-          onClose={() => setFullscreenIndex(null)}
-        />
+        <FullscreenLightboxPortal>
+          <FullscreenLightbox
+            slides={slides}
+            initialIndex={fullscreenIndex}
+            onClose={() => setFullscreenIndex(null)}
+          />
+        </FullscreenLightboxPortal>
       )}
       
       <section

@@ -77,7 +77,7 @@ export default function ProjectDetailPage() {
   return (
     <div className="min-h-screen bg-black">
       {/* Back Button */}
-      <div className="fixed top-24 left-6 z-[100]">
+      <div className="fixed top-24 left-6 z-[100] lg:hidden">
         <Link
           href="/pakistan-projects"
           className="inline-flex items-center space-x-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-md transition-all hover:bg-white/20"
