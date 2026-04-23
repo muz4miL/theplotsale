@@ -3,6 +3,7 @@
 import { Playfair_Display, Manrope } from 'next/font/google';
 import PublicChrome from '@/components/layout/PublicChrome';
 import { DisplayCurrencyProvider } from '@/contexts/DisplayCurrencyContext';
+import LuxuryCursor from '@/components/shared/LuxuryCursor';
 import JsonLd from '@/components/seo/JsonLd';
 import {
   baseMetadata,
@@ -47,7 +48,7 @@ export default function RootLayout({ children }) {
   const globalLd = [organizationLd(), websiteLd(), ...localBusinessesLd()];
 
   return (
-    <html lang="en" className={`${playfair.variable} ${manrope.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${manrope.variable} antialiased`}>
       <head>
         {/* Pre-warm the two biggest third-party origins we depend on for LCP. */}
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="" />
@@ -55,9 +56,13 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://www.google.com" crossOrigin="" />
         <link rel="dns-prefetch" href="https://www.google.com" />
       </head>
-      <body className="antialiased selection:bg-[#C5A880]/35 selection:text-white">
+      <body className="bg-[#030706] text-white cursor-none lg:cursor-none antialiased selection:bg-[#C5A880]/35 selection:text-white">
+        <LuxuryCursor />
         <DisplayCurrencyProvider>
-          <PublicChrome>{children}</PublicChrome>
+          {/* Page transition wrapper */}
+          <div className="animate-[pageEntry_0.8s_cubic-bezier(0.22,1,0.36,1)_forwards]">
+            <PublicChrome>{children}</PublicChrome>
+          </div>
         </DisplayCurrencyProvider>
         {/* Premium Film Grain Noise Texture Overlay */}
         <div

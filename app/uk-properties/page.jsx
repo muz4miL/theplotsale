@@ -1,18 +1,6 @@
 'use client';
 
-/**
- * /uk-properties listing — Awwwards-grade editorial layout.
- *
- * Constraints honoured:
- *   • Zero Framer Motion (React 19 / Next 16 hydration safety).
- *   • All hover motion is pure CSS (GPU-accelerated transform/opacity).
- *   • FadeIn wrapper is isolated in its own "use client" component.
- *
- * Layout: asymmetric 3-column grid on lg — the middle column is pushed down so
- * the register reads like a print magazine spread, not a CMS template.
- */
-
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { Bed, Bath, Maximize, ArrowUpRight, MapPin, Home } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
@@ -95,7 +83,6 @@ export default function UKPropertiesPage() {
       {/* Asymmetric editorial grid */}
       <section className="relative px-5 pb-24 sm:px-8 lg:px-10">
         <div className="relative mx-auto max-w-[1200px]">
-          {/* Filters */}
           {properties.length > 0 && (
             <PropertyFilters
               properties={properties}
@@ -129,7 +116,6 @@ export default function UKPropertiesPage() {
             <div
               className={[
                 'grid gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-12 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-16',
-                /* Editorial asymmetry — on sm/md (2-col) push even; on lg (3-col) push the middle */
                 'sm:[&>*:nth-child(even)]:mt-8',
                 'lg:[&>*:nth-child(even)]:mt-0',
                 'lg:[&>*:nth-child(3n+2)]:mt-14',
@@ -152,22 +138,66 @@ function PropertyCard({ property }) {
   const { formatPrice } = useDisplayCurrency();
   const native = property.currency === 'PKR' ? 'PKR' : 'GBP';
   const priceLabel = formatPrice(property.price, native);
+  
+  // 3D Tilt & Glare refs (DOM manipulation for 60fps, zero React re-renders)
+  const cardRef = useRef(null);
+  const glareRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    // 3D Tilt calculation (max 5 degrees)
+    const rotateX = ((y - centerY) / centerY) * -5;
+    const rotateY = ((x - centerX) / centerX) * 5;
+    
+    cardRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+    
+    // Glare calculation
+    if (glareRef.current) {
+      const percentX = (x / rect.width) * 100;
+      const percentY = (y / rect.height) * 100;
+      glareRef.current.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(197,168,128,0.2), transparent 60%)`;
+      glareRef.current.style.opacity = '1';
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!cardRef.current) return;
+    cardRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
+    if (glareRef.current) glareRef.current.style.opacity = '0';
+  };
 
   return (
     <Link
       href={`/uk-properties/${property.slug}`}
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       className={[
         'group relative flex h-full flex-col overflow-hidden rounded-[2px]',
         'border border-white/[0.07] bg-[#050807] outline-none',
-        /* Magnetic depth: amber glow + lift, CSS only */
-        'transition-[transform,border-color,box-shadow] duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
-        'hover:-translate-y-1 hover:border-[#C5A880]/40',
-        'hover:shadow-[0_28px_60px_-18px_rgba(0,0,0,0.65),0_0_40px_-6px_rgba(197,168,128,0.18)]',
+        /* Depth transition handled by JS, border/shadow by CSS */
+        'transition-[border-color,box-shadow] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]',
+        'hover:border-[#C5A880]/40',
+        'hover:shadow-[0_35px_60px_-15px_rgba(0,0,0,0.7),0_0_40px_-6px_rgba(197,168,128,0.2)]',
         'focus-visible:ring-2 focus-visible:ring-[#C5A880]/45 focus-visible:ring-offset-2 focus-visible:ring-offset-black',
+        'will-change-transform', // GPU acceleration hint
       ].join(' ')}
+      style={{ transformStyle: 'preserve-3d' }}
     >
-      {/* Image field — slow camera drift on hover, running on the GPU via transform */}
-      <div className="relative aspect-[4/5] overflow-hidden sm:aspect-[4/5]">
+      {/* 3D Depth Glare Overlay */}
+      <div 
+        ref={glareRef} 
+        className="pointer-events-none absolute inset-0 z-[15] opacity-0 transition-opacity duration-300" 
+        aria-hidden="true" 
+      />
+
+      <div className="relative aspect-[4/5] overflow-hidden sm:aspect-[4/5]" style={{ transform: 'translateZ(20px)' }}>
         <div className="absolute inset-0 overflow-hidden" aria-hidden>
           <div className="relative h-full w-full origin-[50%_62%] scale-100 transform-gpu transition-transform duration-[1800ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none motion-reduce:group-hover:scale-100 group-hover:scale-[1.06]">
             <SafeListingImage
@@ -182,7 +212,6 @@ function PropertyCard({ property }) {
 
         <div className="lux-listing-grain" aria-hidden />
 
-        {/* Base gradient (always readable) + softens on hover */}
         <div className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-t from-[#050807] via-black/[0.45] to-black/[0.15] transition-[background] duration-[1.1s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:via-black/[0.55] group-hover:to-black/[0.2]" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-[45%] bg-gradient-to-t from-[#050807] to-transparent" />
 
@@ -195,13 +224,12 @@ function PropertyCard({ property }) {
         <div className="absolute left-0 right-0 top-0 z-10 flex items-start justify-between gap-3 p-4 sm:p-5">
           <ListingLogo src={property.primaryLogo} name={property.title} className="h-11 w-11 sm:h-12 sm:w-12" />
 
-          {/* Price plate — pure CSS; converts live with the £/Rs toggle */}
           <span className="inline-flex items-center rounded-full border border-[#C5A880]/55 bg-[#C5A880]/[0.12] px-3.5 py-1.5 font-[family-name:var(--font-manrope)] text-[11px] font-semibold tracking-[0.08em] text-[#f0e6d4] backdrop-blur-md transition-colors duration-500 group-hover:border-[#C5A880] group-hover:bg-[#C5A880]/[0.22]">
             {priceLabel}
           </span>
         </div>
 
-        {/* Title block — sits on the image */}
+        {/* Title block */}
         <div className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-5 pt-12 sm:px-5">
           <h2 className="max-w-[95%] font-playfair text-[1.55rem] font-light leading-[1.1] tracking-tight text-white sm:text-[1.7rem]">
             <span className="block transition-colors duration-500 group-hover:text-[#f5f0e8]">{property.title}</span>
@@ -214,10 +242,9 @@ function PropertyCard({ property }) {
       </div>
 
       {/* Editorial panel */}
-      <div className="relative flex flex-1 flex-col border-t border-white/[0.06] bg-[#050807] px-4 py-5 sm:px-5">
+      <div className="relative flex flex-1 flex-col border-t border-white/[0.06] bg-[#050807] px-4 py-5 sm:px-5" style={{ transform: 'translateZ(10px)' }}>
         <div className="absolute left-0 top-0 h-px w-full bg-gradient-to-r from-[#C5A880]/50 via-[#C5A880]/15 to-transparent opacity-60" />
 
-        {/* Technical specs — ultra-thin sans with wide tracking */}
         <div className="grid grid-cols-3 gap-3 font-[family-name:var(--font-manrope)]">
           <Spec icon={Bed} label="Beds" value={property.beds} />
           <Spec icon={Bath} label="Baths" value={property.baths} />
@@ -269,13 +296,19 @@ function LoadingSkeleton() {
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div
                 key={i}
-                className={`overflow-hidden rounded-[2px] border border-white/10 bg-white/[0.03] ${i % 3 === 2 ? 'lg:mt-12' : ''}`}
+                className={`overflow-hidden rounded-[2px] border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm ${i % 3 === 2 ? 'lg:mt-12' : ''}`}
               >
-                <div className="aspect-[4/5] animate-pulse bg-white/10" />
+                {/* Premium Shimmer Skeleton */}
+                <div className="relative aspect-[4/5] overflow-hidden bg-[#0a0f0d]">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent bg-[length:200%_100%] animate-[shimmer_2.5s_infinite_linear]" />
+                </div>
                 <div className="space-y-3 p-5">
-                  <div className="h-4 w-full animate-pulse rounded bg-white/10" />
-                  <div className="h-4 w-4/5 animate-pulse rounded bg-white/5" />
-                  <div className="h-10 w-full animate-pulse rounded bg-white/5" />
+                  <div className="h-4 w-full overflow-hidden rounded bg-[#0a0f0d]">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent bg-[length:200%_100%] animate-[shimmer_2.5s_infinite_linear]" />
+                  </div>
+                  <div className="h-4 w-4/5 overflow-hidden rounded bg-[#0a0f0d]">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent bg-[length:200%_100%] animate-[shimmer_2.5s_infinite_linear]" />
+                  </div>
                 </div>
               </div>
             ))}
