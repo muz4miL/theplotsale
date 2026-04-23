@@ -61,14 +61,28 @@ export default function PropertyDetailPage() {
   const native = property.currency === 'PKR' ? 'PKR' : 'GBP';
   const priceLine = formatPrice(property.price, native);
 
-  const galleryUrls = [...(property.galleryMedia || []), ...(property.galleryImages || [])];
-  const videoMedia = galleryUrls.filter((url) => url.includes('/video/upload/'));
+  // Combine gallery arrays and remove duplicates
+  const galleryMedia = property.galleryMedia || [];
+  const galleryImages = property.galleryImages || [];
+  
+  console.log('🔍 UK Property Detail DEBUG:');
+  console.log('property.mainImage:', property.mainImage);
+  console.log('property.galleryMedia:', galleryMedia);
+  console.log('property.galleryImages:', galleryImages);
+  
+  // Combine and deduplicate
+  const allGalleryUrls = [...galleryMedia, ...galleryImages];
+  const uniqueGalleryUrls = [...new Set(allGalleryUrls)];
+  
+  console.log('Combined gallery URLs:', uniqueGalleryUrls.length);
+  
+  const videoMedia = uniqueGalleryUrls.filter((url) => url.includes('/video/upload/'));
 
   const showcaseListing = {
     title: property.title,
     description: property.description,
     mainImage: property.mainImage,
-    galleryMedia: galleryUrls,
+    galleryMedia: uniqueGalleryUrls,
     primaryLogo: property.primaryLogo,
     totalArea: property.areaSqFt != null ? `${property.areaSqFt} sq. ft.` : null,
   };
