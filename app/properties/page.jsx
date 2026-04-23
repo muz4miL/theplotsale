@@ -16,10 +16,11 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, Bath, Bed, MapPin, Maximize } from 'lucide-react';
+import { ArrowUpRight, Bath, Bed, MapPin, Maximize, Home } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
 import ListingLogo from '@/components/ListingLogo';
 import FadeIn from '@/components/shared/FadeIn';
+import PropertyFilters from '@/components/properties/PropertyFilters';
 import ExtraordinaryCta from '@/components/shared/ExtraordinaryCta';
 import { useDisplayCurrency } from '@/contexts/DisplayCurrencyContext';
 
@@ -34,6 +35,7 @@ export default function PropertiesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeRegion, setActiveRegion] = useState('all');
+  const [filteredProperties, setFilteredProperties] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -45,7 +47,9 @@ export default function PropertiesPage() {
         if (cancelled) return;
 
         if (response.ok && data.success) {
-          setProperties(Array.isArray(data.data) ? data.data : []);
+          const allProps = Array.isArray(data.data) ? data.data : [];
+          setProperties(allProps);
+          setFilteredProperties(allProps);
         } else {
           setError(data?.message || data?.error || 'Failed to load properties');
         }
@@ -63,10 +67,21 @@ export default function PropertiesPage() {
     };
   }, []);
 
-  const filteredProperties = useMemo(() => {
+  // Properties filtered by region tab
+  const regionFilteredProperties = useMemo(() => {
     if (activeRegion === 'all') return properties;
     return properties.filter((p) => p.region === activeRegion);
   }, [properties, activeRegion]);
+
+  // Final properties after both region and filter controls
+  const displayProperties = useMemo(() => {
+    if (activeRegion === 'all') {
+      // When "All Regions" is selected, show the filtered results
+      return filteredProperties;
+    }
+    // When a specific region is selected, filter the already-filtered results by region
+    return filteredProperties.filter((p) => p.region === activeRegion);
+  }, [filteredProperties, activeRegion]);
 
   const counts = useMemo(() => {
     const by = { all: properties.length, UK: 0, Pakistan: 0 };
@@ -155,13 +170,25 @@ export default function PropertiesPage() {
       {/* Asymmetric editorial grid */}
       <section className="relative px-5 pb-24 sm:px-8 lg:px-10">
         <div className="relative mx-auto max-w-[1240px]">
-          {filteredProperties.length === 0 ? (
+          {/* Luxury Filters */}
+          {properties.length > 0 && (
+            <PropertyFilters
+              properties={regionFilteredProperties}
+              onFilteredChange={setFilteredProperties}
+            />
+          )}
+
+          {displayProperties.length === 0 ? (
             <FadeIn className="py-24 text-center">
               <p className="font-playfair text-xl italic text-white/55">
-                No listings on the register in this region yet.
+                {properties.length === 0
+                  ? 'No listings on the register in this region yet.'
+                  : 'No properties match your filters.'}
               </p>
               <p className="mx-auto mt-3 max-w-md font-[family-name:var(--font-manrope)] text-sm text-white/40">
-                Switch region above, or contact concierge for off-market opportunities.
+                {properties.length === 0
+                  ? 'Switch region above, or contact concierge for off-market opportunities.'
+                  : 'Try adjusting your filters or switch regions to see more properties.'}
               </p>
             </FadeIn>
           ) : (
@@ -175,7 +202,7 @@ export default function PropertiesPage() {
                 'lg:[&>*:nth-child(3n+2)]:mt-14',
               ].join(' ')}
             >
-              {filteredProperties.map((property, i) => (
+              {displayProperties.map((property, i) => (
                 <FadeIn key={property._id ?? property.id ?? property.slug} delay={Math.min(i * 75, 420)}>
                   <PropertyCard property={property} />
                 </FadeIn>
@@ -272,7 +299,11 @@ function PropertyCard({ property }) {
         <div className="grid grid-cols-3 gap-3 font-[family-name:var(--font-manrope)]">
           <Spec icon={Bed} label="Beds" value={property.beds} />
           <Spec icon={Bath} label="Baths" value={property.baths} />
-          <Spec icon={Maximize} label="Sq Ft" value={property.areaSqFt} />
+          {property.receptions != null ? (
+            <Spec icon={Home} label="Recep" value={property.receptions} />
+          ) : (
+            <Spec icon={Maximize} label="Sq Ft" value={property.areaSqFt} />
+          )}
         </div>
 
         <div className="mt-auto flex items-center justify-between gap-4 pt-6">
