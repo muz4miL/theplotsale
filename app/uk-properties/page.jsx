@@ -18,10 +18,12 @@ import { Bed, Bath, Maximize, ArrowUpRight, MapPin, Home } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
 import ListingLogo from '@/components/ListingLogo';
 import FadeIn from '@/components/shared/FadeIn';
+import PropertyFilters from '@/components/properties/PropertyFilters';
 import { useDisplayCurrency } from '@/contexts/DisplayCurrencyContext';
 
 export default function UKPropertiesPage() {
   const [properties, setProperties] = useState([]);
+  const [filteredProperties, setFilteredProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -32,6 +34,7 @@ export default function UKPropertiesPage() {
         const data = await response.json();
         if (data.success) {
           setProperties(data.data);
+          setFilteredProperties(data.data);
         } else {
           setError('Failed to load properties');
         }
@@ -92,15 +95,34 @@ export default function UKPropertiesPage() {
       {/* Asymmetric editorial grid */}
       <section className="relative px-5 pb-24 sm:px-8 lg:px-10">
         <div className="relative mx-auto max-w-[1200px]">
-          {properties.length === 0 ? (
+          {/* Filters */}
+          {properties.length > 0 && (
+            <PropertyFilters
+              properties={properties}
+              onFilteredChange={setFilteredProperties}
+            />
+          )}
+
+          {filteredProperties.length === 0 ? (
             <FadeIn className="py-24 text-center">
-              <p className="font-playfair text-xl italic text-white/55">No listings on the London register right now.</p>
+              <p className="font-playfair text-xl italic text-white/55">
+                {properties.length === 0 
+                  ? 'No listings on the London register right now.'
+                  : 'No properties match your filters.'
+                }
+              </p>
               <p className="mx-auto mt-3 max-w-md font-[family-name:var(--font-manrope)] text-sm text-white/40">
-                Please check back shortly, explore our{' '}
-                <Link href="/pakistan-projects" className="text-[#C5A880] underline-offset-4 hover:underline">
-                  Pakistan developments
-                </Link>
-                , or contact concierge for off-market opportunities.
+                {properties.length === 0 ? (
+                  <>
+                    Please check back shortly, explore our{' '}
+                    <Link href="/pakistan-projects" className="text-[#C5A880] underline-offset-4 hover:underline">
+                      Pakistan developments
+                    </Link>
+                    , or contact concierge for off-market opportunities.
+                  </>
+                ) : (
+                  'Try adjusting your filters to see more properties.'
+                )}
               </p>
             </FadeIn>
           ) : (
@@ -113,7 +135,7 @@ export default function UKPropertiesPage() {
                 'lg:[&>*:nth-child(3n+2)]:mt-14',
               ].join(' ')}
             >
-              {properties.map((property, i) => (
+              {filteredProperties.map((property, i) => (
                 <FadeIn key={property._id} delay={Math.min(i * 80, 420)}>
                   <PropertyCard property={property} />
                 </FadeIn>
