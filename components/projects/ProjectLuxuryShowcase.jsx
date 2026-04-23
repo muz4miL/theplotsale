@@ -31,6 +31,7 @@ function buildImageSlides(project) {
 function CarouselImage({ slides, activeIndex, onGo, onFullscreen }) {
   const touchStartX = useRef(null);
   const activeSrc = slides[activeIndex];
+  const isCloudinaryAsset = typeof activeSrc === 'string' && activeSrc.includes('res.cloudinary.com');
 
   const prev = useCallback(() => onGo((activeIndex - 1 + slides.length) % slides.length), [activeIndex, slides.length, onGo]);
   const next = useCallback(() => onGo((activeIndex + 1) % slides.length), [activeIndex, slides.length, onGo]);
@@ -70,14 +71,16 @@ function CarouselImage({ slides, activeIndex, onGo, onFullscreen }) {
           key={activeSrc}
           className="absolute inset-0 animate-[luxury-slide-fade_0.4s_cubic-bezier(0.22,1,0.36,1)_both]"
         >
-          <div className="lux-hero-breathe absolute inset-0 transform-gpu">
+          <div className="absolute inset-0 transform-gpu">
             <SafeListingImage
               src={activeSrc}
               alt={`Project image ${activeIndex + 1}`}
               fill
               priority={activeIndex === 0}
               className="object-contain"
-              sizes="(max-width: 1024px) 100vw, 62vw"
+              sizes="(max-width: 1024px) 100vw, 68vw"
+              quality={100}
+              unoptimized={isCloudinaryAsset}
             />
           </div>
         </div>
@@ -104,9 +107,12 @@ function CarouselImage({ slides, activeIndex, onGo, onFullscreen }) {
           type="button"
           onClick={() => onFullscreen(activeIndex)}
           aria-label="View fullscreen"
-          className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/50 text-white/70 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/60 hover:text-[#C5A880] active:scale-[0.94]"
+          className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-white/18 bg-black/55 px-3.5 py-2 text-white/85 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/70 hover:text-[#E8DCC4] active:scale-[0.97]"
         >
-          <Maximize2 className="h-4 w-4" strokeWidth={1.5} />
+          <Maximize2 className="h-3.5 w-3.5" strokeWidth={1.7} />
+          <span className="font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.2em]">
+            Full screen
+          </span>
         </button>
 
         {/* Prev / Next arrows — only on multi-image; large hit targets for mobile */}
@@ -182,6 +188,9 @@ function CarouselImage({ slides, activeIndex, onGo, onFullscreen }) {
 function FullscreenLightbox({ slides, initialIndex, onClose }) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const touchStartX = useRef(null);
+  const currentSrc = slides[currentIndex];
+  const isCurrentCloudinaryAsset =
+    typeof currentSrc === 'string' && currentSrc.includes('res.cloudinary.com');
 
   const prev = useCallback(() => {
     setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
@@ -256,13 +265,15 @@ function FullscreenLightbox({ slides, initialIndex, onClose }) {
       >
         <div className="relative h-full w-full">
           <SafeListingImage
-            key={slides[currentIndex]}
-            src={slides[currentIndex]}
+            key={currentSrc}
+            src={currentSrc}
             alt={`Fullscreen image ${currentIndex + 1}`}
             fill
             className="object-contain"
             sizes="100vw"
             priority
+            quality={100}
+            unoptimized={isCurrentCloudinaryAsset}
           />
         </div>
       </div>
@@ -302,7 +313,11 @@ export default function ProjectLuxuryShowcase({
   const [fullscreenIndex, setFullscreenIndex] = useState(null);
 
   useEffect(() => {
-    setActiveIndex(0);
+    const rafId = window.requestAnimationFrame(() => {
+      setActiveIndex(0);
+    });
+
+    return () => window.cancelAnimationFrame(rafId);
   }, [project.title, project.mainImage, slides.length]);
 
   const areaStat = useMemo(() => parseAreaForStat(project.totalArea), [project.totalArea]);
@@ -449,5 +464,6 @@ export default function ProjectLuxuryShowcase({
         </aside>
       </div>
     </section>
+    </>
   );
 }
