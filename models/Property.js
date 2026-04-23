@@ -47,6 +47,10 @@ const propertySchema = new mongoose.Schema(
       type: Number,
       min: [0, 'Bathrooms must be a positive number'],
     },
+    receptions: {
+      type: Number,
+      min: [0, 'Receptions must be a positive number'],
+    },
     areaSqFt: {
       type: Number,
       min: [0, 'Area must be a positive number'],

@@ -14,6 +14,7 @@ const initialForm = {
   price: '',
   beds: '',
   baths: '',
+  receptions: '',
   areaSqFt: '',
   description: '',
   mainImage: '',
@@ -82,6 +83,7 @@ export default function UkInventoryPage() {
       price: row.price || '',
       beds: row.beds || '',
       baths: row.baths || '',
+      receptions: row.receptions || '',
       areaSqFt: row.areaSqFt || '',
       description: row.description || '',
       mainImage: row.mainImage || '',
@@ -124,6 +126,7 @@ export default function UkInventoryPage() {
         price: form.price ? Number(form.price) : undefined,
         beds: form.beds ? Number(form.beds) : undefined,
         baths: form.baths ? Number(form.baths) : undefined,
+        receptions: form.receptions ? Number(form.receptions) : undefined,
         areaSqFt: form.areaSqFt ? Number(form.areaSqFt) : undefined,
         galleryMedia: form.galleryMedia || [],
         galleryImages: (form.galleryMedia || []).filter((url) => !url.includes('/video/upload/')),
@@ -299,6 +302,12 @@ export default function UkInventoryPage() {
                 Bathrooms
               </label>
               <input type="number" value={form.baths} onChange={(e) => setForm({ ...form, baths: e.target.value })} placeholder="e.g., 1" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+                Receptions
+              </label>
+              <input type="number" value={form.receptions} onChange={(e) => setForm({ ...form, receptions: e.target.value })} placeholder="e.g., 1" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
             </div>
           </div>
           

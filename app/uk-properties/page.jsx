@@ -14,7 +14,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Bed, Bath, Maximize, ArrowUpRight, MapPin } from 'lucide-react';
+import { Bed, Bath, Maximize, ArrowUpRight, MapPin, Home } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
 import ListingLogo from '@/components/ListingLogo';
 import FadeIn from '@/components/shared/FadeIn';
@@ -199,7 +199,11 @@ function PropertyCard({ property }) {
         <div className="grid grid-cols-3 gap-3 font-[family-name:var(--font-manrope)]">
           <Spec icon={Bed} label="Beds" value={property.beds} />
           <Spec icon={Bath} label="Baths" value={property.baths} />
-          <Spec icon={Maximize} label="Sq Ft" value={property.areaSqFt} />
+          {property.receptions != null ? (
+            <Spec icon={Home} label="Recep" value={property.receptions} />
+          ) : (
+            <Spec icon={Maximize} label="Sq Ft" value={property.areaSqFt} />
+          )}
         </div>
 
         <div className="mt-auto flex items-center justify-between gap-4 pt-6">

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { Bed, Bath, Maximize2, MapPin, ArrowLeft, ArrowUpRight } from 'lucide-react';
+import { Bed, Bath, Maximize2, MapPin, ArrowLeft, ArrowUpRight, Home } from 'lucide-react';
 import ListingLogo from '@/components/ListingLogo';
 import ProjectLuxuryShowcase from '@/components/projects/ProjectLuxuryShowcase';
 import { useDisplayCurrency } from '@/contexts/DisplayCurrencyContext';
@@ -95,9 +95,10 @@ export default function PropertyDetailPage() {
       {/* Stat strip — luxury hotel-register band */}
       <section className="relative border-y border-white/[0.07] bg-[#050706] px-5 py-6 sm:px-8 sm:py-7">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C5A880]/40 to-transparent" aria-hidden />
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-y-5 sm:grid-cols-4 sm:gap-0">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-y-5 sm:grid-cols-5 sm:gap-0">
           <StatCell icon={Bed} label="Bedrooms" value={property.beds != null ? property.beds : '—'} />
           <StatCell icon={Bath} label="Bathrooms" value={property.baths != null ? property.baths : '—'} />
+          {property.receptions != null && <StatCell icon={Home} label="Receptions" value={property.receptions} />}
           <StatCell icon={Maximize2} label="Internal area" value={property.areaSqFt != null ? `${property.areaSqFt.toLocaleString()} sqft` : '—'} />
           <StatCell icon={MapPin} label="Location" value={property.location} last />
         </div>

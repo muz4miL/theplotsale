@@ -35,10 +35,11 @@ export default function UkBulkImportPage() {
               price: parts[2],
               beds: parts[3] || '',
               baths: parts[4] || '',
-              areaSqFt: parts[5] || '',
-              mainImage: parts[6] || '',
-              description: parts[7] || '',
-              galleryMedia: parts[8] ? parts[8].split(',').map(url => url.trim()) : [],
+              receptions: parts[5] || '',
+              areaSqFt: parts[6] || '',
+              mainImage: parts[7] || '',
+              description: parts[8] || '',
+              galleryMedia: parts[9] ? parts[9].split(',').map(url => url.trim()) : [],
             });
           }
         }
@@ -59,6 +60,7 @@ export default function UkBulkImportPage() {
             price: prop.price ? Number(prop.price) : undefined,
             beds: prop.beds ? Number(prop.beds) : undefined,
             baths: prop.baths ? Number(prop.baths) : undefined,
+            receptions: prop.receptions ? Number(prop.receptions) : undefined,
             areaSqFt: prop.areaSqFt ? Number(prop.areaSqFt) : undefined,
             description: prop.description || '',
             mainImage: prop.mainImage || '',
@@ -114,12 +116,12 @@ export default function UkBulkImportPage() {
               Bulk Property Data
             </label>
             <p className="mb-3 text-xs text-neutral-400">
-              Format: <code className="rounded bg-black/40 px-2 py-1 text-[#C5A880]">Title | Location | Price | Beds | Baths | SqFt | MainImageURL | Description | GalleryURLs</code>
+              Format: <code className="rounded bg-black/40 px-2 py-1 text-[#C5A880]">Title | Location | Price | Beds | Baths | Receptions | SqFt | MainImageURL | Description | GalleryURLs</code>
             </p>
             <p className="mb-3 text-xs text-neutral-500">
               Example:<br />
               <code className="block rounded bg-black/40 p-2 text-[10px] text-neutral-300">
-                2 Bed Flat for sale | Selbourne Avenue, Hounslow TW3 | 198250 | 2 | 1 | 556 | https://example.com/image.jpg | Beautiful flat in prime location | https://example.com/img1.jpg,https://example.com/img2.jpg
+                2 Bed Flat for sale | Selbourne Avenue, Hounslow TW3 | 198250 | 2 | 1 | 1 | 556 | https://example.com/image.jpg | Beautiful flat in prime location | https://example.com/img1.jpg,https://example.com/img2.jpg
               </code>
             </p>
             <textarea
