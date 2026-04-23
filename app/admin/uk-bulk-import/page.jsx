@@ -66,7 +66,7 @@ export default function UkBulkImportPage() {
             galleryImages: (prop.galleryMedia || []).filter(url => !url.includes('/video/upload/')),
             primaryLogo: prop.primaryLogo || '',
             floatingLogos: prop.floatingLogos || [],
-            slug: prop.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+            slug: `${prop.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${Date.now()}`,
             region: 'UK',
             currency: 'GBP',
           };

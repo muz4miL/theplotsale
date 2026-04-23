@@ -27,7 +27,10 @@ const initialForm = {
 };
 
 function slugify(value) {
-  return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const baseSlug = value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  // Add timestamp to ensure uniqueness (e.g., exxsn-heights-1714089234)
+  const timestamp = Date.now();
+  return `${baseSlug}-${timestamp}`;
 }
 
 export default function PkProjectsPage() {
