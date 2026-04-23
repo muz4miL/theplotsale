@@ -32,7 +32,7 @@ const philosophyData = [
     subtitle: 'EMPOWERING BUYERS',
     description:
       'Empower buyers with premier real estate opportunities through transparent deals, expert guidance, and personalized service.',
-    image: '/about/philosophy1.png',
+    image: '/about/philosophy11.png',
   },
   {
     id: 2,
@@ -40,7 +40,7 @@ const philosophyData = [
     subtitle: 'SHAPING COMMUNITIES',
     description:
       "To be the region's most trusted platform for plot ownership — shaping sustainable communities and enabling dreams through innovation and integrity.",
-    image: '/about/philosophy2.png',
+    image: '/about/philosophy22.png',
   },
   {
     id: 3,
@@ -48,7 +48,7 @@ const philosophyData = [
     subtitle: 'INTEGRITY FIRST',
     description:
       'We act with integrity in every decision and interaction, ensuring honesty, accountability, and trust are always foundational.',
-    image: '/about/philosophy3.png',
+    image: '/about/philosophy33.png',
   },
 ];
 
