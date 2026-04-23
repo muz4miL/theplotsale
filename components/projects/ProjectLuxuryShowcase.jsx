@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
 import ListingLogo from '@/components/ListingLogo';
 import CountUpNumber from '@/components/projects/CountUpNumber';
@@ -28,7 +28,7 @@ function buildImageSlides(project) {
  * CarouselImage — the full-bleed main image with touch-swipe + keyboard navigation.
  * Renders the thumbnail rail beneath when there are multiple images.
  */
-function CarouselImage({ slides, activeIndex, onGo }) {
+function CarouselImage({ slides, activeIndex, onGo, onFullscreen }) {
   const touchStartX = useRef(null);
   const activeSrc = slides[activeIndex];
 
@@ -76,13 +76,13 @@ function CarouselImage({ slides, activeIndex, onGo }) {
               alt={`Project image ${activeIndex + 1}`}
               fill
               priority={activeIndex === 0}
-              className="object-cover"
+              className="object-contain"
               sizes="(max-width: 1024px) 100vw, 62vw"
             />
           </div>
         </div>
         <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/60 lg:to-black/80"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/15 via-transparent to-black/40 lg:to-black/60"
           aria-hidden
         />
 
@@ -98,6 +98,16 @@ function CarouselImage({ slides, activeIndex, onGo }) {
             </span>
           </div>
         ) : null}
+
+        {/* Fullscreen button — top left */}
+        <button
+          type="button"
+          onClick={() => onFullscreen(activeIndex)}
+          aria-label="View fullscreen"
+          className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/50 text-white/70 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/60 hover:text-[#C5A880] active:scale-[0.94]"
+        >
+          <Maximize2 className="h-4 w-4" strokeWidth={1.5} />
+        </button>
 
         {/* Prev / Next arrows — only on multi-image; large hit targets for mobile */}
         {slides.length > 1 ? (
@@ -166,6 +176,122 @@ function CarouselImage({ slides, activeIndex, onGo }) {
   );
 }
 
+/**
+ * FullscreenLightbox — immersive fullscreen image viewer with navigation
+ */
+function FullscreenLightbox({ slides, initialIndex, onClose }) {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const touchStartX = useRef(null);
+
+  const prev = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
+  }, [slides.length]);
+
+  const next = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % slides.length);
+  }, [slides.length]);
+
+  /* Touch swipe */
+  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(delta) < 40) return;
+    delta < 0 ? next() : prev();
+  };
+
+  /* Keyboard navigation */
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft') prev();
+      if (e.key === 'ArrowRight') next();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [prev, next, onClose]);
+
+  /* Lock body scroll */
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, []);
+
+  return (
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/98 backdrop-blur-xl"
+      onClick={onClose}
+    >
+      {/* Close button */}
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Close fullscreen"
+        className="absolute right-4 top-4 z-20 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white/80 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/80 hover:text-white active:scale-[0.94] sm:right-6 sm:top-6"
+      >
+        <X className="h-5 w-5" strokeWidth={1.5} />
+      </button>
+
+      {/* Image counter */}
+      <div className="absolute left-1/2 top-4 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/15 bg-black/60 px-4 py-2 backdrop-blur-md sm:top-6">
+        <span className="font-[family-name:var(--font-manrope)] text-xs font-semibold tabular-nums text-white">
+          {String(currentIndex + 1).padStart(2, '0')}
+        </span>
+        <span className="text-white/30">/</span>
+        <span className="font-[family-name:var(--font-manrope)] text-xs tabular-nums text-white/50">
+          {String(slides.length).padStart(2, '0')}
+        </span>
+      </div>
+
+      {/* Main image */}
+      <div
+        className="relative h-full w-full p-4 sm:p-12"
+        onClick={(e) => e.stopPropagation()}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="relative h-full w-full">
+          <SafeListingImage
+            key={slides[currentIndex]}
+            src={slides[currentIndex]}
+            alt={`Fullscreen image ${currentIndex + 1}`}
+            fill
+            className="object-contain"
+            sizes="100vw"
+            priority
+          />
+        </div>
+      </div>
+
+      {/* Navigation arrows */}
+      {slides.length > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); prev(); }}
+            aria-label="Previous image"
+            className="absolute left-4 top-1/2 z-20 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white/80 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/80 hover:text-white active:scale-[0.94] sm:left-6"
+          >
+            <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
+          </button>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); next(); }}
+            aria-label="Next image"
+            className="absolute right-4 top-1/2 z-20 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white/80 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/80 hover:text-white active:scale-[0.94] sm:right-6"
+          >
+            <ChevronRight className="h-6 w-6" strokeWidth={1.5} />
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function ProjectLuxuryShowcase({
   project,
   backHref = '/pakistan-projects',
@@ -173,6 +299,7 @@ export default function ProjectLuxuryShowcase({
 }) {
   const slides = useMemo(() => buildImageSlides(project), [project]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [fullscreenIndex, setFullscreenIndex] = useState(null);
 
   useEffect(() => {
     setActiveIndex(0);
@@ -186,15 +313,29 @@ export default function ProjectLuxuryShowcase({
       : project.description || '';
 
   return (
-    <section
-      className="relative bg-black pt-24 lg:pt-28"
-      aria-label={`${project.title} showcase`}
-    >
-      {/* Framed, right-sized showcase. Desktop is a refined editorial band — not a full viewport. */}
-      <div className="grid min-h-[calc(100dvh-5.5rem)] lg:min-h-0 lg:h-[min(78vh,780px)] lg:grid-cols-[minmax(0,1fr)_minmax(320px,36%)]">
+    <>
+      {fullscreenIndex !== null && (
+        <FullscreenLightbox
+          slides={slides}
+          initialIndex={fullscreenIndex}
+          onClose={() => setFullscreenIndex(null)}
+        />
+      )}
+      
+      <section
+        className="relative bg-black pt-24 lg:pt-28"
+        aria-label={`${project.title} showcase`}
+      >
+        {/* Framed, right-sized showcase. Desktop is a refined editorial band — not a full viewport. */}
+        <div className="grid min-h-[calc(100dvh-5.5rem)] lg:min-h-0 lg:h-[min(78vh,780px)] lg:grid-cols-[minmax(0,1fr)_minmax(320px,36%)]">
 
-        {/* —— Visual column — carousel —— */}
-        <CarouselImage slides={slides} activeIndex={activeIndex} onGo={setActiveIndex} />
+          {/* —— Visual column — carousel —— */}
+          <CarouselImage 
+            slides={slides} 
+            activeIndex={activeIndex} 
+            onGo={setActiveIndex}
+            onFullscreen={setFullscreenIndex}
+          />
 
         {/* —— Editorial panel — right-column dossier —— */}
         <aside className="relative flex flex-col border-t border-white/10 bg-[#050505] px-6 py-9 sm:px-8 sm:py-11 lg:h-full lg:overflow-y-auto lg:border-l lg:border-t-0 lg:px-9 lg:py-10 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
