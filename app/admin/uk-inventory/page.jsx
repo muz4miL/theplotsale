@@ -118,8 +118,19 @@ export default function UkInventoryPage() {
     setIsSaving(true);
 
     try {
+      // If mainImage is empty but we have gallery images, use the first gallery image
+      let finalMainImage = form.mainImage?.trim() || '';
+      if (!finalMainImage && form.galleryMedia?.length > 0) {
+        // Find first non-video image in gallery
+        const firstImage = form.galleryMedia.find(url => !url.includes('/video/upload/'));
+        if (firstImage) {
+          finalMainImage = firstImage;
+        }
+      }
+
       const payload = {
         ...form,
+        mainImage: finalMainImage,
         slug: slugify(form.title),
         region: 'UK',
         currency: 'GBP',
