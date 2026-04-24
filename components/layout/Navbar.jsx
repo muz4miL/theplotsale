@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -106,9 +106,21 @@ export default function Navbar() {
   const toggleDrawer = () => setIsDrawerOpen((prev) => !prev);
   const closeDrawer = () => setIsDrawerOpen(false);
 
+  /**
+   * Mobile navigation tap: close the drawer AND scroll the destination page to
+   * the top. Without this, Next's client-side routing preserves the current
+   * scroll offset — users tap a menu item from deep in the footer and stay
+   * pinned to the footer on the new page, which reads as "the tap did nothing".
+   *
+   * We defer the scroll to the next frame so the route change has committed
+   * before we reset position; this also dodges the iOS Safari quirk where
+   * scroll commands inside a tap handler can be ignored.
+   */
   const handleMobileNavTap = (href) => {
     closeDrawer();
     const isSamePath = pathname === href;
+    // For same-path taps, do an instant smooth scroll up. For route changes,
+    // wait for the new route's first paint.
     if (isSamePath) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -120,6 +132,11 @@ export default function Navbar() {
     });
   };
 
+  /** Pages whose hero is a full-bleed cinematic — nav sits flush in the scene
+   *  until the user starts scrolling, then hardens into the frosted solid state.
+   *  Home has a full-screen video hero, About has a cinematic video hero,
+   *  Projects / PK-Projects has the flagship image hero.
+   *  Property detail pages also have immersive heroes that the nav melts into. */
   const isImmersiveRoute =
     pathname === '/' ||
     pathname === '/projects' ||
@@ -132,6 +149,7 @@ export default function Navbar() {
   return (
     <>
       <header
+        style={{ opacity: 1, transform: 'translateY(0)' }}
         className={`fixed top-0 left-0 right-0 z-[60] pl-[max(env(safe-area-inset-left,0px),clamp(1.25rem,3.5vw,2.75rem))] pr-[max(env(safe-area-inset-right,0px),clamp(1.25rem,3.5vw,2.75rem))] ${
           prefersReducedMotion
             ? ''
@@ -168,8 +186,10 @@ export default function Navbar() {
                 className="h-auto w-32 md:w-36 object-contain relative transition-transform duration-500 group-hover:scale-[1.03]"
               />
             </div>
+
           </Link>
 
+          {/* Desktop — pill rail + sliding active indicator */}
           <nav
             className={`ml-auto hidden items-center gap-0.5 rounded-full border p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] supports-[backdrop-filter]:backdrop-blur-md lg:flex ${
               immersiveNav
