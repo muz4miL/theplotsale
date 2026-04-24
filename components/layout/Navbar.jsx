@@ -31,7 +31,6 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   // Detect prefers-reduced-motion
@@ -44,72 +43,15 @@ export default function Navbar() {
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
-  // Scroll detection - show navbar on ANY scroll movement, hide when static
+  // Simple scroll detection — only for glassmorphism styling
   useEffect(() => {
-    let rafId = null;
-    let lastScrollY = window.scrollY;
-    let scrollTimeout = null;
-    let isScrolling = false;
-
     const handleScroll = () => {
-      // Throttle: skip if an animation frame is already queued
-      if (rafId !== null) return;
-
-      rafId = window.requestAnimationFrame(() => {
-        const currentScrollY = window.scrollY;
-
-        // Clear existing timeout
-        if (scrollTimeout) {
-          clearTimeout(scrollTimeout);
-        }
-
-        // User is scrolling - show navbar immediately
-        if (!isScrolling) {
-          setIsVisible(true);
-          isScrolling = true;
-        }
-
-        // Update isScrolled state for styling
-        const scrolled = currentScrollY > 24;
-        setIsScrolled(prev => (prev !== scrolled ? scrolled : prev));
-
-        // Hide navbar after 2 seconds of no scrolling (when static)
-        scrollTimeout = setTimeout(() => {
-          if (currentScrollY > 150) {
-            // Only hide if we're past 150px
-            setIsVisible(false);
-          }
-          isScrolling = false;
-        }, 2000);
-
-        // Always show at top of page
-        if (currentScrollY < 100) {
-          setIsVisible(true);
-          if (scrollTimeout) {
-            clearTimeout(scrollTimeout);
-          }
-        }
-
-        lastScrollY = currentScrollY;
-        rafId = null;
-      });
+      setIsScrolled(window.scrollY > 24);
     };
-
-    // Run once immediately to sync state with current scroll position
     handleScroll();
-
     window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-      }
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-    };
-  }, [pathname]);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
@@ -217,8 +159,6 @@ export default function Navbar() {
             : immersiveNav
               ? 'border-b border-transparent bg-transparent pb-4 pt-[calc(1rem+env(safe-area-inset-top,0px))] shadow-none supports-[backdrop-filter]:backdrop-blur-none lg:pb-5 lg:pt-[calc(1.25rem+env(safe-area-inset-top,0px))]'
               : 'border-b border-transparent bg-gradient-to-b from-black/55 via-black/20 to-transparent pb-4 pt-[calc(1rem+env(safe-area-inset-top,0px))] supports-[backdrop-filter]:backdrop-blur-[6px] lg:pb-5 lg:pt-[calc(1.25rem+env(safe-area-inset-top,0px))]'
-        } ${
-          isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
         }`}
       >
         <div
