@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, MapPin, Maximize2 } from 'lucide-react';
 import { useInViewOnce } from '@/hooks/useInViewOnce';
@@ -29,18 +30,61 @@ export default function ProjectListingCard({ project, index }) {
   const status = statusTokens[project.status] || statusTokens.Current;
   const num = String(index + 1).padStart(2, '0');
 
+  // 3D tilt state
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [glarePos, setGlarePos] = useState({ x: 50, y: 50 });
+  const cardRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    // Calculate tilt (max 8 degrees)
+    const tiltX = ((y - centerY) / centerY) * -8;
+    const tiltY = ((x - centerX) / centerX) * 8;
+
+    setTilt({ x: tiltX, y: tiltY });
+    setGlarePos({ x: (x / rect.width) * 100, y: (y / rect.height) * 100 });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+    setGlarePos({ x: 50, y: 50 });
+  };
+
   return (
     <div
       ref={wrapRef}
       className={`h-full transition-all duration-[750ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
         visible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
       }`}
-      style={{ transitionDelay: `${Math.min(index * 70, 350)}ms` }}
+      style={{ 
+        transitionDelay: `${Math.min(index * 70, 350)}ms`,
+        perspective: '1200px',
+      }}
     >
       <Link
+        ref={cardRef}
         href={`/pakistan-projects/${project.slug}`}
-        className="group relative flex h-full min-h-[460px] flex-col overflow-hidden rounded-[2px] border border-white/[0.07] bg-[#050807] outline-none transition-[border-color,box-shadow] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] after:pointer-events-none after:absolute after:inset-0 after:rounded-[2px] after:opacity-0 after:shadow-[0_0_0_1px_rgba(197,168,128,0.35),0_32px_64px_-12px_rgba(0,0,0,0.65)] after:transition-opacity after:duration-700 hover:border-[#C5A880]/30 hover:after:opacity-100 focus-visible:ring-2 focus-visible:ring-[#C5A880]/45 focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:min-h-[500px] lg:min-h-[520px]"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="group relative flex h-full min-h-[460px] flex-col overflow-hidden rounded-[2px] border border-white/[0.07] bg-[#050807] outline-none transition-[border-color,box-shadow] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] after:pointer-events-none after:absolute after:inset-0 after:rounded-[2px] after:opacity-0 after:shadow-[0_0_0_1px_rgba(197,168,128,0.35),0_32px_64px_-12px_rgba(0,0,0,0.65)] after:transition-opacity after:duration-700 hover:border-[#C5A880]/30 hover:after:opacity-100 focus-visible:ring-2 focus-visible:ring-[#C5A880]/45 focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:min-h-[500px] lg:min-h-[520px] will-change-transform"
+        style={{
+          transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+          transition: 'transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
+        }}
       >
+        {/* Cursor-following gold glare */}
+        <div
+          className="pointer-events-none absolute inset-0 z-[5] opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:opacity-0"
+          style={{
+            background: `radial-gradient(circle 400px at ${glarePos.x}% ${glarePos.y}%, rgba(197,168,128,0.12) 0%, transparent 60%)`,
+          }}
+        />
         {/* Image field — scale lives on an inner layer so motion reads as camera drift, not a UI pop */}
         <div className="relative min-h-[280px] flex-1 overflow-hidden sm:min-h-[300px] lg:min-h-[340px]">
           <div className="absolute inset-0 overflow-hidden" aria-hidden>

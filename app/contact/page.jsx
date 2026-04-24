@@ -9,7 +9,7 @@ import OfficeMapCard from '@/components/shared/OfficeMapCard';
 import { officeMapSites } from '@/lib/office-locations';
 import ConciergeTextReveal from '@/components/layout/ConciergeTextReveal';
 
-const HERO_IMAGE = '/newContact.png';
+const HERO_IMAGE = '/contact-hero.png';
 
 const [lahoreMapOffice, ukMapOffice] = officeMapSites;
 

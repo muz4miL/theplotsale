@@ -1,19 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import ExtraordinaryCta from '@/components/shared/ExtraordinaryCta';
 import ProjectListingCard from '@/components/projects/ProjectListingCard';
 import FeaturedExxensSpotlight from '@/components/projects/FeaturedExxensSpotlight';
+import ProjectFilters from '@/components/projects/ProjectFilters';
 import { pickFeaturedFlagshipProject } from '@/lib/featured-flagship';
-
-const TABS = ['Completed', 'Current', 'Upcoming'];
 
 export default function PakistanProjectsPage() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('Current');
+  const [filteredProjects, setFilteredProjects] = useState([]);
 
   useEffect(() => {
     async function fetchProjects() {
@@ -23,6 +22,7 @@ export default function PakistanProjectsPage() {
 
         if (response.ok && data.success) {
           setProjects(data.data);
+          setFilteredProjects(data.data);
         } else {
           const apiMessage = data?.message || data?.error || 'Failed to load projects';
           setError(apiMessage);
@@ -38,8 +38,11 @@ export default function PakistanProjectsPage() {
     fetchProjects();
   }, []);
 
+  const handleFilteredChange = useCallback((filtered) => {
+    setFilteredProjects(filtered);
+  }, []);
+
   const featuredProject = pickFeaturedFlagshipProject(projects);
-  const filteredProjects = projects.filter((project) => project.status === activeTab);
   const gridProjects = filteredProjects.filter(
     (p) => !featuredProject || String(p.slug) !== String(featuredProject.slug)
   );
@@ -111,26 +114,10 @@ export default function PakistanProjectsPage() {
             </div>
           ) : null}
 
-          <div className="mb-12 flex justify-center lg:mb-14">
-            <div className="inline-flex rounded-full border border-white/[0.09] bg-black/30 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] supports-[backdrop-filter]:backdrop-blur-md">
-              {TABS.map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setActiveTab(tab)}
-                  className={`relative rounded-full px-6 py-2.5 font-[family-name:var(--font-manrope)] text-[10px] font-semibold uppercase tracking-[0.22em] transition-colors sm:px-8 sm:py-3 sm:text-[11px] ${
-                    activeTab === tab
-                      ? 'bg-[#C5A880] text-[#111111] shadow-[0_8px_24px_rgba(197,168,128,0.2)]'
-                      : 'text-white/45 hover:text-white/85'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Luxury Filters */}
+          <ProjectFilters projects={projects} onFilteredChange={handleFilteredChange} />
 
-          <div key={activeTab} className="lux-animate-featured-in">
+          <div className="lux-animate-featured-in">
             {flagshipIsSoleListingInTab ? (
               <div className="py-20 text-center">
                 <p className="font-playfair text-xl italic text-white/55">This phase is led by the flagship above.</p>
@@ -146,9 +133,9 @@ export default function PakistanProjectsPage() {
               </div>
             ) : gridProjects.length === 0 ? (
               <div className="py-24 text-center">
-                <p className="font-playfair text-xl italic text-white/50">No {activeTab.toLowerCase()} listings yet.</p>
+                <p className="font-playfair text-xl italic text-white/50">No projects match your filters.</p>
                 <p className="mx-auto mt-3 max-w-md font-[family-name:var(--font-manrope)] text-sm text-white/35">
-                  Check another phase or contact concierge for off-market opportunities.
+                  Try adjusting your criteria or contact concierge for off-market opportunities.
                 </p>
               </div>
             ) : (
