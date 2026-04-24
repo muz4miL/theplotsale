@@ -44,11 +44,12 @@ export default function Navbar() {
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
-  // Scroll detection with Kimi's production-ready solution
+  // Scroll detection - show navbar on ANY scroll movement, hide when static
   useEffect(() => {
     let rafId = null;
     let lastScrollY = window.scrollY;
-    let currentIsVisible = true;
+    let scrollTimeout = null;
+    let isScrolling = false;
 
     const handleScroll = () => {
       // Throttle: skip if an animation frame is already queued
@@ -57,39 +58,44 @@ export default function Navbar() {
       rafId = window.requestAnimationFrame(() => {
         const currentScrollY = window.scrollY;
 
-        // Determine the next visibility state
-        let nextVisible = currentIsVisible;
-
-        if (currentScrollY < 100) {
-          // At top (< 100px): force navbar visible
-          nextVisible = true;
-        } else if (currentScrollY > lastScrollY && currentScrollY > 150) {
-          // Scrolling DOWN past 150px: hide navbar
-          nextVisible = false;
-        } else if (currentScrollY < lastScrollY) {
-          // Scrolling UP (any amount): reveal navbar
-          nextVisible = true;
+        // Clear existing timeout
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
         }
 
-        // Only update React state when the value actually changes
-        // This prevents unnecessary re-renders during scroll
-        if (nextVisible !== currentIsVisible) {
-          setIsVisible(nextVisible);
-          currentIsVisible = nextVisible;
+        // User is scrolling - show navbar immediately
+        if (!isScrolling) {
+          setIsVisible(true);
+          isScrolling = true;
         }
 
-        // Update isScrolled only when threshold crossing changes
+        // Update isScrolled state for styling
         const scrolled = currentScrollY > 24;
         setIsScrolled(prev => (prev !== scrolled ? scrolled : prev));
 
-        // Store current position for NEXT frame comparison
+        // Hide navbar after 2 seconds of no scrolling (when static)
+        scrollTimeout = setTimeout(() => {
+          if (currentScrollY > 150) {
+            // Only hide if we're past 150px
+            setIsVisible(false);
+          }
+          isScrolling = false;
+        }, 2000);
+
+        // Always show at top of page
+        if (currentScrollY < 100) {
+          setIsVisible(true);
+          if (scrollTimeout) {
+            clearTimeout(scrollTimeout);
+          }
+        }
+
         lastScrollY = currentScrollY;
         rafId = null;
       });
     };
 
     // Run once immediately to sync state with current scroll position
-    // (critical for hydration / route changes / page refresh)
     handleScroll();
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -98,6 +104,9 @@ export default function Navbar() {
       window.removeEventListener('scroll', handleScroll);
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
+      }
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
       }
     };
   }, [pathname]);
