@@ -7,6 +7,7 @@ import { MapPin, Maximize2, ArrowLeft, FileText } from 'lucide-react';
 import ProgressTimeline from '@/components/projects/ProgressTimeline';
 import ListingLogo from '@/components/ListingLogo';
 import ProjectLuxuryShowcase from '@/components/projects/ProjectLuxuryShowcase';
+import LuxuryVideoPlayer from '@/components/projects/LuxuryVideoPlayer';
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -141,18 +142,24 @@ export default function ProjectDetailPage() {
           )}
 
           {videoGallery.length > 0 && (
-            <div className="mt-12 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
-              <h2 className="mb-2 text-3xl font-bold text-white">Project film</h2>
-              <p className="mb-6 text-sm text-white/50">Walkthroughs and reels for this development.</p>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {videoGallery.map((url) => (
-                  <video
-                    key={url}
-                    src={url}
-                    controls
-                    playsInline
-                    className="h-64 w-full rounded-xl border border-white/10 bg-black/40 object-cover"
-                  />
+            <div className="mt-12 rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.06] to-white/[0.02] p-6 backdrop-blur-xl sm:p-8 lg:p-10">
+              <div className="mb-8 border-b border-white/[0.06] pb-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="h-px w-8 bg-gradient-to-r from-[#C5A880] to-transparent" />
+                  <p className="font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.35em] text-[#C5A880]/90">
+                    Cinematic
+                  </p>
+                </div>
+                <h2 className="font-playfair text-3xl font-light text-white sm:text-4xl">
+                  Project <span className="italic text-[#e8dcc4]">film</span>
+                </h2>
+                <p className="mt-3 font-[family-name:var(--font-manrope)] text-sm font-light text-white/45 sm:text-base">
+                  Aerial walkthroughs and drone reels capturing the development's scale and setting.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:gap-6">
+                {videoGallery.map((url, index) => (
+                  <LuxuryVideoPlayer key={url} src={url} index={index} />
                 ))}
               </div>
             </div>

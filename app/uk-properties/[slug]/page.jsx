@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Bed, Bath, Maximize2, MapPin, ArrowLeft, ArrowUpRight, Home } from 'lucide-react';
 import ListingLogo from '@/components/ListingLogo';
 import ProjectLuxuryShowcase from '@/components/projects/ProjectLuxuryShowcase';
+import LuxuryVideoPlayer from '@/components/projects/LuxuryVideoPlayer';
 import { useDisplayCurrency } from '@/contexts/DisplayCurrencyContext';
 
 export default function PropertyDetailPage() {
@@ -159,20 +160,8 @@ export default function PropertyDetailPage() {
                 <div className="mt-5 h-px w-12 bg-gradient-to-r from-[#C5A880] to-transparent" />
               </div>
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                {videoMedia.map((videoUrl) => (
-                  <div
-                    key={videoUrl}
-                    className="group relative overflow-hidden rounded-[4px] border border-white/10 bg-black/40"
-                  >
-                    <video
-                      src={videoUrl}
-                      controls
-                      playsInline
-                      preload="metadata"
-                      className="aspect-video w-full object-cover transition-transform duration-700 group-hover:scale-[1.01]"
-                    />
-                    <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-[#C5A880]/0 transition-all duration-500 group-hover:ring-[#C5A880]/30" />
-                  </div>
+                {videoMedia.map((videoUrl, index) => (
+                  <LuxuryVideoPlayer key={videoUrl} src={videoUrl} index={index} />
                 ))}
               </div>
             </div>
