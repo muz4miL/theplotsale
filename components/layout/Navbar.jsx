@@ -31,13 +31,44 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 24);
+    let ticking = false;
+    
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          
+          // Update scrolled state
+          setIsScrolled(currentScrollY > 24);
+          
+          // Auto-hide logic
+          if (currentScrollY < 100) {
+            // Always show navbar at top of page
+            setIsVisible(true);
+          } else if (currentScrollY > lastScrollY && currentScrollY > 150) {
+            // Scrolling down & past threshold - hide navbar
+            setIsVisible(false);
+          } else if (currentScrollY < lastScrollY) {
+            // Scrolling up - show navbar
+            setIsVisible(true);
+          }
+          
+          setLastScrollY(currentScrollY);
+          ticking = false;
+        });
+        
+        ticking = true;
+      }
+    };
+    
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [pathname]);
+  }, [lastScrollY, pathname]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
@@ -135,12 +166,14 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-[60] pl-[max(env(safe-area-inset-left,0px),clamp(1.25rem,3.5vw,2.75rem))] pr-[max(env(safe-area-inset-right,0px),clamp(1.25rem,3.5vw,2.75rem))] transition-[padding,background,border,box-shadow,backdrop-filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`fixed top-0 left-0 right-0 z-[60] pl-[max(env(safe-area-inset-left,0px),clamp(1.25rem,3.5vw,2.75rem))] pr-[max(env(safe-area-inset-right,0px),clamp(1.25rem,3.5vw,2.75rem))] transition-[padding,background,border,box-shadow,backdrop-filter,transform,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
           isScrolled
-            ? 'border-b border-white/[0.09] bg-[rgba(6,10,9,0.88)] pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] shadow-[0_12px_40px_rgba(0,0,0,0.45)] supports-[backdrop-filter]:backdrop-blur-xl'
+            ? 'border-b border-white/[0.09] bg-[rgba(6,10,9,0.92)] pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] shadow-[0_12px_40px_rgba(0,0,0,0.5),0_0_80px_rgba(197,168,128,0.08)] supports-[backdrop-filter]:backdrop-blur-xl'
             : immersiveNav
               ? 'border-b border-transparent bg-transparent pb-4 pt-[calc(1rem+env(safe-area-inset-top,0px))] shadow-none supports-[backdrop-filter]:backdrop-blur-none lg:pb-5 lg:pt-[calc(1.25rem+env(safe-area-inset-top,0px))]'
               : 'border-b border-transparent bg-gradient-to-b from-black/55 via-black/20 to-transparent pb-4 pt-[calc(1rem+env(safe-area-inset-top,0px))] supports-[backdrop-filter]:backdrop-blur-[6px] lg:pb-5 lg:pt-[calc(1.25rem+env(safe-area-inset-top,0px))]'
+        } ${
+          isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
         }`}
       >
         <div
