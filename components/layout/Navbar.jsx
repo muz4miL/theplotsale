@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -33,15 +33,16 @@ export default function Navbar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const prevScrollYRef = useRef(0);
 
   useEffect(() => {
     let ticking = false;
-    let prevScrollY = window.scrollY;
     
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           const currentScrollY = window.scrollY;
+          const prevScrollY = prevScrollYRef.current;
           
           // Update scrolled state
           setIsScrolled(currentScrollY > 24);
@@ -54,11 +55,11 @@ export default function Navbar() {
             // Scrolling down & past threshold - hide navbar
             setIsVisible(false);
           } else if (currentScrollY < prevScrollY) {
-            // Scrolling up - show navbar
+            // Scrolling up - show navbar with elegant reveal
             setIsVisible(true);
           }
           
-          prevScrollY = currentScrollY;
+          prevScrollYRef.current = currentScrollY;
           setLastScrollY(currentScrollY);
           ticking = false;
         });
@@ -67,7 +68,9 @@ export default function Navbar() {
       }
     };
     
+    // Initial call
     handleScroll();
+    
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [pathname]);
