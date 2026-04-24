@@ -32,47 +32,74 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const prevScrollYRef = useRef(0);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
+  // Detect prefers-reduced-motion
   useEffect(() => {
-    let ticking = false;
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
     
+    const handler = (e) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  // Scroll detection with Kimi's production-ready solution
+  useEffect(() => {
+    let rafId = null;
+    let lastScrollY = window.scrollY;
+    let currentIsVisible = true;
+
     const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY;
-          const prevScrollY = prevScrollYRef.current;
-          
-          // Update scrolled state
-          setIsScrolled(currentScrollY > 24);
-          
-          // Auto-hide logic
-          if (currentScrollY < 100) {
-            // Always show navbar at top of page
-            setIsVisible(true);
-          } else if (currentScrollY > prevScrollY && currentScrollY > 150) {
-            // Scrolling down & past threshold - hide navbar
-            setIsVisible(false);
-          } else if (currentScrollY < prevScrollY) {
-            // Scrolling up - show navbar with elegant reveal
-            setIsVisible(true);
-          }
-          
-          prevScrollYRef.current = currentScrollY;
-          setLastScrollY(currentScrollY);
-          ticking = false;
-        });
-        
-        ticking = true;
+      // Throttle: skip if an animation frame is already queued
+      if (rafId !== null) return;
+
+      rafId = window.requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+
+        // Determine the next visibility state
+        let nextVisible = currentIsVisible;
+
+        if (currentScrollY < 100) {
+          // At top (< 100px): force navbar visible
+          nextVisible = true;
+        } else if (currentScrollY > lastScrollY && currentScrollY > 150) {
+          // Scrolling DOWN past 150px: hide navbar
+          nextVisible = false;
+        } else if (currentScrollY < lastScrollY) {
+          // Scrolling UP (any amount): reveal navbar
+          nextVisible = true;
+        }
+
+        // Only update React state when the value actually changes
+        // This prevents unnecessary re-renders during scroll
+        if (nextVisible !== currentIsVisible) {
+          setIsVisible(nextVisible);
+          currentIsVisible = nextVisible;
+        }
+
+        // Update isScrolled only when threshold crossing changes
+        const scrolled = currentScrollY > 24;
+        setIsScrolled(prev => (prev !== scrolled ? scrolled : prev));
+
+        // Store current position for NEXT frame comparison
+        lastScrollY = currentScrollY;
+        rafId = null;
+      });
+    };
+
+    // Run once immediately to sync state with current scroll position
+    // (critical for hydration / route changes / page refresh)
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
       }
     };
-    
-    // Initial call
-    handleScroll();
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
   }, [pathname]);
 
   useEffect(() => {
@@ -171,7 +198,11 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-[60] pl-[max(env(safe-area-inset-left,0px),clamp(1.25rem,3.5vw,2.75rem))] pr-[max(env(safe-area-inset-right,0px),clamp(1.25rem,3.5vw,2.75rem))] transition-[padding,background,border,box-shadow,backdrop-filter,transform,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`fixed top-0 left-0 right-0 z-[60] pl-[max(env(safe-area-inset-left,0px),clamp(1.25rem,3.5vw,2.75rem))] pr-[max(env(safe-area-inset-right,0px),clamp(1.25rem,3.5vw,2.75rem))] ${
+          prefersReducedMotion
+            ? ''
+            : 'transition-[padding,background,border,box-shadow,backdrop-filter,transform,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]'
+        } ${
           isScrolled
             ? 'border-b border-white/[0.09] bg-[rgba(6,10,9,0.92)] pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] shadow-[0_12px_40px_rgba(0,0,0,0.5),0_0_80px_rgba(197,168,128,0.08)] supports-[backdrop-filter]:backdrop-blur-xl'
             : immersiveNav
