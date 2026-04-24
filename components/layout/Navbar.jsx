@@ -36,6 +36,7 @@ export default function Navbar() {
 
   useEffect(() => {
     let ticking = false;
+    let prevScrollY = window.scrollY;
     
     const handleScroll = () => {
       if (!ticking) {
@@ -49,14 +50,15 @@ export default function Navbar() {
           if (currentScrollY < 100) {
             // Always show navbar at top of page
             setIsVisible(true);
-          } else if (currentScrollY > lastScrollY && currentScrollY > 150) {
+          } else if (currentScrollY > prevScrollY && currentScrollY > 150) {
             // Scrolling down & past threshold - hide navbar
             setIsVisible(false);
-          } else if (currentScrollY < lastScrollY) {
+          } else if (currentScrollY < prevScrollY) {
             // Scrolling up - show navbar
             setIsVisible(true);
           }
           
+          prevScrollY = currentScrollY;
           setLastScrollY(currentScrollY);
           ticking = false;
         });
@@ -68,7 +70,7 @@ export default function Navbar() {
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY, pathname]);
+  }, [pathname]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
