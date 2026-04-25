@@ -44,7 +44,7 @@ export default function SafeListingImage({
     if (!wrapper) return undefined;
 
     const computeFrame = () => {
-      const img = wrapper.querySelector('img');
+      const img = wrapper.querySelector('img[data-safe-listing-main-image="true"]');
       if (!img) return;
 
       const wrapperRect = wrapper.getBoundingClientRect();
@@ -96,7 +96,7 @@ export default function SafeListingImage({
     const observer = new ResizeObserver(computeFrame);
     observer.observe(wrapper);
 
-    const img = wrapper.querySelector('img');
+    const img = wrapper.querySelector('img[data-safe-listing-main-image="true"]');
     if (img) {
       img.addEventListener('load', computeFrame);
     }
@@ -122,7 +122,7 @@ export default function SafeListingImage({
 
   const watermarkStyle = {
     position: 'absolute',
-    zIndex: 10,
+    zIndex: 60,
     pointerEvents: 'none',
     opacity: 0.7,
     filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
@@ -150,6 +150,7 @@ export default function SafeListingImage({
         src={currentSrc}
         alt={alt || ''}
         fill={fill}
+        data-safe-listing-main-image="true"
         className={className}
         onError={handleImageError}
         onLoad={(e) => {
@@ -159,13 +160,7 @@ export default function SafeListingImage({
       />
       {showWatermark && (
         <div style={watermarkStyle}>
-          <Image
-            src="/newLogo2.png"
-            alt=""
-            width={logoSize}
-            height={logoSize}
-            style={{ width: logoSize, height: 'auto' }}
-          />
+          <img src="/newLogo2.png" alt="" width={logoSize} height={logoSize} style={{ width: logoSize, height: 'auto', display: 'block' }} />
         </div>
       )}
     </div>
