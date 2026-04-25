@@ -1060,3 +1060,18 @@ textarea {
     transform: translateY(0);
   }
 }
+
+/* ===================================
+   CRITICAL FIX: Navbar Click Override
+   Ensures navbar is always clickable on all pages
+   =================================== */
+header {
+  pointer-events: auto !important;
+  z-index: 9999 !important;
+}
+
+header nav,
+header a,
+header button {
+  pointer-events: auto !important;
+}

@@ -118,8 +118,8 @@ export default function Navbar() {
   return (
     <>
       <header
-        style={{ opacity: 1, transform: 'translateY(0)',isolation: 'isolate', }}
-        className={`pointer-events-auto fixed top-0 left-0 right-0 z-[100] pl-[max(env(safe-area-inset-left,0px),clamp(1.25rem,3.5vw,2.75rem))] pr-[max(env(safe-area-inset-right,0px),clamp(1.25rem,3.5vw,2.75rem))] ${
+        style={{ opacity: 1, transform: 'translateY(0)', isolation: 'isolate' }}
+        className={`pointer-events-auto fixed top-0 left-0 right-0 z-[9999] pl-[max(env(safe-area-inset-left,0px),clamp(1.25rem,3.5vw,2.75rem))] pr-[max(env(safe-area-inset-right,0px),clamp(1.25rem,3.5vw,2.75rem))] ${
           prefersReducedMotion
             ? ''
             : 'transition-[padding,background,border,box-shadow,backdrop-filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]'
@@ -173,6 +173,15 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={(e) => {
+                    // Force navigation if Link fails
+                    const timeout = setTimeout(() => {
+                      if (window.location.pathname !== item.href) {
+                        window.location.href = item.href;
+                      }
+                    }, 300);
+                    return () => clearTimeout(timeout);
+                  }}
                   className={`relative rounded-full px-3.5 py-2.5 no-underline outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-[#C5A880]/50 xl:px-4 xl:py-2.5 ${
                     active ? 'text-[#f5f0e6]' : 'text-[rgba(245,245,245,0.72)] hover:text-white'
                   }`}
