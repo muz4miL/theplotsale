@@ -188,7 +188,7 @@ function FullscreenLightbox({ slides, initialIndex, onClose }) {
 
   return (
     <div
-      className={`lightbox-cursor-visible fixed inset-0 z-[2147483647] flex items-center justify-center bg-black/98 backdrop-blur-xl transition-opacity duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isMounted ? 'opacity-100' : 'opacity-0'}`}
+      className={`lightbox-cursor-visible fixed inset-0 z-[55] flex items-center justify-center bg-black/98 backdrop-blur-xl transition-opacity duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isMounted ? 'opacity-100' : 'opacity-0'}`}
       onClick={onClose}
     >
       {/* Close button */}

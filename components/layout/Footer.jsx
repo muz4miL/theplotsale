@@ -1,5 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import BrandSocialLinks from '@/components/layout/BrandSocialLinks';
 import ConciergeTextReveal from '@/components/layout/ConciergeTextReveal';
 
@@ -17,9 +20,16 @@ const projectsLinks = [
 ];
 
 export default function Footer() {
-  const handleLinkClick = (href) => {
-    // Scroll to top when clicking any link
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const router = useRouter();
+
+  const handleLinkClick = (e, href) => {
+    e.preventDefault();
+    // Navigate first, then scroll to top
+    router.push(href);
+    // Use setTimeout to ensure navigation happens first
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
   };
 
   return (
@@ -127,7 +137,7 @@ export default function Footer() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  onClick={() => handleLinkClick(link.href)}
+                  onClick={(e) => handleLinkClick(e, link.href)}
                   className="text-white/70 text-sm font-light hover:translate-x-1 hover:text-[#C5A880] transition-all duration-300"
                 >
                   {link.label}
@@ -146,7 +156,7 @@ export default function Footer() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  onClick={() => handleLinkClick(link.href)}
+                  onClick={(e) => handleLinkClick(e, link.href)}
                   className="text-white/70 text-sm font-light tracking-[0.08em] hover:translate-x-1 hover:text-[#C5A880] transition-all duration-300"
                 >
                   {link.label}

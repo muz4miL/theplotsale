@@ -361,7 +361,7 @@ export default function HeroVideoParallax() {
             </div>
           </div>
 
-          <div ref={revealRef} className="absolute left-0 top-0 z-30 flex h-full w-full items-center justify-start pl-[5%] md:pl-[10%] pr-[5%] md:pr-[52%] opacity-0 pt-20 md:pt-0">
+          <div ref={revealRef} className="absolute left-0 top-0 z-30 flex h-full w-full items-center justify-start pl-[5%] md:pl-[10%] pr-[5%] md:pr-[52%] opacity-0 pt-20 md:pt-0 pointer-events-none">
             <div className="relative w-full max-w-2xl text-left">
               <div ref={luxuryLabelRef} className="mb-8 md:mb-12 opacity-0">
                 <div className="flex items-center gap-4">
