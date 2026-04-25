@@ -7,9 +7,7 @@ const nextConfig = {
   reactStrictMode: false,
   
   /* External packages for server components - prevents bundling issues with Mongoose in serverless */
-  experimental: {
-    serverComponentsExternalPackages: ['mongoose'],
-  },
+  serverExternalPackages: ['mongoose'],
   
   images: {
     remotePatterns: [
