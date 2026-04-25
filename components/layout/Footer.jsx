@@ -17,6 +17,11 @@ const projectsLinks = [
 ];
 
 export default function Footer() {
+  const handleLinkClick = (href) => {
+    // Scroll to top when clicking any link
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <footer className="relative z-10 bg-gradient-to-t from-black to-[#05110e] text-[#f5f5f5] pt-16 pb-[max(2rem,env(safe-area-inset-bottom,0px))]">
       {/* Golden Horizon Border */}
@@ -122,6 +127,7 @@ export default function Footer() {
                 <Link
                   key={link.label}
                   href={link.href}
+                  onClick={() => handleLinkClick(link.href)}
                   className="text-white/70 text-sm font-light hover:translate-x-1 hover:text-[#C5A880] transition-all duration-300"
                 >
                   {link.label}
@@ -140,6 +146,7 @@ export default function Footer() {
                 <Link
                   key={link.label}
                   href={link.href}
+                  onClick={() => handleLinkClick(link.href)}
                   className="text-white/70 text-sm font-light tracking-[0.08em] hover:translate-x-1 hover:text-[#C5A880] transition-all duration-300"
                 >
                   {link.label}
