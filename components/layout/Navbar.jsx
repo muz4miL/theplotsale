@@ -173,14 +173,14 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={(e) => {
-                    // Force navigation if Link fails
-                    const timeout = setTimeout(() => {
-                      if (window.location.pathname !== item.href) {
+                  onClick={() => {
+                    // Force navigation only if Link fails after 200ms
+                    const startPath = window.location.pathname;
+                    setTimeout(() => {
+                      if (window.location.pathname === startPath) {
                         window.location.href = item.href;
                       }
-                    }, 300);
-                    return () => clearTimeout(timeout);
+                    }, 200);
                   }}
                   className={`relative rounded-full px-3.5 py-2.5 no-underline outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-[#C5A880]/50 xl:px-4 xl:py-2.5 ${
                     active ? 'text-[#f5f0e6]' : 'text-[rgba(245,245,245,0.72)] hover:text-white'
@@ -301,7 +301,16 @@ export default function Navbar() {
               >
                 <Link
                   href={item.href}
-                  onClick={closeDrawer}
+                  onClick={() => {
+                    closeDrawer();
+                    // Force navigation only if Link fails after 200ms
+                    const startPath = window.location.pathname;
+                    setTimeout(() => {
+                      if (window.location.pathname === startPath) {
+                        window.location.href = item.href;
+                      }
+                    }, 200);
+                  }}
                   className={`group relative block border-b border-white/[0.06] py-5 pl-4 no-underline transition-colors ${
                     active ? 'text-white' : 'text-white/65 hover:text-white'
                   }`}
