@@ -119,7 +119,7 @@ export default function Navbar() {
     <>
       <header
         style={{ opacity: 1, transform: 'translateY(0)',isolation: 'isolate', }}
-        className={`fixed top-0 left-0 right-0 z-[100] pl-[max(env(safe-area-inset-left,0px),clamp(1.25rem,3.5vw,2.75rem))] pr-[max(env(safe-area-inset-right,0px),clamp(1.25rem,3.5vw,2.75rem))] ${
+        className={`pointer-events-auto fixed top-0 left-0 right-0 z-[100] pl-[max(env(safe-area-inset-left,0px),clamp(1.25rem,3.5vw,2.75rem))] pr-[max(env(safe-area-inset-right,0px),clamp(1.25rem,3.5vw,2.75rem))] ${
           prefersReducedMotion
             ? ''
             : 'transition-[padding,background,border,box-shadow,backdrop-filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]'

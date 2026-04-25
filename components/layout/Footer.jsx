@@ -29,7 +29,7 @@ export default function Footer() {
   }, [pathname]);
 
   return (
-    <footer className="relative z-10 bg-gradient-to-t from-black to-[#05110e] text-[#f5f5f5] pt-16 pb-[max(2rem,env(safe-area-inset-bottom,0px))]">
+    <footer className="relative z-10 bg-gradient-to-t from-black to-[#05110e] text-[#f5f5f5] pt-16 pb-[max(2rem,env(safe-area-inset-bottom,0px))] pointer-events-auto">
       {/* Golden Horizon Border */}
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C5A880]/40 to-transparent" />
 
