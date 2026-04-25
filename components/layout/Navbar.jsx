@@ -10,7 +10,7 @@ import CurrencyToggle from '@/components/layout/CurrencyToggle';
 const navConfig = [
   { label: 'Home', href: '/' },
   { label: 'About Us', href: '/about' },
-  { label: 'Properties', href: '/properties' },
+  { label: 'UK Properties', href: '/uk-properties' },
   { label: 'Projects', href: '/projects' },
   { label: 'Contact Us', href: '/contact' },
 ];
@@ -18,8 +18,8 @@ const navConfig = [
 function isNavActive(href, pathname) {
   if (!pathname) return false;
   if (href === '/') return pathname === '/';
-  if (href === '/properties') {
-    return pathname.startsWith('/properties') || pathname.startsWith('/uk-properties');
+  if (href === '/uk-properties') {
+    return pathname.startsWith('/uk-properties');
   }
   if (href === '/projects') {
     return pathname === '/projects' || pathname.startsWith('/pakistan-projects');

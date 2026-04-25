@@ -10,7 +10,7 @@ import ConciergeTextReveal from '@/components/layout/ConciergeTextReveal';
 const exploreLinks = [
   { label: 'Home', href: '/' },
   { label: 'About Us', href: '/about' },
-  { label: 'Properties', href: '/properties' },
+  { label: 'UK Properties', href: '/uk-properties' },
   { label: 'Projects', href: '/projects' },
   { label: 'Contact Us', href: '/contact' },
 ];
