@@ -7,32 +7,34 @@ import Property from '@/models/Property';
  * Fetches all properties or filters by region query parameter
  */
 export async function GET(request) {
-  // Set up timeout for database query
+  // Set up timeout for database query (increased to 25s to account for connection time)
   const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error('Database query timeout')), 8000);
+    setTimeout(() => reject(new Error('Database query timeout')), 25000);
   });
 
   try {
-    await connectDB();
+    // Race between database connection + query and timeout
+    const result = await Promise.race([
+      (async () => {
+        await connectDB();
+        
+        const { searchParams } = new URL(request.url);
+        const region = searchParams.get('region');
 
-    const { searchParams } = new URL(request.url);
-    const region = searchParams.get('region');
+        let query = {};
+        if (region) {
+          query.region = region;
+        }
 
-    let query = {};
-    if (region) {
-      query.region = region;
-    }
-
-    // Race between database query and timeout
-    const properties = await Promise.race([
-      Property.find(query).sort({ createdAt: -1 }),
+        return await Property.find(query).sort({ createdAt: -1 });
+      })(),
       timeoutPromise
     ]);
 
     return NextResponse.json({
       success: true,
-      count: properties.length,
-      data: properties,
+      count: result.length,
+      data: result,
     }, { status: 200 });
 
   } catch (error) {

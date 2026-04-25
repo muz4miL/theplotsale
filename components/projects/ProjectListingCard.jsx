@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, MapPin, Maximize2 } from 'lucide-react';
 import { useInViewOnce } from '@/hooks/useInViewOnce';
 import SafeListingImage from '@/components/shared/SafeListingImage';
@@ -28,10 +28,22 @@ const statusTokens = {
 export default function ProjectListingCard({ project, index }) {
   const navFallbackTimeoutRef = useRef(null);
   const [wrapRef, visible] = useInViewOnce({ threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  const [forceVisible, setForceVisible] = useState(false);
   const status = statusTokens[project.status] || statusTokens.Current;
   const num = String(index + 1).padStart(2, '0');
 
   const projectHref = `/pakistan-projects/${project.slug}`;
+
+  // Emergency fallback: force visibility after 2 seconds if IntersectionObserver fails
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!visible) {
+        console.warn(`Card ${index} forced visible after timeout`);
+        setForceVisible(true);
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [visible, index]);
 
   useEffect(() => {
     return () => {
@@ -56,11 +68,13 @@ export default function ProjectListingCard({ project, index }) {
     }, 1200);
   };
 
+  const isVisible = visible || forceVisible;
+
   return (
     <div
       ref={wrapRef}
       className={`h-full transition-all duration-[750ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
-        visible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
+        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
       }`}
       style={{ 
         transitionDelay: `${Math.min(index * 70, 350)}ms`,

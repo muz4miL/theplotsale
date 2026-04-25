@@ -40,7 +40,7 @@ export default function PropertiesPage() {
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout for initial DB connection
 
     async function fetchProperties() {
       try {
@@ -83,14 +83,14 @@ export default function PropertiesPage() {
 
     fetchProperties();
 
-    // Emergency fallback - force exit loading after 15s
+    // Emergency fallback - force exit loading after 35s
     const emergencyTimeout = setTimeout(() => {
-      console.warn('⏰ EMERGENCY: Forcing loading false after 15s');
+      console.warn('⏰ EMERGENCY: Forcing loading false after 35s');
       if (isMounted) {
         setLoading(false);
         setError('Request timed out');
       }
-    }, 15000);
+    }, 35000);
 
     return () => {
       isMounted = false;

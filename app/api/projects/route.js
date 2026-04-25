@@ -7,32 +7,34 @@ import Project from '@/models/Project';
  * Fetches all projects or filters by status query parameter
  */
 export async function GET(request) {
-  // Set up timeout for database query
+  // Set up timeout for database query (increased to 25s to account for connection time)
   const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error('Database query timeout')), 8000);
+    setTimeout(() => reject(new Error('Database query timeout')), 25000);
   });
 
   try {
-    await connectDB();
+    // Race between database connection + query and timeout
+    const result = await Promise.race([
+      (async () => {
+        await connectDB();
+        
+        const { searchParams } = new URL(request.url);
+        const status = searchParams.get('status');
 
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
+        let query = {};
+        if (status) {
+          query.status = status;
+        }
 
-    let query = {};
-    if (status) {
-      query.status = status;
-    }
-
-    // Race between database query and timeout
-    const projects = await Promise.race([
-      Project.find(query).sort({ createdAt: -1 }),
+        return await Project.find(query).sort({ createdAt: -1 });
+      })(),
       timeoutPromise
     ]);
 
     return NextResponse.json({
       success: true,
-      count: projects.length,
-      data: projects,
+      count: result.length,
+      data: result,
     }, { status: 200 });
 
   } catch (error) {
