@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -132,14 +132,6 @@ export default function Navbar() {
     });
   };
 
-  const handleHardNavigate = (e, href) => {
-    if (e.defaultPrevented) return;
-    if (e.button !== 0) return;
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    e.preventDefault();
-    window.location.href = href;
-  };
-
   /** Pages whose hero is a full-bleed cinematic — nav sits flush in the scene
    *  until the user starts scrolling, then hardens into the frosted solid state.
    *  Home has a full-screen video hero, About has a cinematic video hero,
@@ -180,7 +172,6 @@ export default function Navbar() {
         <div className="relative mx-auto flex max-w-[1440px] items-center gap-4 lg:gap-6">
           <Link
             href="/"
-            onClick={(e) => handleHardNavigate(e, '/')}
             className={`group flex items-center gap-2.5 no-underline sm:gap-3 ${immersiveNav ? 'drop-shadow-[0_4px_24px_rgba(0,0,0,0.7)]' : ''}`}
             aria-label="The Plot Sale home"
           >
@@ -213,7 +204,6 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={(e) => handleHardNavigate(e, item.href)}
                   className={`relative rounded-full px-3.5 py-2.5 no-underline outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-[#C5A880]/50 xl:px-4 xl:py-2.5 ${
                     active ? 'text-[#f5f0e6]' : 'text-[rgba(245,245,245,0.72)] hover:text-white'
                   }`}
@@ -241,7 +231,6 @@ export default function Navbar() {
           <div className="hidden lg:block">
             <Link
               href="/contact"
-              onClick={(e) => handleHardNavigate(e, '/contact')}
               className={`lux-button inline-flex items-center justify-center rounded-full border border-[#C5A880] bg-[#C5A880] px-7 py-2.5 font-[family-name:var(--font-manrope)] text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-[#111111] transition-colors hover:bg-transparent hover:text-[#C5A880] xl:px-9 xl:py-[0.85rem] xl:text-[0.74rem] xl:tracking-[0.25em] ${
                 immersiveNav ? 'shadow-[0_10px_36px_rgba(0,0,0,0.45)]' : ''
               }`}

@@ -173,18 +173,9 @@ function PropertyCard({ property }) {
     if (glareRef.current) glareRef.current.style.opacity = '0';
   };
 
-  const handleCardClick = (e) => {
-    if (e.defaultPrevented) return;
-    if (e.button !== 0) return;
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    e.preventDefault();
-    window.location.href = detailsHref;
-  };
-
   return (
     <Link
       href={detailsHref}
-      onClick={handleCardClick}
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}

@@ -228,18 +228,9 @@ function PropertyCard({ property }) {
     ? `/uk-properties/${property.slug}`
     : `/pakistan-projects/${property.slug}`;
 
-  const handleCardClick = (e) => {
-    if (e.defaultPrevented) return;
-    if (e.button !== 0) return;
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    e.preventDefault();
-    window.location.href = detailsHref;
-  };
-
   return (
     <Link
       href={detailsHref}
-      onClick={handleCardClick}
       className={[
         'group relative flex h-full flex-col overflow-hidden rounded-[2px]',
         'border border-white/[0.07] bg-[#050807] outline-none',

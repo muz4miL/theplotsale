@@ -1,6 +1,5 @@
 'use client';
 
-import { useRef } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, MapPin, Maximize2 } from 'lucide-react';
 import { useInViewOnce } from '@/hooks/useInViewOnce';
@@ -30,47 +29,7 @@ export default function ProjectListingCard({ project, index }) {
   const status = statusTokens[project.status] || statusTokens.Current;
   const num = String(index + 1).padStart(2, '0');
 
-  // 3D tilt refs (no rerender on mouse move)
-  const cardRef = useRef(null);
-  const glareRef = useRef(null);
-
-  const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    // Calculate tilt (max 8 degrees)
-    const tiltX = ((y - centerY) / centerY) * -8;
-    const tiltY = ((x - centerX) / centerX) * 8;
-    cardRef.current.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
-    if (glareRef.current) {
-      const glareX = (x / rect.width) * 100;
-      const glareY = (y / rect.height) * 100;
-      glareRef.current.style.background = `radial-gradient(circle 400px at ${glareX}% ${glareY}%, rgba(197,168,128,0.12) 0%, transparent 60%)`;
-      glareRef.current.style.opacity = '1';
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (!cardRef.current) return;
-    cardRef.current.style.transform = 'rotateX(0deg) rotateY(0deg)';
-    if (glareRef.current) {
-      glareRef.current.style.opacity = '0';
-    }
-  };
-
   const projectHref = `/pakistan-projects/${project.slug}`;
-
-  const handleCardClick = (e) => {
-    if (e.defaultPrevented) return;
-    if (e.button !== 0) return;
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    e.preventDefault();
-    window.location.href = projectHref;
-  };
 
   return (
     <div
@@ -84,23 +43,14 @@ export default function ProjectListingCard({ project, index }) {
       }}
     >
       <Link
-        ref={cardRef}
         href={projectHref}
-        onClick={handleCardClick}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
         className="group relative flex h-full min-h-[460px] flex-col overflow-hidden rounded-[2px] border border-white/[0.07] bg-[#050807] outline-none transition-[border-color,box-shadow] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] after:pointer-events-none after:absolute after:inset-0 after:rounded-[2px] after:opacity-0 after:shadow-[0_0_0_1px_rgba(197,168,128,0.35),0_32px_64px_-12px_rgba(0,0,0,0.65)] after:transition-opacity after:duration-700 hover:border-[#C5A880]/30 hover:after:opacity-100 focus-visible:ring-2 focus-visible:ring-[#C5A880]/45 focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:min-h-[500px] lg:min-h-[520px] will-change-transform"
-        style={{
-          transform: 'rotateX(0deg) rotateY(0deg)',
-          transition: 'transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
-          transformStyle: 'preserve-3d',
-        }}
+        style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Cursor-following gold glare */}
         <div
-          ref={glareRef}
           className="pointer-events-none absolute inset-0 z-[5] opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:opacity-0"
-          style={{ background: 'radial-gradient(circle 400px at 50% 50%, rgba(197,168,128,0.12) 0%, transparent 60%)' }}
+          style={{ background: 'radial-gradient(circle 420px at 50% 50%, rgba(197,168,128,0.1) 0%, transparent 60%)' }}
         />
         {/* Image field — scale lives on an inner layer so motion reads as camera drift, not a UI pop */}
         <div className="relative min-h-[280px] flex-1 overflow-hidden sm:min-h-[300px] lg:min-h-[340px]">

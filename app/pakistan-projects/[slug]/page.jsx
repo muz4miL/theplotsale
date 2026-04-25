@@ -12,36 +12,51 @@ import LuxuryPaymentPlan from '@/components/projects/LuxuryPaymentPlan';
 
 export default function ProjectDetailPage() {
   const params = useParams();
+  const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!slug || typeof slug !== 'string') return;
+
+    const controller = new AbortController();
+    let cancelled = false;
+
     async function fetchProject() {
+      setLoading(true);
+      setError(null);
+      setProject(null);
       try {
-        const response = await fetch('/api/projects', { cache: 'no-store' });
+        const response = await fetch('/api/projects', { cache: 'no-store', signal: controller.signal });
         const data = await response.json();
-        
-        if (data.success) {
-          const foundProject = data.data.find(p => p.slug === params.slug);
+
+        if (!cancelled && response.ok && data.success) {
+          const foundProject = data.data.find((p) => p.slug === slug);
           if (foundProject) {
             setProject(foundProject);
+            setError(null);
           } else {
             setError('Project not found');
           }
         } else {
-          setError('Failed to load project');
+          setError(data?.message || data?.error || 'Failed to load project');
         }
       } catch (err) {
+        if (controller.signal.aborted || cancelled) return;
         setError('An error occurred');
         console.error('Error fetching project:', err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
     fetchProject();
-  }, [params.slug]);
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [slug]);
 
   if (loading) {
     return <LoadingSkeleton />;
@@ -73,8 +88,10 @@ export default function ProjectDetailPage() {
     }
   };
 
-  const galleryMedia = project.galleryMedia || [];
-  const videoGallery = galleryMedia.filter((url) => url.includes('/video/upload/'));
+  const galleryMedia = Array.isArray(project.galleryMedia) ? project.galleryMedia : [];
+  const videoGallery = galleryMedia.filter((url) => typeof url === 'string' && url.includes('/video/upload/'));
+  const progressUpdates = Array.isArray(project.progressUpdates) ? project.progressUpdates : [];
+  const floatingLogos = Array.isArray(project.floatingLogos) ? project.floatingLogos : [];
 
   return (
     <div className="min-h-screen bg-black">
@@ -142,10 +159,10 @@ export default function ProjectDetailPage() {
           )}
 
           {/* Development Progress Timeline */}
-          {project.progressUpdates && project.progressUpdates.length > 0 && (
+          {progressUpdates.length > 0 && (
             <div className="rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
               <h2 className="text-3xl font-bold text-white mb-8">Development Progress</h2>
-              <ProgressTimeline progressUpdates={project.progressUpdates} />
+              <ProgressTimeline progressUpdates={progressUpdates} />
             </div>
           )}
 
@@ -162,7 +179,7 @@ export default function ProjectDetailPage() {
                   Project <span className="italic text-[#e8dcc4]">film</span>
                 </h2>
                 <p className="mt-3 font-[family-name:var(--font-manrope)] text-sm font-light text-white/45 sm:text-base">
-                  Aerial walkthroughs and drone reels capturing the development's scale and setting.
+                  Aerial walkthroughs and drone reels capturing the development&rsquo;s scale and setting.
                 </p>
               </div>
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:gap-6">
@@ -173,11 +190,11 @@ export default function ProjectDetailPage() {
             </div>
           )}
 
-          {!!project.floatingLogos?.length && (
+          {!!floatingLogos.length && (
             <div className="mt-12 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
               <h2 className="mb-6 text-3xl font-bold text-white">Brand Partners</h2>
               <div className="flex flex-wrap gap-4">
-                {project.floatingLogos.map((logoUrl) => (
+                {floatingLogos.map((logoUrl) => (
                   <ListingLogo key={logoUrl} src={logoUrl} name={project.title} className="h-14 w-14" />
                 ))}
               </div>
