@@ -21,10 +21,10 @@ export default function LuxuryVideoPlayer({ src, poster, index = 0 }) {
   const containerRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [showControls, setShowControls] = useState(true);
-  const [isInView, setIsInView] = useState(false);
   const hideControlsTimeout = useRef(null);
 
   // Intersection Observer for autoplay on scroll
@@ -35,13 +35,11 @@ export default function LuxuryVideoPlayer({ src, poster, index = 0 }) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsInView(entry.isIntersecting);
         if (entry.isIntersecting && !isPlaying) {
           // Autoplay muted when in view
-          video.play().catch(() => {
+          video.play().then(() => setIsPlaying(true)).catch(() => {
             // Autoplay blocked - user needs to interact
           });
-          setIsPlaying(true);
         }
       },
       { threshold: 0.5 }
@@ -63,6 +61,19 @@ export default function LuxuryVideoPlayer({ src, poster, index = 0 }) {
 
     video.addEventListener('timeupdate', updateProgress);
     return () => video.removeEventListener('timeupdate', updateProgress);
+  }, []);
+
+  // Track fullscreen state for proper responsive sizing.
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      const container = containerRef.current;
+      const active = document.fullscreenElement === container;
+      setIsFullscreen(active);
+      setShowControls(true);
+    };
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
   }, []);
 
   // Auto-hide controls after 3 seconds of no interaction
@@ -110,7 +121,7 @@ export default function LuxuryVideoPlayer({ src, poster, index = 0 }) {
     if (!container) return;
 
     if (!document.fullscreenElement) {
-      container.requestFullscreen().catch(() => {
+      container.requestFullscreen({ navigationUI: 'hide' }).catch(() => {
         // Fullscreen not supported or denied
       });
     } else {
@@ -131,9 +142,11 @@ export default function LuxuryVideoPlayer({ src, poster, index = 0 }) {
   return (
     <div
       ref={containerRef}
-      className="group relative overflow-hidden rounded-xl border border-white/[0.08] bg-black/40 backdrop-blur-sm transition-all duration-500 hover:border-[#C5A880]/30"
+      className="luxury-video-player group relative overflow-hidden rounded-xl border border-white/[0.08] bg-black/40 backdrop-blur-sm transition-all duration-500 hover:border-[#C5A880]/30"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onMouseMove={() => setShowControls(true)}
+      onTouchStart={() => setShowControls(true)}
       style={{
         animation: `luxuryVideoFadeIn 0.8s cubic-bezier(0.22,1,0.36,1) ${index * 150}ms both`,
       }}
@@ -144,9 +157,18 @@ export default function LuxuryVideoPlayer({ src, poster, index = 0 }) {
         src={src}
         poster={poster}
         playsInline
+        preload="metadata"
         muted={isMuted}
         loop
-        className="h-64 w-full object-cover transition-transform duration-700 group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+        webkit-playsinline="true"
+        x5-playsinline="true"
+        x5-video-player-type="h5"
+        disablePictureInPicture
+        className={`w-full object-cover transition-transform duration-700 motion-reduce:transition-none motion-reduce:group-hover:scale-100 ${
+          isFullscreen
+            ? 'h-full max-h-screen'
+            : 'h-64 group-hover:scale-[1.02]'
+        }`}
         onClick={togglePlay}
       />
 
@@ -240,6 +262,17 @@ export default function LuxuryVideoPlayer({ src, poster, index = 0 }) {
 
       {/* Keyframes */}
       <style jsx>{`
+        :global(.luxury-video-player:fullscreen video) {
+          height: 100% !important;
+          max-height: 100vh !important;
+          object-fit: contain;
+          background: #000;
+        }
+
+        :global(.luxury-video-player:fullscreen) {
+          background: #000;
+        }
+
         @keyframes luxuryVideoFadeIn {
           from {
             opacity: 0;

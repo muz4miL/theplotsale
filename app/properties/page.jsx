@@ -16,7 +16,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { ArrowUpRight, Bath, Bed, MapPin, Maximize, Home } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
 import ListingLogo from '@/components/ListingLogo';
@@ -219,7 +218,6 @@ export default function PropertiesPage() {
 }
 
 function PropertyCard({ property }) {
-  const router = useRouter();
   const { formatPrice } = useDisplayCurrency();
   const nativeCurrency =
     property.currency === 'PKR' || property.region === 'Pakistan' ? 'PKR' : 'GBP';
@@ -234,7 +232,8 @@ function PropertyCard({ property }) {
     if (e.defaultPrevented) return;
     if (e.button !== 0) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    router.push(detailsHref);
+    e.preventDefault();
+    window.location.href = detailsHref;
   };
 
   return (

@@ -2,7 +2,6 @@
 
 import { useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { ArrowUpRight, MapPin, Maximize2 } from 'lucide-react';
 import { useInViewOnce } from '@/hooks/useInViewOnce';
 import SafeListingImage from '@/components/shared/SafeListingImage';
@@ -27,7 +26,6 @@ const statusTokens = {
 };
 
 export default function ProjectListingCard({ project, index }) {
-  const router = useRouter();
   const [wrapRef, visible] = useInViewOnce({ threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
   const status = statusTokens[project.status] || statusTokens.Current;
   const num = String(index + 1).padStart(2, '0');
@@ -70,7 +68,8 @@ export default function ProjectListingCard({ project, index }) {
     if (e.defaultPrevented) return;
     if (e.button !== 0) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    router.push(projectHref);
+    e.preventDefault();
+    window.location.href = projectHref;
   };
 
   return (

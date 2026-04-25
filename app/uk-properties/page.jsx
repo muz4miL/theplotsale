@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Bed, Bath, Maximize, ArrowUpRight, MapPin, Home } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
 import ListingLogo from '@/components/ListingLogo';
@@ -136,7 +135,6 @@ export default function UKPropertiesPage() {
 }
 
 function PropertyCard({ property }) {
-  const router = useRouter();
   const { formatPrice } = useDisplayCurrency();
   const native = property.currency === 'PKR' ? 'PKR' : 'GBP';
   const priceLabel = formatPrice(property.price, native);
@@ -179,7 +177,8 @@ function PropertyCard({ property }) {
     if (e.defaultPrevented) return;
     if (e.button !== 0) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    router.push(detailsHref);
+    e.preventDefault();
+    window.location.href = detailsHref;
   };
 
   return (
