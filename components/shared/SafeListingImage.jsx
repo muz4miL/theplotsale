@@ -33,11 +33,11 @@ export default function SafeListingImage({
 
   // Watermark size
   const sizeMap = {
-    small: 60,
-    medium: 100,
-    large: 140,
+    small: 75,
+    medium: 125,
+    large: 175,
   };
-  const logoSize = sizeMap[watermarkSize] || 100;
+  const logoSize = sizeMap[watermarkSize] || 125;
 
   useLayoutEffect(() => {
     const wrapper = wrapperRef.current;
