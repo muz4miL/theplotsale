@@ -9,6 +9,7 @@ import { LISTING_IMAGE_FALLBACK, resolveListingImageSrc } from '@/lib/listing-im
  */
 function addCloudinaryWatermark(url, options = {}) {
   if (!url || typeof url !== 'string' || !url.includes('res.cloudinary.com')) {
+    console.log('❌ Not a Cloudinary URL:', url);
     return url;
   }
 
@@ -22,7 +23,10 @@ function addCloudinaryWatermark(url, options = {}) {
 
   // Extract cloud name and path
   const match = url.match(/res\.cloudinary\.com\/([^/]+)\/image\/upload\/(.*)/);
-  if (!match) return url;
+  if (!match) {
+    console.log('❌ Could not parse Cloudinary URL:', url);
+    return url;
+  }
 
   const [, cloudName, path] = match;
   
@@ -34,7 +38,9 @@ function addCloudinaryWatermark(url, options = {}) {
   // x_20,y_20 = 20px padding from edges
   const transformation = `l_newLogo2_yu8je8,w_${width},o_${opacity},g_${gravity},x_${x},y_${y}`;
   
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${transformation}/${path}`;
+  const watermarkedUrl = `https://res.cloudinary.com/${cloudName}/image/upload/${transformation}/${path}`;
+  console.log('✅ Watermark added:', watermarkedUrl);
+  return watermarkedUrl;
 }
 
 /**
