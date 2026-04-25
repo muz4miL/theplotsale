@@ -27,12 +27,12 @@ function addCloudinaryWatermark(url, options = {}) {
   const [, cloudName, path] = match;
   
   // Add watermark transformation
-  // l_newLogo2 = layer overlay with newLogo2.png from your Cloudinary account
+  // l_newLogo2_yu8je8 = layer overlay with newLogo2_yu8je8.png from Cloudinary
   // w_120 = width 120px
   // o_75 = opacity 75%
   // g_south_east = position bottom-right
   // x_20,y_20 = 20px padding from edges
-  const transformation = `l_newLogo2,w_${width},o_${opacity},g_${gravity},x_${x},y_${y}`;
+  const transformation = `l_newLogo2_yu8je8,w_${width},o_${opacity},g_${gravity},x_${x},y_${y}`;
   
   return `https://res.cloudinary.com/${cloudName}/image/upload/${transformation}/${path}`;
 }
