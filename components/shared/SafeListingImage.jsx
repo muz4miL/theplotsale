@@ -9,7 +9,6 @@ import { LISTING_IMAGE_FALLBACK, resolveListingImageSrc } from '@/lib/listing-im
  */
 function addCloudinaryWatermark(url, options = {}) {
   if (!url || typeof url !== 'string' || !url.includes('res.cloudinary.com')) {
-    console.log('❌ Not a Cloudinary URL:', url);
     return url;
   }
 
@@ -23,24 +22,14 @@ function addCloudinaryWatermark(url, options = {}) {
 
   // Extract cloud name and path
   const match = url.match(/res\.cloudinary\.com\/([^/]+)\/image\/upload\/(.*)/);
-  if (!match) {
-    console.log('❌ Could not parse Cloudinary URL:', url);
-    return url;
-  }
+  if (!match) return url;
 
   const [, cloudName, path] = match;
   
-  // Add watermark transformation
-  // l_newLogo2_yu8je8 = layer overlay with newLogo2_yu8je8.png from Cloudinary
-  // w_120 = width 120px
-  // o_75 = opacity 75%
-  // g_south_east = position bottom-right
-  // x_20,y_20 = 20px padding from edges
-  const transformation = `l_newLogo2_yu8je8,w_${width},o_${opacity},g_${gravity},x_${x},y_${y}`;
+  // Add watermark transformation using watermark_logo from Cloudinary
+  const transformation = `l_watermark_logo,w_${width},o_${opacity},g_${gravity},x_${x},y_${y}`;
   
-  const watermarkedUrl = `https://res.cloudinary.com/${cloudName}/image/upload/${transformation}/${path}`;
-  console.log('✅ Watermark added:', watermarkedUrl);
-  return watermarkedUrl;
+  return `https://res.cloudinary.com/${cloudName}/image/upload/${transformation}/${path}`;
 }
 
 /**
