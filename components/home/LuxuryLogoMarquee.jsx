@@ -15,18 +15,18 @@ function FloatingLogo({ item, index }) {
 
   return (
     <div 
-      className="group relative flex shrink-0 items-center justify-center transition-all duration-500 hover:scale-110"
+      className="group relative flex shrink-0 items-center justify-center transition-transform duration-300 will-change-transform hover:scale-105"
       style={{
         animationDelay: `${index * 0.15}s`,
         width: '280px',
         height: '280px',
       }}
     >
-      {/* Glow effect on hover */}
-      <div className="pointer-events-none absolute inset-0 bg-[#C5A880]/20 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
+      {/* Simplified glow effect - only on hover, no blur */}
+      <div className="pointer-events-none absolute inset-0 rounded-full bg-[#C5A880]/0 opacity-0 transition-opacity duration-300 group-hover:bg-[#C5A880]/10 group-hover:opacity-100" />
       
-      {/* Logo - NO BORDERS, NO BACKGROUNDS, just the image */}
-      <div className="relative z-10 h-full w-full transition-all duration-500 group-hover:brightness-110">
+      {/* Logo - optimized with will-change */}
+      <div className="relative z-10 h-full w-full will-change-transform">
         {!broken && item.logo ? (
           <Image
             src={item.logo}
@@ -34,6 +34,8 @@ function FloatingLogo({ item, index }) {
             fill
             className="object-contain p-6"
             sizes="280px"
+            priority={index < 4}
+            quality={85}
             onError={() => setBroken(true)}
           />
         ) : (
@@ -45,8 +47,8 @@ function FloatingLogo({ item, index }) {
         )}
       </div>
 
-      {/* Tooltip on hover */}
-      <div className="pointer-events-none absolute -bottom-16 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-black/95 px-4 py-2 opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100">
+      {/* Simplified tooltip - no blur */}
+      <div className="pointer-events-none absolute -bottom-16 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-black/95 px-4 py-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
         <p className="font-[family-name:var(--font-manrope)] text-sm font-medium text-white">
           {item.name}
         </p>

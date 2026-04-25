@@ -66,7 +66,16 @@ export default function MarqueeControlPage() {
   async function fetchRows() {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/admin/marquee-logos', { credentials: 'include', cache: 'no-store' });
+      // Add timestamp to bust cache
+      const timestamp = Date.now();
+      const res = await fetch(`/api/admin/marquee-logos?t=${timestamp}`, { 
+        credentials: 'include', 
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+        }
+      });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || 'Failed to fetch marquee logos.');
       setUsingDefaults(!!data.usingDefaults);
@@ -183,6 +192,9 @@ export default function MarqueeControlPage() {
         sortOrder: Number.isFinite(Number(form.sortOrder)) ? Number(form.sortOrder) : 0,
         isActive: !!form.isActive,
       };
+      
+      console.log('Submitting payload:', payload);
+      
       const url = mode === 'create' ? '/api/admin/marquee-logos' : `/api/admin/marquee-logos/${editingId}`;
       const method = mode === 'create' ? 'POST' : 'PATCH';
       const res = await fetch(url, {
@@ -192,11 +204,19 @@ export default function MarqueeControlPage() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
+      
+      console.log('Response:', data);
+      
       if (!res.ok || !data.success) throw new Error(data.message || 'Save failed.');
       setStatus(mode === 'create' ? 'Marquee logo added.' : 'Marquee logo updated.');
       setIsModalOpen(false);
-      await fetchRows();
+      
+      // Force a fresh fetch with a small delay to ensure DB has updated
+      setTimeout(async () => {
+        await fetchRows();
+      }, 500);
     } catch (saveError) {
+      console.error('Save error:', saveError);
       setError(saveError.message || 'Save failed.');
     } finally {
       setIsSaving(false);
