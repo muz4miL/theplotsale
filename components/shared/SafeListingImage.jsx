@@ -44,10 +44,10 @@ export default function SafeListingImage({
   };
   const posStyle = positionStyles[watermarkPosition] || positionStyles['bottom-right'];
 
-  // For fill images, need wrapper
+  // For fill images, need wrapper with relative positioning
   if (fill) {
     return (
-      <>
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
         <Image
           {...props}
           src={currentSrc}
@@ -69,7 +69,8 @@ export default function SafeListingImage({
               pointerEvents: 'none',
               opacity: 0.7,
               filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
-              ...posStyle,
+              bottom: '12px',
+              right: '12px',
             }}
           >
             <Image
@@ -81,13 +82,13 @@ export default function SafeListingImage({
             />
           </div>
         )}
-      </>
+      </div>
     );
   }
 
   // For non-fill images
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}>
+    <div style={{ position: 'relative', display: 'inline-block', width: '100%', height: '100%' }}>
       <Image
         {...props}
         src={currentSrc}
@@ -108,7 +109,8 @@ export default function SafeListingImage({
             pointerEvents: 'none',
             opacity: 0.7,
             filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
-            ...posStyle,
+            bottom: '12px',
+            right: '12px',
           }}
         >
           <Image
