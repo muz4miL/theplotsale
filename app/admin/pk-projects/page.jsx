@@ -21,6 +21,7 @@ const initialForm = {
   mainImage: '',
   totalArea: '',
   paymentPlan: '',
+  paymentPlanStructure: null,
   galleryMedia: [],
   primaryLogo: '',
   floatingLogos: [],
@@ -87,6 +88,7 @@ export default function PkProjectsPage() {
       mainImage: row.mainImage || '',
       totalArea: row.totalArea || '',
       paymentPlan: row.paymentPlan || '',
+      paymentPlanStructure: row.paymentPlanStructure || null,
       galleryMedia: row.galleryMedia || [],
       primaryLogo: row.primaryLogo || '',
       floatingLogos: row.floatingLogos || [],
@@ -330,6 +332,41 @@ export default function PkProjectsPage() {
           ) : null}
 
           <input value={form.paymentPlan} onChange={(e) => setForm({ ...form, paymentPlan: e.target.value })} placeholder="Payment plan (optional)" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
+          
+          {/* Payment Plan Structure (JSON) */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-[#C5A880]">
+              Payment Plan Structure (JSON - Optional)
+            </label>
+            <textarea
+              value={form.paymentPlanStructure ? JSON.stringify(form.paymentPlanStructure, null, 2) : ''}
+              onChange={(e) => {
+                try {
+                  const parsed = e.target.value.trim() ? JSON.parse(e.target.value) : null;
+                  setForm({ ...form, paymentPlanStructure: parsed });
+                  setError('');
+                } catch (err) {
+                  // Keep the text but don't update form until valid JSON
+                  setError('Invalid JSON format');
+                }
+              }}
+              rows={8}
+              placeholder='{"description": "...", "note": "...", "categories": [{"name": "4 Marla", "downPayment": 500000, ...}]}'
+              className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 font-mono text-xs text-white outline-none"
+            />
+            <p className="text-xs text-white/50">
+              Add structured payment plan data. See{' '}
+              <a
+                href="/.agent/PAYMENT_PLAN_GUIDE.md"
+                target="_blank"
+                className="text-[#C5A880] underline hover:text-[#E4D3B4]"
+              >
+                Payment Plan Guide
+              </a>{' '}
+              for format.
+            </p>
+          </div>
+
           <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} placeholder="Description (optional)" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none" />
           <button disabled={isSaving || !!progressLabel} className="rounded-xl border border-[#C5A880]/70 bg-[#C5A880]/15 px-5 py-3 text-sm font-semibold text-[#C5A880] disabled:opacity-60">
             {isSaving ? 'Saving...' : mode === 'create' ? 'Create Project' : 'Update Project'}

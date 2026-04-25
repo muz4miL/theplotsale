@@ -8,6 +8,7 @@ import ProgressTimeline from '@/components/projects/ProgressTimeline';
 import ListingLogo from '@/components/ListingLogo';
 import ProjectLuxuryShowcase from '@/components/projects/ProjectLuxuryShowcase';
 import LuxuryVideoPlayer from '@/components/projects/LuxuryVideoPlayer';
+import LuxuryPaymentPlan from '@/components/projects/LuxuryPaymentPlan';
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -123,7 +124,14 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* Payment Plan */}
-          {project.paymentPlan && (
+          {project.paymentPlanStructure && (
+            <div className="mb-12">
+              <LuxuryPaymentPlan paymentPlan={project.paymentPlanStructure} />
+            </div>
+          )}
+
+          {/* Legacy Payment Plan Text (fallback) */}
+          {!project.paymentPlanStructure && project.paymentPlan && (
             <div className="mb-12 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
               <div className="flex items-center mb-4">
                 <FileText className="w-8 h-8 text-[#C5A880] mr-3" />
