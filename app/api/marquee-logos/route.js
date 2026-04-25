@@ -29,7 +29,14 @@ export async function GET() {
         usingDefaults,
         data: payload,
       },
-      { status: 200 }
+      { 
+        status: 200,
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        }
+      }
     );
   } catch (error) {
     return NextResponse.json(

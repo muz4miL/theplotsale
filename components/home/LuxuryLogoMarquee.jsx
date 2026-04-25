@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import ListingLogo from '@/components/ListingLogo';
+import Image from 'next/image';
 import { MARQUEE_DEFAULT_BRANDS } from '@/lib/marquee-defaults';
-import { LuxuryEdgeShimmer, LuxurySectionOrbs } from '@/components/shared/LuxuryMotionAccents';
 
 const fallbackItems = MARQUEE_DEFAULT_BRANDS.map((item) => ({
   name: item.name,
@@ -11,15 +10,47 @@ const fallbackItems = MARQUEE_DEFAULT_BRANDS.map((item) => ({
   logo: item.logoUrl || '',
 }));
 
-function MarqueeCard({ item }) {
+function FloatingLogo({ item, index }) {
+  const [broken, setBroken] = useState(false);
+
   return (
-    <div className="group mx-6 flex h-28 w-64 shrink-0 items-center rounded-2xl border border-white/10 bg-white/[0.04] px-5 backdrop-blur-md transition-all duration-500 hover:-translate-y-0.5 hover:border-[#C5A880]/55 hover:bg-white/[0.08]">
-      <div className="mr-4">
-        <ListingLogo src={item.logo} name={item.name} className="h-14 w-14" />
+    <div 
+      className="group relative flex shrink-0 items-center justify-center transition-all duration-500 hover:scale-110"
+      style={{
+        animationDelay: `${index * 0.15}s`,
+        width: '280px',
+        height: '280px',
+      }}
+    >
+      {/* Glow effect on hover */}
+      <div className="pointer-events-none absolute inset-0 bg-[#C5A880]/20 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
+      
+      {/* Logo - NO BORDERS, NO BACKGROUNDS, just the image */}
+      <div className="relative z-10 h-full w-full transition-all duration-500 group-hover:brightness-110">
+        {!broken && item.logo ? (
+          <Image
+            src={item.logo}
+            alt={`${item.name} logo`}
+            fill
+            className="object-contain p-6"
+            sizes="280px"
+            onError={() => setBroken(true)}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <span className="text-3xl font-semibold tracking-[0.15em] text-[#C5A880]">
+              {item.name.split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join('') || 'LG'}
+            </span>
+          </div>
+        )}
       </div>
-      <div>
-        <p className="text-sm font-semibold tracking-[0.05em] text-white">{item.name}</p>
-        <p className="mt-1 text-xs leading-relaxed text-neutral-400 transition-colors duration-300 group-hover:text-[#DCC39E]">
+
+      {/* Tooltip on hover */}
+      <div className="pointer-events-none absolute -bottom-16 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-black/95 px-4 py-2 opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100">
+        <p className="font-[family-name:var(--font-manrope)] text-sm font-medium text-white">
+          {item.name}
+        </p>
+        <p className="font-[family-name:var(--font-manrope)] text-xs text-white/60">
           {item.detail}
         </p>
       </div>
@@ -29,12 +60,24 @@ function MarqueeCard({ item }) {
 
 export default function LuxuryLogoMarquee() {
   const [brandItems, setBrandItems] = useState(fallbackItems);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     async function loadLogoItems() {
       try {
-        const response = await fetch('/api/marquee-logos', { cache: 'no-store' });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+        // Add timestamp to bust cache
+        const timestamp = Date.now();
+        const response = await fetch(`/api/marquee-logos?t=${timestamp}`, { 
+          cache: 'no-store',
+          signal: controller.signal 
+        });
+        
+        clearTimeout(timeoutId);
         const result = await response.json();
+        
         if (!response.ok || !result?.success) return;
 
         const mapped = (result?.data || []).map((item) => ({
@@ -48,35 +91,56 @@ export default function LuxuryLogoMarquee() {
         }
       } catch (_error) {
         // Keep fallback set when APIs are not available.
+      } finally {
+        setIsLoaded(true);
       }
     }
     loadLogoItems();
   }, []);
 
+  // Only duplicate once for seamless loop, with proper spacing
   const marqueeItems = useMemo(() => [...brandItems, ...brandItems], [brandItems]);
 
   return (
-    <section className="relative overflow-hidden border-y border-white/10 bg-neutral-950 py-14">
-      <LuxurySectionOrbs />
-      <div className="relative mx-auto mb-10 max-w-7xl pl-[max(1.5rem,env(safe-area-inset-left,0px))] pr-[max(1.5rem,env(safe-area-inset-right,0px))] text-center md:pl-8 md:pr-8 lg:pl-12 lg:pr-12">
-        <p className="text-[10px] uppercase tracking-[0.5em] text-[#C5A880]">Global Confidence Layer</p>
-        <h3 className="mt-3 text-2xl font-semibold text-white md:text-3xl">Trusted by Elite Property Networks</h3>
-        <LuxuryEdgeShimmer className="mx-auto mt-6 max-w-xs md:max-w-sm" />
+    <section className="relative overflow-hidden bg-[#030706] py-16 sm:py-20">
+      {/* Subtle background gradient */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_50%,rgba(197,168,128,0.03),transparent)]" />
+
+      {/* Header */}
+      <div className="relative mx-auto mb-12 max-w-7xl px-6 text-center sm:mb-16">
+        <p className="font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.4em] text-[#C5A880]/80">
+          Trusted by Industry Leaders
+        </p>
+        
+        <h3 className="mt-4 font-playfair text-[clamp(1.75rem,4vw,2.5rem)] font-light leading-tight text-white">
+          Trusted by <span className="italic text-[#e8dcc4]">Elite Property Networks</span>
+        </h3>
+        
+        <p className="mx-auto mt-4 max-w-2xl font-[family-name:var(--font-manrope)] text-sm font-light leading-relaxed text-white/40">
+          Strategic partnerships with the world's most distinguished developers, advisors, and luxury real estate authorities.
+        </p>
       </div>
 
+      {/* Floating logos marquee */}
       <div className="relative">
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-28 bg-gradient-to-r from-neutral-950 to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-28 bg-gradient-to-l from-neutral-950 to-transparent" />
+        {/* Fade edges */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-32 bg-gradient-to-r from-[#030706] to-transparent sm:w-40" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-32 bg-gradient-to-l from-[#030706] to-transparent sm:w-40" />
 
-        <div className="marquee-lane w-max hover:[animation-play-state:paused]">
-          <div className="marquee-track flex w-max items-center">
+        {/* Marquee animation - consistent spacing */}
+        <div 
+          className={`marquee-lane w-max transition-opacity duration-1000 hover:[animation-play-state:paused] ${
+            isLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <div className="marquee-track flex w-max items-center gap-40 py-12">
             {marqueeItems.map((item, index) => (
-              <MarqueeCard key={`${item.name}-${index}`} item={item} />
+              <FloatingLogo key={`${item.name}-${index}`} item={item} index={index} />
             ))}
           </div>
-          <div className="marquee-track flex w-max items-center" aria-hidden="true">
+          <div className="marquee-track flex w-max items-center gap-40 py-12" aria-hidden="true">
             {marqueeItems.map((item, index) => (
-              <MarqueeCard key={`${item.name}-clone-${index}`} item={item} />
+              <FloatingLogo key={`${item.name}-clone-${index}`} item={item} index={index} />
             ))}
           </div>
         </div>
