@@ -22,6 +22,7 @@ export async function PATCH(request, { params }) {
           floatingLogos: Array.isArray(body.floatingLogos) ? body.floatingLogos : [],
           totalArea: body.totalArea || '',
           paymentPlan: body.paymentPlan || '',
+          paymentPlanStructure: body.paymentPlanStructure || undefined,
           galleryMedia: Array.isArray(body.galleryMedia) ? body.galleryMedia : [],
         },
       },

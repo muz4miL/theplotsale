@@ -58,6 +58,20 @@ const projectSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    paymentPlanStructure: {
+      description: { type: String, default: '' },
+      note: { type: String, default: '' },
+      categories: [
+        {
+          name: { type: String, required: true },
+          downPayment: { type: Number, default: 0 },
+          quarterlyInstallment: { type: Number, default: 0 },
+          yearlyInstallment: { type: Number, default: 0 },
+          onPossession: { type: Number, default: 0 },
+          totalAmount: { type: Number, default: 0 },
+        },
+      ],
+    },
     mainImage: {
       type: String,
       default:
