@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Bed, Bath, Maximize, ArrowUpRight, MapPin, Home } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
 import ListingLogo from '@/components/ListingLogo';
@@ -135,9 +136,11 @@ export default function UKPropertiesPage() {
 }
 
 function PropertyCard({ property }) {
+  const router = useRouter();
   const { formatPrice } = useDisplayCurrency();
   const native = property.currency === 'PKR' ? 'PKR' : 'GBP';
   const priceLabel = formatPrice(property.price, native);
+  const detailsHref = `/uk-properties/${property.slug}`;
   
   // 3D Tilt & Glare refs (DOM manipulation for 60fps, zero React re-renders)
   const cardRef = useRef(null);
@@ -172,9 +175,17 @@ function PropertyCard({ property }) {
     if (glareRef.current) glareRef.current.style.opacity = '0';
   };
 
+  const handleCardClick = (e) => {
+    if (e.defaultPrevented) return;
+    if (e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    router.push(detailsHref);
+  };
+
   return (
     <Link
-      href={`/uk-properties/${property.slug}`}
+      href={detailsHref}
+      onClick={handleCardClick}
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
