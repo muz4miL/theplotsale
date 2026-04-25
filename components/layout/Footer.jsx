@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import BrandSocialLinks from '@/components/layout/BrandSocialLinks';
 import ConciergeTextReveal from '@/components/layout/ConciergeTextReveal';
 
@@ -19,6 +21,13 @@ const projectsLinks = [
 ];
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
   return (
     <footer className="relative z-10 bg-gradient-to-t from-black to-[#05110e] text-[#f5f5f5] pt-16 pb-[max(2rem,env(safe-area-inset-bottom,0px))]">
       {/* Golden Horizon Border */}

@@ -8,8 +8,8 @@ import { uploadToCloudinary } from '@/lib/cloudinary-upload';
 
 const LOGO_RULES = {
   maxBytes: 4 * 1024 * 1024,
-  minWidth: 400,
-  minHeight: 400,
+  minWidth: 200,  // Lowered from 400 to allow smaller logos
+  minHeight: 200, // Lowered from 400 to allow smaller logos
 };
 
 const initialForm = {
