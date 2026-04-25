@@ -5,38 +5,10 @@ import Image from 'next/image';
 import { LISTING_IMAGE_FALLBACK, resolveListingImageSrc } from '@/lib/listing-images';
 
 /**
- * Adds watermark to Cloudinary images via URL transformation
- */
-function addCloudinaryWatermark(url, options = {}) {
-  if (!url || typeof url !== 'string' || !url.includes('res.cloudinary.com')) {
-    return url;
-  }
-
-  const { 
-    opacity = 75, 
-    gravity = 'south_east', 
-    x = 20, 
-    y = 20,
-    width = 120 
-  } = options;
-
-  // Extract cloud name and path
-  const match = url.match(/res\.cloudinary\.com\/([^/]+)\/image\/upload\/(.*)/);
-  if (!match) return url;
-
-  const [, cloudName, path] = match;
-  
-  // Add watermark transformation using watermark_logo from Cloudinary
-  const transformation = `l_watermark_logo,w_${width},o_${opacity},g_${gravity},x_${x},y_${y}`;
-  
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${transformation}/${path}`;
-}
-
-/**
- * Next/Image wrapper with automatic Cloudinary watermark
+ * Next/Image wrapper with CSS watermark overlay
  * - Never leaves a blank tile — invalid src resolves to fallback
  * - Load errors swap to fallback
- * - Adds The Plot Sale logo watermark via Cloudinary transformation
+ * - Adds The Plot Sale logo watermark via CSS overlay (works everywhere)
  */
 export default function SafeListingImage({
   src,
@@ -50,30 +22,76 @@ export default function SafeListingImage({
   className,
   ...props
 }) {
-  const [currentSrc, setCurrentSrc] = useState(() => {
-    const resolved = resolveListingImageSrc(src, fallback);
-    return showWatermark ? addCloudinaryWatermark(resolved, {
-      width: watermarkSize === 'small' ? 80 : watermarkSize === 'large' ? 160 : 120,
-      gravity: watermarkPosition === 'bottom-left' ? 'south_west' : watermarkPosition === 'center' ? 'center' : 'south_east',
-    }) : resolved;
-  });
+  const [currentSrc, setCurrentSrc] = useState(() => resolveListingImageSrc(src, fallback));
 
   useEffect(() => {
-    const resolved = resolveListingImageSrc(src, fallback);
-    const withWatermark = showWatermark ? addCloudinaryWatermark(resolved, {
-      width: watermarkSize === 'small' ? 80 : watermarkSize === 'large' ? 160 : 120,
-      gravity: watermarkPosition === 'bottom-left' ? 'south_west' : watermarkPosition === 'center' ? 'center' : 'south_east',
-    }) : resolved;
-    setCurrentSrc(withWatermark);
-  }, [src, fallback, showWatermark, watermarkSize, watermarkPosition]);
+    setCurrentSrc(resolveListingImageSrc(src, fallback));
+  }, [src, fallback]);
 
+  // Watermark size
+  const sizeMap = {
+    small: 60,
+    medium: 100,
+    large: 140,
+  };
+  const logoSize = sizeMap[watermarkSize] || 100;
+
+  // Watermark position
+  const positionStyles = {
+    'bottom-right': { bottom: '12px', right: '12px' },
+    'bottom-left': { bottom: '12px', left: '12px' },
+    'center': { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
+  };
+  const posStyle = positionStyles[watermarkPosition] || positionStyles['bottom-right'];
+
+  // For fill images, need wrapper
   if (fill) {
     return (
+      <>
+        <Image
+          {...props}
+          src={currentSrc}
+          alt={alt || ''}
+          fill
+          className={className}
+          onError={(e) => {
+            if (currentSrc !== fallback) {
+              setCurrentSrc(fallback);
+            }
+            onError?.(e);
+          }}
+        />
+        {showWatermark && (
+          <div
+            style={{
+              position: 'absolute',
+              zIndex: 10,
+              pointerEvents: 'none',
+              opacity: 0.7,
+              filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
+              ...posStyle,
+            }}
+          >
+            <Image
+              src="/newLogo2.png"
+              alt=""
+              width={logoSize}
+              height={logoSize}
+              style={{ width: logoSize, height: 'auto' }}
+            />
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // For non-fill images
+  return (
+    <div style={{ position: 'relative', display: 'inline-block' }}>
       <Image
         {...props}
         src={currentSrc}
         alt={alt || ''}
-        fill
         className={className}
         onError={(e) => {
           if (currentSrc !== fallback) {
@@ -82,22 +100,27 @@ export default function SafeListingImage({
           onError?.(e);
         }}
       />
-    );
-  }
-
-  return (
-    <Image
-      {...props}
-      src={currentSrc}
-      alt={alt || ''}
-      className={className}
-      onError={(e) => {
-        if (currentSrc !== fallback) {
-          setCurrentSrc(fallback);
-        }
-        onError?.(e);
-      }}
-    />
+      {showWatermark && (
+        <div
+          style={{
+            position: 'absolute',
+            zIndex: 10,
+            pointerEvents: 'none',
+            opacity: 0.7,
+            filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
+            ...posStyle,
+          }}
+        >
+          <Image
+            src="/newLogo2.png"
+            alt=""
+            width={logoSize}
+            height={logoSize}
+            style={{ width: logoSize, height: 'auto' }}
+          />
+        </div>
+      )}
+    </div>
   );
 }
 
