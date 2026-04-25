@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import BrandSocialLinks from '@/components/layout/BrandSocialLinks';
 import ConciergeTextReveal from '@/components/layout/ConciergeTextReveal';
@@ -129,13 +130,13 @@ export default function Footer() {
             </p>
             <div className="flex flex-col gap-2.5">
               {exploreLinks.map((link) => (
-                <a
+                <Link
                   key={link.label}
                   href={link.href}
                   className="text-white/70 text-sm font-light hover:translate-x-1 hover:text-[#C5A880] transition-all duration-300"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -147,13 +148,13 @@ export default function Footer() {
             </p>
             <div className="flex flex-col gap-2.5">
               {projectsLinks.map((link) => (
-                <a
+                <Link
                   key={link.label}
                   href={link.href}
                   className="text-white/70 text-sm font-light tracking-[0.08em] hover:translate-x-1 hover:text-[#C5A880] transition-all duration-300"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>

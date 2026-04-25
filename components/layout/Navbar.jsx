@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import CurrencyToggle from '@/components/layout/CurrencyToggle';
@@ -169,7 +170,7 @@ export default function Navbar() {
             {navConfig.map((item) => {
               const active = isNavActive(item.href, pathname);
               return (
-                <a
+                <Link
                   key={item.href}
                   href={item.href}
                   className={`relative rounded-full px-3.5 py-2.5 no-underline outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-[#C5A880]/50 xl:px-4 xl:py-2.5 ${
@@ -185,7 +186,7 @@ export default function Navbar() {
                   <span className="relative z-10 font-[family-name:var(--font-manrope)] text-[0.68rem] font-medium uppercase tracking-[0.16em] xl:text-[0.72rem] xl:tracking-[0.18em]">
                     {item.label.replace(/ /g, '\u00A0')}
                   </span>
-                </a>
+                </Link>
               );
             })}
           </nav>
@@ -197,14 +198,14 @@ export default function Navbar() {
           </div>
 
           <div className="hidden lg:block">
-            <a
+            <Link
               href="/contact"
               className={`lux-button inline-flex items-center justify-center rounded-full border border-[#C5A880] bg-[#C5A880] px-7 py-2.5 font-[family-name:var(--font-manrope)] text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-[#111111] transition-colors hover:bg-transparent hover:text-[#C5A880] xl:px-9 xl:py-[0.85rem] xl:text-[0.74rem] xl:tracking-[0.25em] ${
                 immersiveNav ? 'shadow-[0_10px_36px_rgba(0,0,0,0.45)]' : ''
               }`}
             >
               Book appointment
-            </a>
+            </Link>
           </div>
 
           <div
@@ -289,7 +290,7 @@ export default function Navbar() {
                   transitionDelay: isDrawerOpen ? `${80 + i * 55}ms` : '0ms',
                 }}
               >
-                <a
+                <Link
                   href={item.href}
                   onClick={closeDrawer}
                   className={`group relative block border-b border-white/[0.06] py-5 pl-4 no-underline transition-colors ${
@@ -307,20 +308,20 @@ export default function Navbar() {
                   <span className="mt-1 block font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.28em] text-[#C5A880]/50">
                     {active ? 'Current' : 'View'}
                   </span>
-                </a>
+                </Link>
               </div>
             );
           })}
         </nav>
 
         <div className="border-t border-white/[0.06] pt-5">
-          <a
+          <Link
             href="/contact"
             onClick={closeDrawer}
             className="lux-button flex w-full items-center justify-center rounded-full border border-[#C5A880] bg-[#C5A880] py-3.5 font-[family-name:var(--font-manrope)] text-[11px] font-semibold uppercase tracking-[0.22em] text-[#111111] hover:bg-[#d4b896]"
           >
             Book appointment
-          </a>
+          </Link>
           <p className="mt-3 text-center font-[family-name:var(--font-manrope)] text-[10px] text-white/35">
             London · Lahore
           </p>

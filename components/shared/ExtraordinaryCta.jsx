@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import Link from 'next/link';
 import { LuxurySectionOrbs, LuxurySkylineGlyph } from '@/components/shared/LuxuryMotionAccents';
 
 export default function ExtraordinaryCta() {
@@ -80,12 +79,12 @@ export default function ExtraordinaryCta() {
             </p>
 
             <div className={`mt-8 ${fade()}`} style={delay(440)}>
-              <Link
+              <a
                 href="/contact"
                 className="lux-button inline-flex w-full items-center justify-center rounded-sm bg-[#f97316] px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-all duration-300 hover:bg-[#ea580c] hover:shadow-[0_10px_28px_rgba(249,115,22,0.4)] sm:w-auto sm:px-8"
               >
                 Start your project
-              </Link>
+              </a>
             </div>
           </div>
         </div>

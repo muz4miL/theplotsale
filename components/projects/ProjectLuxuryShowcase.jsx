@@ -196,17 +196,20 @@ function FullscreenLightbox({ slides, initialIndex, onClose }) {
     };
   }, []);
 
+  // Ensure lightbox doesn't mount if not needed
+  if (!slides || slides.length === 0) return null;
+
   return (
     <div
-      className={`lightbox-cursor-visible fixed inset-0 z-[55] flex items-center justify-center bg-black/98 backdrop-blur-xl transition-opacity duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isMounted ? 'opacity-100' : 'opacity-0'}`}
+      className={`lightbox-cursor-visible fixed inset-0 z-[55] flex items-center justify-center bg-black/98 backdrop-blur-xl transition-opacity duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] pointer-events-none ${isMounted ? 'opacity-100' : 'opacity-0'}`}
       onClick={onClose}
     >
       {/* Close button */}
-      <button type="button" onClick={onClose} aria-label="Close fullscreen" className="absolute right-[max(0.9rem,env(safe-area-inset-right))] top-[max(0.9rem,env(safe-area-inset-top))] z-20 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white/80 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/80 hover:text-white active:scale-[0.94]">
+      <button type="button" onClick={onClose} aria-label="Close fullscreen" className="pointer-events-auto absolute right-[max(0.9rem,env(safe-area-inset-right))] top-[max(0.9rem,env(safe-area-inset-top))] z-20 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white/80 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/80 hover:text-white active:scale-[0.94]">
         <X className="h-5 w-5" strokeWidth={1.5} />
       </button>
 
-      <div className="absolute left-1/2 top-[max(0.95rem,env(safe-area-inset-top))] z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/15 bg-black/60 px-4 py-2 backdrop-blur-md">
+      <div className="pointer-events-auto absolute left-1/2 top-[max(0.95rem,env(safe-area-inset-top))] z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/15 bg-black/60 px-4 py-2 backdrop-blur-md">
         <span className="font-[family-name:var(--font-manrope)] text-xs font-semibold tabular-nums text-white">{String(currentIndex + 1).padStart(2, '0')}</span>
         <span className="text-white/30">/</span>
         <span className="font-[family-name:var(--font-manrope)] text-xs tabular-nums text-white/50">{String(slides.length).padStart(2, '0')}</span>
@@ -214,7 +217,7 @@ function FullscreenLightbox({ slides, initialIndex, onClose }) {
 
       {/* Cinematic Scale In */}
       <div
-        className={`relative h-full w-full p-4 sm:p-12 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${isMounted ? 'scale-100' : 'scale-90'}`}
+        className={`pointer-events-auto relative h-full w-full p-4 sm:p-12 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${isMounted ? 'scale-100' : 'scale-90'}`}
         onClick={(e) => e.stopPropagation()}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -238,10 +241,10 @@ function FullscreenLightbox({ slides, initialIndex, onClose }) {
 
       {slides.length > 1 && (
         <>
-          <button type="button" onClick={(e) => { e.stopPropagation(); prev(); }} aria-label="Previous image" className="absolute left-4 top-1/2 z-20 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white/80 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/80 hover:text-white active:scale-[0.94] sm:left-6">
+          <button type="button" onClick={(e) => { e.stopPropagation(); prev(); }} aria-label="Previous image" className="pointer-events-auto absolute left-4 top-1/2 z-20 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white/80 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/80 hover:text-white active:scale-[0.94] sm:left-6">
             <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
           </button>
-          <button type="button" onClick={(e) => { e.stopPropagation(); next(); }} aria-label="Next image" className="absolute right-4 top-1/2 z-20 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white/80 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/80 hover:text-white active:scale-[0.94] sm:right-6">
+          <button type="button" onClick={(e) => { e.stopPropagation(); next(); }} aria-label="Next image" className="pointer-events-auto absolute right-4 top-1/2 z-20 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white/80 backdrop-blur-md transition-all hover:border-[#C5A880]/60 hover:bg-black/80 hover:text-white active:scale-[0.94] sm:right-6">
             <ChevronRight className="h-6 w-6" strokeWidth={1.5} />
           </button>
         </>
