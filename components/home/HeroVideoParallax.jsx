@@ -316,9 +316,9 @@ export default function HeroVideoParallax() {
       className="relative min-h-[500vh] w-full text-white"
       style={{ background: 'linear-gradient(to bottom right, #111111, #0A0A0A, #050505)' }}
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
+      <div className="sticky top-0 h-screen w-full overflow-hidden pointer-events-none">
         <>
-          <div ref={videoContainerRef} className="absolute z-20 overflow-hidden bg-black/20 w-full h-full right-0 top-0 rounded-none shadow-none">
+          <div ref={videoContainerRef} className="absolute z-20 overflow-hidden bg-black/20 w-full h-full right-0 top-0 rounded-none shadow-none pointer-events-auto">
             <div className="relative h-full w-full overflow-hidden z-10 bg-black">
               {/* Primary hero clip — src, poster and preload="auto" baked into
                   the JSX so the browser's preload scanner picks it up from the
@@ -438,7 +438,7 @@ export default function HeroVideoParallax() {
             <LuxurySkylineGlyph className="h-14 w-36" />
           </div>
 
-          <div ref={scrollIndicatorRef} className="absolute bottom-8 md:bottom-12 left-1/2 z-50 -translate-x-1/2">
+          <div ref={scrollIndicatorRef} className="absolute bottom-8 md:bottom-12 left-1/2 z-50 -translate-x-1/2 pointer-events-none">
             <div className="flex flex-col items-center">
               <span className="mb-3 md:mb-4 text-[10px] md:text-xs tracking-[0.25em] md:tracking-[0.3em] font-sans uppercase font-light" style={{ color: '#C5A880', textShadow: '0 1px 4px rgba(0, 0, 0, 0.5)' }}>EXPLORE</span>
               <div className="relative h-10 md:h-16 overflow-hidden bg-white/10 backdrop-blur-sm" style={{ width: '0.5px' }}>

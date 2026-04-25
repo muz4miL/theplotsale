@@ -1,0 +1,546 @@
+=== COMPLETE CODE FOR DEBUGGING - COPY-PASTE FORMAT ===
+
+=== FILE: app/layout.jsx ===
+```jsx
+// app/layout.jsx
+
+import { Playfair_Display, Manrope } from 'next/font/google';
+import PublicChrome from '@/components/layout/PublicChrome';
+import { DisplayCurrencyProvider } from '@/contexts/DisplayCurrencyContext';
+import LuxuryCursor from '@/components/shared/LuxuryCursor';
+import JsonLd from '@/components/seo/JsonLd';
+import {
+  baseMetadata,
+  organizationLd,
+  localBusinessesLd,
+  websiteLd,
+} from '@/lib/seo';
+import "./globals.css";
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-playfair',
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
+});
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  variable: '--font-manrope',
+  display: 'swap',
+  weight: ['300', '400', '500', '600', '700'],
+});
+
+/**
+ * Root metadata. Everything route-specific inherits from here via the
+ * `title.template` pattern and the `pageMetadata()` factory in lib/seo.js.
+ */
+export const metadata = baseMetadata;
+
+/** Notch / home-indicator aware layout; pairs with safe-area padding in chrome + sections */
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#0a0a0a',
+};
+
+export default function RootLayout({ children }) {
+  // Global JSON-LD graph: Organization + WebSite + both LocalBusiness offices.
+  // Per-page schemas (BreadcrumbList, Product/Residence) are injected at the
+  // route level on top of this — Google merges the graph correctly.
+  const globalLd = [organizationLd(), websiteLd(), ...localBusinessesLd()];
+
+  return (
+    <html lang="en" className={`${playfair.variable} ${manrope.variable} antialiased`}>
+      <head>
+        {/* Pre-warm the two biggest third-party origins we depend on for LCP. */}
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://www.google.com" crossOrigin="" />
+        <link rel="dns-prefetch" href="https://www.google.com" />
+      </head>
+      <body className="bg-[#030706] text-white cursor-none lg:cursor-none antialiased selection:bg-[#C5A880]/35 selection:text-white">
+        <LuxuryCursor />
+        <DisplayCurrencyProvider>
+          {/* Page transition wrapper */}
+          <div className="animate-[pageEntry_0.8s_cubic-bezier(0.22,1,0.36,1)_forwards]">
+            <PublicChrome>{children}</PublicChrome>
+          </div>
+        </DisplayCurrencyProvider>
+        {/* Premium Film Grain Noise Texture Overlay */}
+        <div
+          className="pointer-events-none fixed inset-0 z-[9999] opacity-[0.026] max-md:opacity-[0.014]"
+          aria-hidden="true"
+        >
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="noise" x="0%" y="0%" width="100%" height="100%">
+                <feTurbulence
+                  type="fractalNoise"
+                  baseFrequency="0.80"
+                  numOctaves="4"
+                  stitchTiles="stitch"
+                />
+                <feColorMatrix type="saturate" values="0" />
+              </filter>
+            </defs>
+            <rect width="100%" height="100%" filter="url(#noise)" />
+          </svg>
+        </div>
+        <JsonLd data={globalLd} />
+      </body>
+    </html>
+  );
+}
+```
+
+=== FILE: components/layout/PublicChrome.jsx ===
+```jsx
+'use client';
+
+import { usePathname } from 'next/navigation';
+import { Navbar, Footer } from '@/components/layout';
+import ScrollToTop from '@/components/layout/ScrollToTop';
+import Preloader from '@/components/Preloader';
+import SmoothScroll from '@/components/SmoothScroll';
+import { LuxuryGlobalAmbient } from '@/components/shared/LuxuryMotionAccents';
+
+export default function PublicChrome({ children }) {
+  const pathname = usePathname();
+  const isAdminRoute = pathname?.startsWith('/admin');
+
+  if (isAdminRoute) {
+    return <main>{children}</main>;
+  }
+
+  return (
+    <SmoothScroll>
+      <ScrollToTop />
+      <Preloader />
+      <Navbar />
+      <LuxuryGlobalAmbient />
+      <main className="relative z-10 min-w-0 overflow-x-clip">{children}</main>
+      <Footer />
+    </SmoothScroll>
+  );
+}
+```
+
+=== FILE: components/Preloader.jsx ===
+```jsx
+'use client';
+
+import { useState, useEffect, startTransition } from 'react';
+import Image from 'next/image';
+
+/**
+ * Intro overlay — plain DOM + CSS only (no Framer) so React 19 never fights layout/animation
+ * reconcilers during route transitions or unmount.
+ *
+ * When dismissed, keep a single mounted shell (no `return null`) so a huge subtree is not torn
+ * down at the same time as client navigations — avoids intermittent removeChild races.
+ * 
+ * ONLY shows on initial page load, not on client-side navigations.
+ */
+export default function Preloader() {
+  const [visible, setVisible] = useState(false);
+  const [logoHidden, setLogoHidden] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    // Only show preloader on initial page load, not on client-side navigations
+    const isInitialLoad = !window.sessionStorage.getItem('preloader-shown');
+    
+    if (!isInitialLoad) {
+      setVisible(false);
+      return;
+    }
+    
+    // Mark that preloader has been shown for this session
+    window.sessionStorage.setItem('preloader-shown', 'true');
+    setVisible(true);
+
+    const html = document.documentElement;
+    html.classList.add('preloader-scroll-locked');
+
+    const hideLogoTimer = window.setTimeout(() => {
+      setLogoHidden(true);
+    }, 3200);
+
+    const removeTimer = window.setTimeout(() => {
+      startTransition(() => setVisible(false));
+      html.classList.remove('preloader-scroll-locked');
+    }, 4200);
+
+    return () => {
+      window.clearTimeout(hideLogoTimer);
+      window.clearTimeout(removeTimer);
+      html.classList.remove('preloader-scroll-locked');
+    };
+  }, []);
+
+  return (
+    <div
+      className={`fixed inset-0 flex w-full max-w-[100vw] flex-col overflow-hidden bg-[#0a0a0a] transition-opacity duration-500 ease-out ${
+        visible
+          ? 'pointer-events-none z-[100002] opacity-100'
+          : 'pointer-events-none -z-10 invisible opacity-0'
+      }`}
+      style={{
+        height: 'max(100dvh, 100lvh, 100svh)',
+        minHeight: 'max(100dvh, 100lvh, 100svh)',
+        visibility: visible ? 'visible' : 'hidden',
+      }}
+      aria-busy={visible}
+      aria-hidden={!visible}
+      aria-label={visible ? 'Loading' : undefined}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_85%_55%_at_50%_42%,rgba(197,168,128,0.07),transparent_62%)]"
+        aria-hidden
+      />
+
+      <div className="absolute left-0 right-0 top-0 h-1/2 bg-[#111111]" aria-hidden />
+      <div className="absolute bottom-0 left-0 right-0 top-1/2 h-px bg-[#C5A880]/20" aria-hidden />
+      <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-[#111111]" aria-hidden />
+
+      <div className="absolute inset-0 z-50 flex flex-col items-center justify-center px-6">
+        <div
+          className={`flex flex-col items-center transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            logoHidden ? 'opacity-0' : 'opacity-100'
+          }`}
+        >
+          <div className="relative h-[240px] w-[240px] sm:h-[300px] sm:w-[300px] md:h-[360px] md:w-[360px]">
+            <svg
+              className="absolute inset-0 m-auto h-full w-full"
+              viewBox="0 0 400 400"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden
+            >
+              <path
+                className="preloader-stroke-path [animation:preloader-stroke-main_2s_ease-in-out_forwards]"
+                d="M 200 50 L 300 100 L 350 200 L 300 300 L 200 350 L 100 300 L 50 200 L 100 100 Z"
+                stroke="#C5A880"
+                strokeWidth="1"
+                fill="none"
+                pathLength="1"
+                strokeDasharray="1"
+                strokeDashoffset="1"
+              />
+              <path
+                className="preloader-stroke-path [animation:preloader-stroke-inner_2s_ease-in-out_0.2s_forwards]"
+                d="M 200 65 L 285 108 L 335 200 L 285 292 L 200 335 L 115 292 L 65 200 L 115 108 Z"
+                stroke="#C5A880"
+                strokeWidth="0.5"
+                strokeOpacity="0.45"
+                fill="none"
+                pathLength="1"
+                strokeDasharray="1"
+                strokeDashoffset="1"
+              />
+            </svg>
+
+            <div className="preloader-logo-slot absolute left-1/2 top-1/2">
+              <Image
+                src="/newLogo2.png"
+                alt=""
+                width={180}
+                height={180}
+                className="h-auto w-44 object-contain drop-shadow-[0_8px_40px_rgba(0,0,0,0.65)]"
+                priority
+              />
+              <div
+                className="preloader-shine-layer pointer-events-none absolute inset-0 -left-[25%] h-full w-[150%] -translate-x-[150%] -skew-x-[18deg] bg-gradient-to-r from-transparent via-[#C5A880]/35 to-transparent blur-[18px]"
+                aria-hidden
+              />
+            </div>
+          </div>
+
+          <div className="mt-5 sm:mt-7">
+            <p className="whitespace-nowrap text-center font-[family-name:var(--font-manrope)] text-[9px] uppercase tracking-[0.38em] text-[#C5A880] sm:text-[11px] sm:tracking-[0.42em]">
+              Cultivating futures
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className="pointer-events-none absolute inset-0 z-[60] opacity-[0.04]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        }}
+        aria-hidden
+      />
+
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[55] h-24 bg-gradient-to-t from-black/40 to-transparent sm:h-28"
+        aria-hidden
+      />
+    </div>
+  );
+}
+```
+
+=== FILE: components/shared/LuxuryCursor.jsx ===
+```jsx
+'use client';
+
+import { useEffect, useRef } from 'react';
+
+export default function LuxuryCursor() {
+  const mainRef = useRef(null);
+  const trailRef = useRef(null);
+
+  useEffect(() => {
+    const main = mainRef.current;
+    const trail = trailRef.current;
+    if (!main || !trail) return;
+
+    let mouseX = 0, mouseY = 0;
+    let trailX = 0, trailY = 0;
+
+    const move = (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      main.style.transform = `translate(${mouseX - 5}px, ${mouseY - 5}px)`;
+    };
+
+    const animate = () => {
+      trailX += (mouseX - trailX) * 0.15;
+      trailY += (mouseY - trailY) * 0.15;
+      trail.style.transform = `translate(${trailX - 20}px, ${trailY - 20}px)`;
+      requestAnimationFrame(animate);
+    };
+
+    window.addEventListener('mousemove', move);
+    const id = requestAnimationFrame(animate);
+
+    return () => {
+      window.removeEventListener('mousemove', move);
+      cancelAnimationFrame(id);
+    };
+  }, []);
+
+  return (
+    <>
+      <div
+        ref={mainRef}
+        className="fixed top-0 left-0 z-[9999] h-[10px] w-[10px] rounded-full bg-[#C5A880] pointer-events-none mix-blend-difference hidden lg:block"
+      />
+      <div
+        ref={trailRef}
+        className="fixed top-0 left-0 z-[9998] h-[40px] w-[40px] rounded-full border border-[#C5A880]/40 pointer-events-none hidden lg:block transition-[width,height] duration-300"
+      />
+    </>
+  );
+}
+```
+
+=== NOTE: app/loading.jsx DOES NOT EXIST ===
+=== NOTE: app/projects/loading.jsx DOES NOT EXIST ===
+
+=== FILE: app/pakistan-projects/loading.jsx ===
+```jsx
+export default function Loading() {
+  return (
+    <div className="min-h-screen bg-black">
+      <section className="relative pt-32 pb-12 px-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Skeleton */}
+          <div className="text-center mb-12">
+            <div className="h-16 w-96 bg-white/5 rounded-lg mx-auto mb-6 animate-pulse" />
+            <div className="h-6 w-[600px] bg-white/5 rounded-lg mx-auto animate-pulse" />
+          </div>
+
+          {/* Tabs Skeleton */}
+          <div className="flex justify-center mb-16">
+            <div className="h-14 w-96 bg-white/5 rounded-2xl animate-pulse" />
+          </div>
+
+          {/* Grid Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {[1, 2].map((i) => (
+              <div key={i} className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden">
+                <div className="h-80 bg-white/10 animate-pulse" />
+                <div className="p-6 space-y-4">
+                  <div className="h-6 bg-white/10 rounded animate-pulse" />
+                  <div className="h-4 bg-white/10 rounded w-3/4 animate-pulse" />
+                  <div className="h-20 bg-white/10 rounded animate-pulse" />
+                  <div className="h-12 bg-white/10 rounded animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+```
+
+=== FILE: app/uk-properties/loading.jsx ===
+```jsx
+export default function Loading() {
+  return (
+    <div className="min-h-screen bg-black">
+      <section className="relative pt-32 pb-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Skeleton */}
+          <div className="text-center mb-16">
+            <div className="h-16 w-96 bg-white/5 rounded-lg mx-auto mb-6 animate-pulse" />
+            <div className="h-6 w-[600px] bg-white/5 rounded-lg mx-auto animate-pulse" />
+          </div>
+
+          {/* Grid Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden">
+                <div className="h-64 bg-white/10 animate-pulse" />
+                <div className="p-6 space-y-4">
+                  <div className="h-8 bg-white/10 rounded animate-pulse" />
+                  <div className="h-4 bg-white/10 rounded w-3/4 animate-pulse" />
+                  <div className="flex justify-between pt-4">
+                    <div className="h-6 w-16 bg-white/10 rounded animate-pulse" />
+                    <div className="h-6 w-16 bg-white/10 rounded animate-pulse" />
+                    <div className="h-6 w-20 bg-white/10 rounded animate-pulse" />
+                  </div>
+                  <div className="h-12 bg-white/10 rounded animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+```
+
+=== FILE: app/uk-properties/[slug]/page.jsx ===
+```jsx
+import connectDB from '@/lib/mongodb';
+import Property from '@/models/Property';
+import Link from 'next/link';
+import { Bed, Bath, Maximize2, MapPin, ArrowLeft, ArrowUpRight, Home } from 'lucide-react';
+import ListingLogo from '@/components/ListingLogo';
+import ProjectLuxuryShowcase from '@/components/projects/ProjectLuxuryShowcase';
+import LuxuryVideoPlayer from '@/components/projects/LuxuryVideoPlayer';
+import PropertyDetailClient from './PropertyDetailClient';
+
+export const dynamic = 'force-dynamic';
+
+async function getPropertyBySlug(slug) {
+  try {
+    await connectDB();
+    return await Property.findOne({ slug: slug.toLowerCase(), region: 'UK' }).lean();
+  } catch (error) {
+    console.error('Error fetching property:', error);
+    return null;
+  }
+}
+
+export default async function PropertyDetailPage({ params }) {
+  const { slug } = await params;
+  const normalizedSlug = typeof slug === 'string' ? slug : '';
+
+  if (!normalizedSlug) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-400 text-lg mb-4">Property not found</p>
+          <Link href="/uk-properties" className="text-[#C5A880] hover:underline">
+            Back to Properties
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const doc = await getPropertyBySlug(normalizedSlug);
+  const property = doc ? JSON.parse(JSON.stringify(doc)) : null;
+
+  if (!property) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-400 text-lg mb-4">Property not found</p>
+          <Link href="/uk-properties" className="text-[#C5A880] hover:underline">
+            Back to Properties
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Pass property data to client component for currency formatting
+  return <PropertyDetailClient property={property} />;
+}
+```
+
+=== Z-INDEX HIERARCHY ===
+- Film grain noise: z-[9999] (pointer-events-none) ✅
+- Custom cursor main: z-[9999] (pointer-events-none) ✅
+- Custom cursor trail: z-[9998] (pointer-events-none) ✅
+- Preloader: z-[100002] when visible, -z-10 when hidden ✅
+- Mobile drawer backdrop: z-[70] ✅
+- Mobile drawer: z-[80] ✅
+- Navbar: z-[60] ✅
+- Lightbox: z-[55] ⚠️ LOWER THAN NAVBAR
+- Main content: z-10 ✅
+- Footer: z-10 ✅
+
+=== CRITICAL FINDINGS ===
+
+1. ✅ PRELOADER IS CORRECT
+   - Uses sessionStorage to only show on initial load
+   - Has pointer-events-none when visible
+   - Becomes invisible and -z-10 when hidden
+   - Does NOT block clicks after dismissal
+
+2. ✅ CUSTOM CURSOR IS CORRECT
+   - Both elements have pointer-events-none
+   - Will not block any clicks
+
+3. ✅ NAVBAR Z-INDEX IS CORRECT
+   - z-[60] is higher than lightbox z-[55]
+   - Should be clickable even when lightbox is open
+
+4. ⚠️ LIGHTBOX POTENTIAL ISSUE
+   - z-[55] is LOWER than navbar z-[60]
+   - BUT: lightbox has fixed inset-0 which covers entire viewport
+   - Even with lower z-index, the backdrop div might still catch clicks
+   - Need to check if lightbox is properly unmounting when closed
+
+5. ✅ FILM GRAIN NOISE IS CORRECT
+   - Has pointer-events-none
+   - Will not block clicks
+
+=== NAVIGATION ANALYSIS ===
+
+Both Navbar and Footer now use:
+- window.location.href for navigation (full page reload)
+- Proper event.preventDefault()
+- isNavigating state to prevent double-clicks
+- Visual feedback during navigation
+
+This should work reliably, but it's slower than client-side routing.
+
+=== RECOMMENDATIONS ===
+
+1. The lightbox z-index is LOWER than navbar, which is correct
+2. However, the lightbox backdrop (fixed inset-0) might still catch clicks
+3. The lightbox should properly unmount when closed (fullscreenIndex === null)
+4. Navigation is using full page reloads which is reliable but slow
+
+=== NEXT STEPS FOR USER ===
+
+1. Test navigation - should work now with window.location.href
+2. Test lightbox - close it and try clicking navbar
+3. If navbar still not clickable, the issue is the lightbox backdrop not unmounting
+4. Check browser console for any React errors or warnings
+5. Use React DevTools to verify lightbox component is actually unmounting
+
+=== END OF CODE DUMP ===

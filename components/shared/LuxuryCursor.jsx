@@ -40,11 +40,11 @@ export default function LuxuryCursor() {
     <>
       <div
         ref={mainRef}
-        className="fixed top-0 left-0 z-[9999] h-[10px] w-[10px] rounded-full bg-[#C5A880] pointer-events-none mix-blend-difference hidden lg:block"
+        className="fixed top-0 left-0 z-[200] h-[10px] w-[10px] rounded-full bg-[#C5A880] pointer-events-none mix-blend-difference hidden lg:block"
       />
       <div
         ref={trailRef}
-        className="fixed top-0 left-0 z-[9998] h-[40px] w-[40px] rounded-full border border-[#C5A880]/40 pointer-events-none hidden lg:block transition-[width,height] duration-300"
+        className="fixed top-0 left-0 z-[199] h-[40px] w-[40px] rounded-full border border-[#C5A880]/40 pointer-events-none hidden lg:block transition-[width,height] duration-300"
       />
     </>
   );

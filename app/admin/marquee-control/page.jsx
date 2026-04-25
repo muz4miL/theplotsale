@@ -77,11 +77,13 @@ export default function MarqueeControlPage() {
         }
       });
       const data = await res.json();
+      console.log('📊 Fetched marquee logos:', data);
       if (!res.ok || !data.success) throw new Error(data.message || 'Failed to fetch marquee logos.');
       setUsingDefaults(!!data.usingDefaults);
       setDbCount(typeof data.count === 'number' ? data.count : (data.data || []).filter((r) => !r.isBuiltInDefault).length);
       setRows(data.data || []);
     } catch (fetchError) {
+      console.error('❌ Fetch error:', fetchError);
       setError(fetchError.message || 'Failed to fetch marquee logos.');
     } finally {
       setIsLoading(false);
@@ -144,6 +146,8 @@ export default function MarqueeControlPage() {
     setStatus('');
     setProgressLabel(`Uploading logo: ${file.name}`);
     try {
+      console.log('📤 Starting upload for:', file.name, 'Size:', file.size, 'Type:', file.type);
+      
       if (!file.type.startsWith('image/')) {
         throw new Error('Only image files are allowed for marquee logos.');
       }
@@ -151,15 +155,22 @@ export default function MarqueeControlPage() {
         throw new Error(`Logo exceeds ${formatFileSize(LOGO_RULES.maxBytes)} limit.`);
       }
       const { width, height } = await getImageDimensions(file);
+      console.log('📐 Image dimensions:', width, 'x', height);
+      
       if (width < LOGO_RULES.minWidth || height < LOGO_RULES.minHeight) {
         throw new Error(`Logo must be at least ${LOGO_RULES.minWidth}x${LOGO_RULES.minHeight}px.`);
       }
       const result = await uploadToCloudinary(file);
+      console.log('✅ Cloudinary upload result:', result);
+      
       if (!result?.secure_url) throw new Error('Logo upload failed.');
+      
+      console.log('🔗 Setting logoUrl to:', result.secure_url);
       setForm((prev) => ({ ...prev, logoUrl: result.secure_url }));
       setProgressLabel('');
       setStatus('Logo uploaded successfully.');
     } catch (uploadError) {
+      console.error('❌ Upload error:', uploadError);
       setProgressLabel('');
       setError(uploadError.message || 'Logo upload failed.');
     }
@@ -193,7 +204,13 @@ export default function MarqueeControlPage() {
         isActive: !!form.isActive,
       };
       
-      console.log('Submitting payload:', payload);
+      console.log('💾 Submitting payload:', payload);
+      console.log('📝 Form state before submit:', form);
+      
+      // Warn if logoUrl is empty
+      if (!payload.logoUrl) {
+        console.warn('⚠️ Warning: logoUrl is empty! Logo will show initials only.');
+      }
       
       const url = mode === 'create' ? '/api/admin/marquee-logos' : `/api/admin/marquee-logos/${editingId}`;
       const method = mode === 'create' ? 'POST' : 'PATCH';
@@ -205,18 +222,19 @@ export default function MarqueeControlPage() {
       });
       const data = await res.json();
       
-      console.log('Response:', data);
+      console.log('📥 Server response:', data);
       
       if (!res.ok || !data.success) throw new Error(data.message || 'Save failed.');
       setStatus(mode === 'create' ? 'Marquee logo added.' : 'Marquee logo updated.');
       setIsModalOpen(false);
       
       // Force a fresh fetch with a small delay to ensure DB has updated
+      console.log('🔄 Refreshing logo list...');
       setTimeout(async () => {
         await fetchRows();
       }, 500);
     } catch (saveError) {
-      console.error('Save error:', saveError);
+      console.error('❌ Save error:', saveError);
       setError(saveError.message || 'Save failed.');
     } finally {
       setIsSaving(false);

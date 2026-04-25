@@ -35,7 +35,13 @@ const nextConfig = {
         pathname: '/lifestyle-hero.png',
       },
       {
+        pathname: '/contact-hero.png',
+      },
+      {
         pathname: '/amenities/**',
+      },
+      {
+        pathname: '/about/**',
       },
       {
         pathname: '/api/download-image',

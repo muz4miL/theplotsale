@@ -1,5 +1,3 @@
-// app/layout.jsx
-
 import { Playfair_Display, Manrope } from 'next/font/google';
 import PublicChrome from '@/components/layout/PublicChrome';
 import { DisplayCurrencyProvider } from '@/contexts/DisplayCurrencyContext';
@@ -27,13 +25,8 @@ const manrope = Manrope({
   weight: ['300', '400', '500', '600', '700'],
 });
 
-/**
- * Root metadata. Everything route-specific inherits from here via the
- * `title.template` pattern and the `pageMetadata()` factory in lib/seo.js.
- */
 export const metadata = baseMetadata;
 
-/** Notch / home-indicator aware layout; pairs with safe-area padding in chrome + sections */
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -42,15 +35,11 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }) {
-  // Global JSON-LD graph: Organization + WebSite + both LocalBusiness offices.
-  // Per-page schemas (BreadcrumbList, Product/Residence) are injected at the
-  // route level on top of this — Google merges the graph correctly.
   const globalLd = [organizationLd(), websiteLd(), ...localBusinessesLd()];
 
   return (
     <html lang="en" className={`${playfair.variable} ${manrope.variable} antialiased`}>
       <head>
-        {/* Pre-warm the two biggest third-party origins we depend on for LCP. */}
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <link rel="preconnect" href="https://www.google.com" crossOrigin="" />
@@ -59,14 +48,13 @@ export default function RootLayout({ children }) {
       <body className="bg-[#030706] text-white cursor-none lg:cursor-none antialiased selection:bg-[#C5A880]/35 selection:text-white">
         <LuxuryCursor />
         <DisplayCurrencyProvider>
-          {/* Page transition wrapper */}
           <div className="animate-[pageEntry_0.8s_cubic-bezier(0.22,1,0.36,1)_forwards]">
             <PublicChrome>{children}</PublicChrome>
           </div>
         </DisplayCurrencyProvider>
-        {/* Premium Film Grain Noise Texture Overlay */}
+        {/* Noise overlay — z-0 so it can NEVER compete with UI */}
         <div
-          className="pointer-events-none fixed inset-0 z-[9999] opacity-[0.026] max-md:opacity-[0.014]"
+          className="pointer-events-none fixed inset-0 z-0 opacity-[0.026] max-md:opacity-[0.014]"
           aria-hidden="true"
         >
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
