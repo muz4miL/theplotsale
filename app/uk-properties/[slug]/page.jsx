@@ -54,5 +54,4 @@ export default async function PropertyDetailPage({ params }) {
 
   // Pass property data to client component for currency formatting
   return <PropertyDetailClient property={property} />;
-
-
+}
