@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "app/**/*.js": {
+      "maxDuration": 30
+    },
+    "app/**/*.jsx": {
+      "maxDuration": 30
+    }
+  }
+}

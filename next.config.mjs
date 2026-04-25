@@ -5,6 +5,12 @@ const nextConfig = {
   reactCompiler: false,
   /* Dev double-mount + GSAP/scroll libs amplifies DOM races; disable until animations are stable. */
   reactStrictMode: false,
+  
+  /* External packages for server components - prevents bundling issues with Mongoose in serverless */
+  experimental: {
+    serverComponentsExternalPackages: ['mongoose'],
+  },
+  
   images: {
     remotePatterns: [
       {
