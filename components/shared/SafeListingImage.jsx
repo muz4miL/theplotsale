@@ -18,6 +18,8 @@ export default function SafeListingImage({
   showWatermark = true, // Enable/disable watermark
   watermarkSize = 'medium', // 'small', 'medium', 'large'
   watermarkPosition = 'bottom-right', // 'bottom-right', 'bottom-left', 'center'
+  fill,
+  className,
   ...props
 }) {
   const [currentSrc, setCurrentSrc] = useState(() => resolveListingImageSrc(src, fallback));
@@ -40,12 +42,34 @@ export default function SafeListingImage({
     'center': 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
   };
 
-  return (
-    <div className="relative overflow-hidden">
+  // For fill images, return just the Image without wrapper or watermark
+  // (fill images are typically in containers that already have position:relative)
+  if (fill) {
+    return (
       <Image
         {...props}
         src={currentSrc}
         alt={alt || ''}
+        fill
+        className={className}
+        onError={(e) => {
+          if (currentSrc !== fallback) {
+            setCurrentSrc(fallback);
+          }
+          onError?.(e);
+        }}
+      />
+    );
+  }
+
+  // For non-fill images, use wrapper
+  return (
+    <div className="relative">
+      <Image
+        {...props}
+        src={currentSrc}
+        alt={alt || ''}
+        className={className}
         onError={(e) => {
           if (currentSrc !== fallback) {
             setCurrentSrc(fallback);
