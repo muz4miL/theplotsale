@@ -9,13 +9,27 @@ import Image from 'next/image';
  *
  * When dismissed, keep a single mounted shell (no `return null`) so a huge subtree is not torn
  * down at the same time as client navigations — avoids intermittent removeChild races.
+ * 
+ * ONLY shows on initial page load, not on client-side navigations.
  */
 export default function Preloader() {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   const [logoHidden, setLogoHidden] = useState(false);
 
   useEffect(() => {
-    if (typeof document === 'undefined') return;
+    if (typeof window === 'undefined') return;
+    
+    // Only show preloader on initial page load, not on client-side navigations
+    const isInitialLoad = !window.sessionStorage.getItem('preloader-shown');
+    
+    if (!isInitialLoad) {
+      setVisible(false);
+      return;
+    }
+    
+    // Mark that preloader has been shown for this session
+    window.sessionStorage.setItem('preloader-shown', 'true');
+    setVisible(true);
 
     const html = document.documentElement;
     html.classList.add('preloader-scroll-locked');
