@@ -1,7 +1,5 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import connectDB from '@/lib/mongodb';
+import Project from '@/models/Project';
 import Link from 'next/link';
 import { MapPin, Maximize2, ArrowLeft, FileText } from 'lucide-react';
 import ProgressTimeline from '@/components/projects/ProgressTimeline';
@@ -10,63 +8,43 @@ import ProjectLuxuryShowcase from '@/components/projects/ProjectLuxuryShowcase';
 import LuxuryVideoPlayer from '@/components/projects/LuxuryVideoPlayer';
 import LuxuryPaymentPlan from '@/components/projects/LuxuryPaymentPlan';
 
-export default function ProjectDetailPage() {
-  const params = useParams();
-  const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
-  const [project, setProject] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+export const dynamic = 'force-dynamic';
 
-  useEffect(() => {
-    if (!slug || typeof slug !== 'string') return;
+async function getProjectBySlug(slug) {
+  await connectDB();
+  return Project.findOne({ slug: slug.toLowerCase() }).lean();
+}
 
-    const controller = new AbortController();
-    let cancelled = false;
+export default async function ProjectDetailPage({ params }) {
+  const { slug } = await params;
+  const normalizedSlug = typeof slug === 'string' ? slug : '';
 
-    async function fetchProject() {
-      setLoading(true);
-      setError(null);
-      setProject(null);
-      try {
-        const response = await fetch('/api/projects', { cache: 'no-store', signal: controller.signal });
-        const data = await response.json();
-
-        if (!cancelled && response.ok && data.success) {
-          const foundProject = data.data.find((p) => p.slug === slug);
-          if (foundProject) {
-            setProject(foundProject);
-            setError(null);
-          } else {
-            setError('Project not found');
-          }
-        } else {
-          setError(data?.message || data?.error || 'Failed to load project');
-        }
-      } catch (err) {
-        if (controller.signal.aborted || cancelled) return;
-        setError('An error occurred');
-        console.error('Error fetching project:', err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    fetchProject();
-    return () => {
-      cancelled = true;
-      controller.abort();
-    };
-  }, [slug]);
-
-  if (loading) {
-    return <LoadingSkeleton />;
-  }
-
-  if (error || !project) {
+  if (!normalizedSlug) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-400 text-lg mb-4">{error || 'Project not found'}</p>
+          <p className="text-red-400 text-lg mb-4">Project not found</p>
+          <Link href="/pakistan-projects" className="text-[#C5A880] hover:underline">
+            Back to Projects
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  let project = null;
+  try {
+    const doc = await getProjectBySlug(normalizedSlug);
+    project = doc ? JSON.parse(JSON.stringify(doc)) : null;
+  } catch (error) {
+    console.error('Error fetching project:', error);
+  }
+
+  if (!project) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-400 text-lg mb-4">Project not found</p>
           <Link href="/pakistan-projects" className="text-[#C5A880] hover:underline">
             Back to Projects
           </Link>
@@ -202,19 +180,6 @@ export default function ProjectDetailPage() {
           )}
         </div>
       </section>
-    </div>
-  );
-}
-
-function LoadingSkeleton() {
-  return (
-    <div className="min-h-screen bg-black">
-      <div className="h-screen bg-white/5 animate-pulse" />
-      <div className="max-w-7xl mx-auto px-6 py-20">
-        <div className="h-60 bg-white/5 rounded-2xl animate-pulse mb-12" />
-        <div className="h-40 bg-white/5 rounded-2xl animate-pulse mb-12" />
-        <div className="h-96 bg-white/5 rounded-2xl animate-pulse" />
-      </div>
     </div>
   );
 }

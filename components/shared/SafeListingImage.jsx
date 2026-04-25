@@ -3,12 +3,17 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { LISTING_IMAGE_FALLBACK, resolveListingImageSrc } from '@/lib/listing-images';
+import { getWatermarkedImageUrl, isExternalUrl } from '@/lib/watermark-helper';
 
 /**
- * Next/Image wrapper with CSS watermark overlay
+ * Next/Image wrapper with server-side watermark burning
+ * 
+ * Features:
  * - Never leaves a blank tile — invalid src resolves to fallback
  * - Load errors swap to fallback
- * - Adds The Plot Sale logo watermark via CSS overlay (works everywhere)
+ * - External images use server-side watermark API (burned into image for downloads)
+ * - Local/internal images use CSS overlay watermark (fallback)
+ * - Performance optimized with caching
  */
 export default function SafeListingImage({
   src,
@@ -20,24 +25,88 @@ export default function SafeListingImage({
   watermarkPosition = 'bottom-right',
   fill,
   className,
+  useServerWatermark = true, // New option to enable/disable server watermarking
   ...props
 }) {
-  const [currentSrc, setCurrentSrc] = useState(() => resolveListingImageSrc(src, fallback));
+  const resolvedSrc = resolveListingImageSrc(src, fallback);
+  const isExternal = isExternalUrl(resolvedSrc);
+  
+  // Use server watermark API for external images if enabled
+  const imageUrl = useServerWatermark && isExternal && showWatermark
+    ? getWatermarkedImageUrl(resolvedSrc, {
+        size: watermarkSize,
+        position: watermarkPosition,
+        format: 'jpeg',
+        filename: 'theplotsale-image.jpg',
+      })
+    : resolvedSrc;
+
+  const [currentSrc, setCurrentSrc] = useState(() => imageUrl);
   const [imageFrame, setImageFrame] = useState({ top: 0, left: 0, width: 0, height: 0 });
+  const [isFrameReady, setIsFrameReady] = useState(false);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [showCssWatermark, setShowCssWatermark] = useState(false); // Only show CSS watermark for local images
   const wrapperRef = useRef(null);
   const resizeFrameRef = useRef(() => {});
+  const isWatermarkApiSrc =
+    typeof currentSrc === 'string' && currentSrc.startsWith('/api/download-image?');
 
   useEffect(() => {
-    setCurrentSrc(resolveListingImageSrc(src, fallback));
-  }, [src, fallback]);
+    const newUrl = useServerWatermark && isExternalUrl(resolvedSrc) && showWatermark
+      ? getWatermarkedImageUrl(resolvedSrc, {
+          size: watermarkSize,
+          position: watermarkPosition,
+          format: 'jpeg',
+          filename: 'theplotsale-image.jpg',
+        })
+      : resolvedSrc;
+
+    setCurrentSrc(newUrl);
+    setShowCssWatermark(!isExternal || !useServerWatermark); // Show CSS watermark only for local images
+    setIsFrameReady(false);
+    setIsImageLoaded(false);
+  }, [resolvedSrc, useServerWatermark, isExternal, showWatermark, watermarkSize, watermarkPosition]);
+
+  useEffect(() => {
+    if (!isWatermarkApiSrc || isImageLoaded) return undefined;
+
+    // Avoid an endless blank hero if remote fetch hangs in dev/prod.
+    const timeoutId = window.setTimeout(() => {
+      setCurrentSrc(resolvedSrc);
+      setShowCssWatermark(true);
+    }, 6500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [isWatermarkApiSrc, isImageLoaded, resolvedSrc]);
 
   // Watermark size
   const sizeMap = {
-    small: 75,
-    medium: 125,
-    large: 175,
+    small: 95,
+    medium: 160,
+    large: 230,
+    fullscreen: 400,
   };
-  const logoSize = sizeMap[watermarkSize] || 125;
+  const baseLogoSize = sizeMap[watermarkSize] || 160;
+  const frameScaleMap = {
+    small: 0.12,
+    medium: 0.2,
+    large: 0.26,
+    fullscreen: 0.5,
+  };
+  const maxSizeMap = {
+    small: 180,
+    medium: 320,
+    large: 520,
+    fullscreen: 1000,
+  };
+  const frameAwareSize = imageFrame.width
+    ? imageFrame.width * (frameScaleMap[watermarkSize] || 0.2)
+    : baseLogoSize;
+  const logoSize = Math.round(
+    isFrameReady
+      ? Math.min(Math.max(baseLogoSize, frameAwareSize), maxSizeMap[watermarkSize] || 320)
+      : baseLogoSize
+  );
 
   useLayoutEffect(() => {
     const wrapper = wrapperRef.current;
@@ -88,6 +157,7 @@ export default function SafeListingImage({
         width: renderedWidth,
         height: renderedHeight,
       });
+      setIsFrameReady(renderedWidth > 0 && renderedHeight > 0);
     };
 
     resizeFrameRef.current = computeFrame;
@@ -110,11 +180,23 @@ export default function SafeListingImage({
   }, [currentSrc, fill, className]);
 
   const handleImageError = (e) => {
+    if (isWatermarkApiSrc && currentSrc !== resolvedSrc) {
+      // If watermark API fails, try the original source directly before final fallback.
+      setCurrentSrc(resolvedSrc);
+      setShowCssWatermark(true);
+      onError?.(e);
+      return;
+    }
+
     if (currentSrc !== fallback) {
       setCurrentSrc(fallback);
     }
+    setShowCssWatermark(true);
     onError?.(e);
   };
+
+  const shouldBypassOptimization =
+    props.unoptimized || isWatermarkApiSrc || isExternalUrl(currentSrc);
 
   const wrapperStyle = fill
     ? { position: 'relative', width: '100%', height: '100%' }
@@ -124,7 +206,8 @@ export default function SafeListingImage({
     position: 'absolute',
     zIndex: 60,
     pointerEvents: 'none',
-    opacity: 0.7,
+    opacity: isFrameReady ? 0.7 : 0,
+    transition: 'opacity 160ms ease-out',
     filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
     ...(watermarkPosition === 'center'
       ? {
@@ -150,17 +233,19 @@ export default function SafeListingImage({
         src={currentSrc}
         alt={alt || ''}
         fill={fill}
+        unoptimized={shouldBypassOptimization}
         data-safe-listing-main-image="true"
         className={className}
         onError={handleImageError}
         onLoad={(e) => {
+          setIsImageLoaded(true);
           resizeFrameRef.current?.();
           props.onLoad?.(e);
         }}
       />
-      {showWatermark && (
+      {showCssWatermark && showWatermark && (
         <div style={watermarkStyle}>
-          <img src="/newLogo2.png" alt="" width={logoSize} height={logoSize} style={{ width: logoSize, height: 'auto', display: 'block' }} />
+          <img src="/newLogo2.png" alt="" style={{ width: logoSize, height: 'auto', display: 'block' }} />
         </div>
       )}
     </div>

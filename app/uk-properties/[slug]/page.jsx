@@ -16,30 +16,68 @@ export default function PropertyDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
     async function fetchProperty() {
       try {
-        const response = await fetch(`/api/properties?region=UK`);
-        const data = await response.json();
+        console.log('1. Component mounted, starting fetch...');
+        const response = await fetch(`/api/properties?region=UK`, { 
+          signal: controller.signal 
+        });
         
-        if (data.success) {
-          const foundProperty = data.data.find(p => p.slug === params.slug);
-          if (foundProperty) {
-            setProperty(foundProperty);
+        console.log('2. Got response:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('3. Got data:', data);
+        
+        if (isMounted) {
+          if (data.success) {
+            const foundProperty = data.data.find(p => p.slug === params.slug);
+            if (foundProperty) {
+              setProperty(foundProperty);
+            } else {
+              setError('Property not found');
+            }
           } else {
-            setError('Property not found');
+            setError('Failed to load property');
           }
-        } else {
-          setError('Failed to load property');
         }
       } catch (err) {
-        setError('An error occurred');
-        console.error('Error fetching property:', err);
+        console.error('❌ FETCH FAILED:', err);
+        if (isMounted) {
+          setError(err.name === 'AbortError' ? 'Request timed out' : 'An error occurred');
+        }
       } finally {
-        setLoading(false);
+        clearTimeout(timeoutId);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
     fetchProperty();
+
+    // Emergency fallback - force exit loading after 15s
+    const emergencyTimeout = setTimeout(() => {
+      console.warn('⏰ EMERGENCY: Forcing loading false after 15s');
+      if (isMounted) {
+        setLoading(false);
+        setError('Request timed out');
+      }
+    }, 15000);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+      clearTimeout(emergencyTimeout);
+      controller.abort();
+    };
   }, [params.slug]);
 
   if (loading) {

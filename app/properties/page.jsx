@@ -14,7 +14,7 @@
  *    — London register + Pakistan flagship residences in one premium surface.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, Bath, Bed, MapPin, Maximize, Home } from 'lucide-react';
 import SafeListingImage from '@/components/shared/SafeListingImage';
@@ -38,32 +38,65 @@ export default function PropertiesPage() {
   const [filteredProperties, setFilteredProperties] = useState([]);
 
   useEffect(() => {
-    let cancelled = false;
+    let isMounted = true;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
     async function fetchProperties() {
       try {
-        const response = await fetch('/api/properties', { cache: 'no-store' });
+        console.log('1. Component mounted, starting fetch...');
+        const response = await fetch('/api/properties', { 
+          cache: 'no-store',
+          signal: controller.signal 
+        });
+        
+        console.log('2. Got response:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
         const data = await response.json();
-        if (cancelled) return;
-
-        if (response.ok && data.success) {
-          const allProps = Array.isArray(data.data) ? data.data : [];
-          setProperties(allProps);
-          setFilteredProperties(allProps);
-        } else {
-          setError(data?.message || data?.error || 'Failed to load properties');
+        console.log('3. Got data:', data);
+        
+        if (isMounted) {
+          if (response.ok && data.success) {
+            const allProps = Array.isArray(data.data) ? data.data : [];
+            setProperties(allProps);
+            setFilteredProperties(allProps);
+          } else {
+            setError(data?.message || data?.error || 'Failed to load properties');
+          }
         }
       } catch (err) {
-        if (!cancelled) setError('Unable to reach the inventory service. Please try again shortly.');
-        console.error('Error fetching properties:', err);
+        console.error('❌ FETCH FAILED:', err);
+        if (isMounted) {
+          setError(err.name === 'AbortError' ? 'Request timed out' : 'Unable to reach the inventory service. Please try again shortly.');
+        }
       } finally {
-        if (!cancelled) setLoading(false);
+        clearTimeout(timeoutId);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
     fetchProperties();
+
+    // Emergency fallback - force exit loading after 15s
+    const emergencyTimeout = setTimeout(() => {
+      console.warn('⏰ EMERGENCY: Forcing loading false after 15s');
+      if (isMounted) {
+        setLoading(false);
+        setError('Request timed out');
+      }
+    }, 15000);
+
     return () => {
-      cancelled = true;
+      isMounted = false;
+      clearTimeout(timeoutId);
+      clearTimeout(emergencyTimeout);
+      controller.abort();
     };
   }, []);
 
@@ -218,6 +251,7 @@ export default function PropertiesPage() {
 }
 
 function PropertyCard({ property }) {
+  const navFallbackTimeoutRef = useRef(null);
   const { formatPrice } = useDisplayCurrency();
   const nativeCurrency =
     property.currency === 'PKR' || property.region === 'Pakistan' ? 'PKR' : 'GBP';
@@ -228,9 +262,33 @@ function PropertyCard({ property }) {
     ? `/uk-properties/${property.slug}`
     : `/pakistan-projects/${property.slug}`;
 
+  useEffect(() => {
+    return () => {
+      if (navFallbackTimeoutRef.current) {
+        window.clearTimeout(navFallbackTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleCardNavigate = (e) => {
+    if (e.defaultPrevented) return;
+    if (e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+    if (navFallbackTimeoutRef.current) {
+      window.clearTimeout(navFallbackTimeoutRef.current);
+    }
+    navFallbackTimeoutRef.current = window.setTimeout(() => {
+      if (window.location.pathname !== detailsHref) {
+        window.location.assign(detailsHref);
+      }
+    }, 1200);
+  };
+
   return (
     <Link
       href={detailsHref}
+      onClick={handleCardNavigate}
       className={[
         'group relative flex h-full flex-col overflow-hidden rounded-[2px]',
         'border border-white/[0.07] bg-[#050807] outline-none',

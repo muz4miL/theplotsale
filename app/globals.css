@@ -984,6 +984,40 @@ textarea {
   cursor: none !important;
 }
 
+/* Keep cursor visible in cinematic overlays/fullscreen experiences */
+.lightbox-cursor-visible,
+.lightbox-cursor-visible * {
+  cursor: auto !important;
+}
+
+.lightbox-cursor-visible button,
+.lightbox-cursor-visible [role='button'],
+.lightbox-cursor-visible a {
+  cursor: pointer !important;
+}
+
+:fullscreen,
+:fullscreen * {
+  cursor: auto !important;
+}
+
+:where(:-webkit-full-screen),
+:where(:-webkit-full-screen *) {
+  cursor: auto !important;
+}
+
+:fullscreen button,
+:fullscreen [role='button'],
+:fullscreen a {
+  cursor: pointer !important;
+}
+
+:where(:-webkit-full-screen button),
+:where(:-webkit-full-screen [role='button']),
+:where(:-webkit-full-screen a) {
+  cursor: pointer !important;
+}
+
 /* Luxury scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;

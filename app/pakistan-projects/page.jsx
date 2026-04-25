@@ -15,27 +15,66 @@ export default function PakistanProjectsPage() {
   const [filteredProjects, setFilteredProjects] = useState([]);
 
   useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
     async function fetchProjects() {
       try {
-        const response = await fetch('/api/projects', { cache: 'no-store' });
+        console.log('1. Component mounted, starting fetch...');
+        const response = await fetch('/api/projects', { 
+          cache: 'no-store',
+          signal: controller.signal 
+        });
+        
+        console.log('2. Got response:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
         const data = await response.json();
-
-        if (response.ok && data.success) {
-          setProjects(data.data);
-          setFilteredProjects(data.data);
-        } else {
-          const apiMessage = data?.message || data?.error || 'Failed to load projects';
-          setError(apiMessage);
+        console.log('3. Got data:', data);
+        
+        if (isMounted) {
+          if (response.ok && data.success) {
+            setProjects(data.data);
+            setFilteredProjects(data.data);
+          } else {
+            const apiMessage = data?.message || data?.error || 'Failed to load projects';
+            setError(apiMessage);
+          }
         }
       } catch (err) {
-        setError('Unable to connect to project service. Please try again shortly.');
-        console.error('Error fetching projects:', err);
+        console.error('❌ FETCH FAILED:', err);
+        if (isMounted) {
+          setError(err.name === 'AbortError' ? 'Request timed out' : 'Unable to connect to project service. Please try again shortly.');
+        }
       } finally {
-        setLoading(false);
+        clearTimeout(timeoutId);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
     fetchProjects();
+
+    // Emergency fallback - force exit loading after 15s
+    const emergencyTimeout = setTimeout(() => {
+      console.warn('⏰ EMERGENCY: Forcing loading false after 15s');
+      if (isMounted) {
+        setLoading(false);
+        setError('Request timed out');
+      }
+    }, 15000);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+      clearTimeout(emergencyTimeout);
+      controller.abort();
+    };
   }, []);
 
   const handleFilteredChange = useCallback((filtered) => {

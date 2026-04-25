@@ -20,6 +20,27 @@ const nextConfig = {
         hostname: 'lid.zoocdn.com',
       },
     ],
+    /* Allow all same-origin local assets (including /images/* and API image URLs). */
+    localPatterns: [
+      {
+        pathname: '/newLogo2.png',
+      },
+      {
+        pathname: '/newLogo.png',
+      },
+      {
+        pathname: '/images/**',
+      },
+      {
+        pathname: '/lifestyle-hero.png',
+      },
+      {
+        pathname: '/amenities/**',
+      },
+      {
+        pathname: '/api/download-image',
+      },
+    ],
   },
   /* Immutable, long-lived caching for the hero video assets so Vercel's edge
      serves them from cache on every subsequent request and browsers don't

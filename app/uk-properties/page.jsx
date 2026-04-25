@@ -16,24 +16,65 @@ export default function UKPropertiesPage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
     async function fetchProperties() {
       try {
-        const response = await fetch('/api/properties?region=UK', { cache: 'no-store' });
+        console.log('1. Component mounted, starting fetch...');
+        const response = await fetch('/api/properties?region=UK', { 
+          cache: 'no-store',
+          signal: controller.signal 
+        });
+        
+        console.log('2. Got response:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
         const data = await response.json();
-        if (data.success) {
-          setProperties(data.data);
-          setFilteredProperties(data.data);
-        } else {
-          setError('Failed to load properties');
+        console.log('3. Got data:', data);
+        
+        if (isMounted) {
+          if (data.success) {
+            setProperties(data.data);
+            setFilteredProperties(data.data);
+          } else {
+            setError('Failed to load properties');
+          }
         }
       } catch (err) {
-        setError('An error occurred while fetching properties');
-        console.error('Error fetching properties:', err);
+        console.error('❌ FETCH FAILED:', err);
+        if (isMounted) {
+          setError(err.name === 'AbortError' ? 'Request timed out' : 'An error occurred while fetching properties');
+        }
       } finally {
-        setLoading(false);
+        clearTimeout(timeoutId);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
+
     fetchProperties();
+
+    // Emergency fallback - force exit loading after 15s
+    const emergencyTimeout = setTimeout(() => {
+      console.warn('⏰ EMERGENCY: Forcing loading false after 15s');
+      if (isMounted) {
+        setLoading(false);
+        setError('Request timed out');
+      }
+    }, 15000);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+      clearTimeout(emergencyTimeout);
+      controller.abort();
+    };
   }, []);
 
   if (loading) return <LoadingSkeleton />;
@@ -135,6 +176,7 @@ export default function UKPropertiesPage() {
 }
 
 function PropertyCard({ property }) {
+  const navFallbackTimeoutRef = useRef(null);
   const { formatPrice } = useDisplayCurrency();
   const native = property.currency === 'PKR' ? 'PKR' : 'GBP';
   const priceLabel = formatPrice(property.price, native);
@@ -173,9 +215,33 @@ function PropertyCard({ property }) {
     if (glareRef.current) glareRef.current.style.opacity = '0';
   };
 
+  useEffect(() => {
+    return () => {
+      if (navFallbackTimeoutRef.current) {
+        window.clearTimeout(navFallbackTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleCardNavigate = (e) => {
+    if (e.defaultPrevented) return;
+    if (e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+    if (navFallbackTimeoutRef.current) {
+      window.clearTimeout(navFallbackTimeoutRef.current);
+    }
+    navFallbackTimeoutRef.current = window.setTimeout(() => {
+      if (window.location.pathname !== detailsHref) {
+        window.location.assign(detailsHref);
+      }
+    }, 1200);
+  };
+
   return (
     <Link
       href={detailsHref}
+      onClick={handleCardNavigate}
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}

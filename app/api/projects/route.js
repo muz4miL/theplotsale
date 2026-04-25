@@ -7,6 +7,11 @@ import Project from '@/models/Project';
  * Fetches all projects or filters by status query parameter
  */
 export async function GET(request) {
+  // Set up timeout for database query
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error('Database query timeout')), 8000);
+  });
+
   try {
     await connectDB();
 
@@ -18,7 +23,11 @@ export async function GET(request) {
       query.status = status;
     }
 
-    const projects = await Project.find(query).sort({ createdAt: -1 });
+    // Race between database query and timeout
+    const projects = await Promise.race([
+      Project.find(query).sort({ createdAt: -1 }),
+      timeoutPromise
+    ]);
 
     return NextResponse.json({
       success: true,
@@ -28,6 +37,16 @@ export async function GET(request) {
 
   } catch (error) {
     console.error('Error fetching projects:', error);
+    
+    // Handle timeout specifically
+    if (error.message === 'Database query timeout') {
+      return NextResponse.json({
+        success: false,
+        error: 'Database timeout',
+        message: 'The database query took too long to respond',
+      }, { status: 504 });
+    }
+
     return NextResponse.json({
       success: false,
       error: 'Failed to fetch projects',

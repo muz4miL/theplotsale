@@ -79,9 +79,15 @@ export default function Properties() {
 
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+
     (async () => {
       try {
-        const res = await fetch('/api/properties?region=UK', { cache: 'no-store' });
+        const res = await fetch('/api/properties?region=UK', { 
+          cache: 'no-store',
+          signal: controller.signal 
+        });
         const json = await res.json();
         if (!active) return;
         if (json?.success && Array.isArray(json.data)) {
@@ -91,10 +97,14 @@ export default function Properties() {
         }
       } catch {
         if (active) setLiveProperties([]);
+      } finally {
+        clearTimeout(timeoutId);
       }
     })();
     return () => {
       active = false;
+      clearTimeout(timeoutId);
+      controller.abort();
     };
   }, []);
 

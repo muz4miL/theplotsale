@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useRef } from 'react';
 import { ArrowUpRight, MapPin, Maximize2 } from 'lucide-react';
 import { useInViewOnce } from '@/hooks/useInViewOnce';
 import SafeListingImage from '@/components/shared/SafeListingImage';
@@ -25,11 +26,35 @@ const statusTokens = {
 };
 
 export default function ProjectListingCard({ project, index }) {
+  const navFallbackTimeoutRef = useRef(null);
   const [wrapRef, visible] = useInViewOnce({ threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
   const status = statusTokens[project.status] || statusTokens.Current;
   const num = String(index + 1).padStart(2, '0');
 
   const projectHref = `/pakistan-projects/${project.slug}`;
+
+  useEffect(() => {
+    return () => {
+      if (navFallbackTimeoutRef.current) {
+        window.clearTimeout(navFallbackTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleCardNavigate = (e) => {
+    if (e.defaultPrevented) return;
+    if (e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+    if (navFallbackTimeoutRef.current) {
+      window.clearTimeout(navFallbackTimeoutRef.current);
+    }
+    navFallbackTimeoutRef.current = window.setTimeout(() => {
+      if (window.location.pathname !== projectHref) {
+        window.location.assign(projectHref);
+      }
+    }, 1200);
+  };
 
   return (
     <div
@@ -44,6 +69,7 @@ export default function ProjectListingCard({ project, index }) {
     >
       <Link
         href={projectHref}
+        onClick={handleCardNavigate}
         className="group relative flex h-full min-h-[460px] flex-col overflow-hidden rounded-[2px] border border-white/[0.07] bg-[#050807] outline-none transition-[border-color,box-shadow] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] after:pointer-events-none after:absolute after:inset-0 after:rounded-[2px] after:opacity-0 after:shadow-[0_0_0_1px_rgba(197,168,128,0.35),0_32px_64px_-12px_rgba(0,0,0,0.65)] after:transition-opacity after:duration-700 hover:border-[#C5A880]/30 hover:after:opacity-100 focus-visible:ring-2 focus-visible:ring-[#C5A880]/45 focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:min-h-[500px] lg:min-h-[520px] will-change-transform"
         style={{ transformStyle: 'preserve-3d' }}
       >
