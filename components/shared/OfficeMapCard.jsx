@@ -1,31 +1,27 @@
 /**
- * Office location data for ContactPage map cards.
- * mapUrl must be the exact Google Maps share link provided by the client.
+ * Office location map card component for displaying Google Maps embed
  */
 
-export const officeMapSites = [
-  {
-    id: 'lahore',
-    city: 'Lahore',
-    country: 'Pakistan',
-    addressLines: [
-      'Plot 2, Block C, Etihad Town',
-      'Main Raiwind Road',
-      'Lahore, 54000',
-    ],
-    mapUrl: 'https://maps.app.goo.gl/okF81Aq4BFS4a8C19?g_st=iwb',
-    phone: '+92 321 1222999',
-  },
-  {
-    id: 'uk',
-    city: 'London',
-    country: 'United Kingdom',
-    addressLines: [
-      'The Vista Center, 50 Salisbury Road',
-      'Hounslow, London TW4 6JQ',
-      'Office A4-16',
-    ],
-    mapUrl: 'https://maps.app.goo.gl/M1JuUyNc8np4NzNd6?g_st=iwb',
-    phone: '+44 7383 663339',
-  },
-];
+'use client';
+
+export default function OfficeMapCard({ office }) {
+  if (!office || !office.mapUrl) return null;
+
+  return (
+    <div className="relative overflow-hidden rounded-lg border border-white/10 bg-white/[0.02] backdrop-blur-sm">
+      <div className="aspect-[16/10] w-full">
+        <iframe
+          src={office.mapUrl.replace('?g_st=iwb', '').replace('/maps/', '/maps/embed?pb=')}
+          width="100%"
+          height="100%"
+          style={{ border: 0 }}
+          allowFullScreen=""
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          title={`Map of ${office.city} office`}
+          className="h-full w-full"
+        />
+      </div>
+    </div>
+  );
+}
