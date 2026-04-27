@@ -1,4 +1,3 @@
-// app/page.jsx
 import ReactDOM from 'react-dom';
 import HeroVideoParallax from '@/components/home/HeroVideoParallax';
 import Intro from '@/components/home/Intro';

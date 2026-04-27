@@ -13,7 +13,7 @@ const HERO_POSTER = '/lifestyle-hero.png';
  * Kick off the hero video + poster fetch the moment this module is evaluated
  * on the client. Runs before the component even mounts, so by the time the
  * <video> element is in the DOM the first clip is already partly — often
- * fully — in cache. Paired with <link rel="preload"> in app/layout.jsx so
+ * fully — in cache. Paired with <link rel="preload"> in app/page.jsx so
  * the very first paint on direct navigations benefits too.
  */
 if (typeof window !== 'undefined') {
@@ -27,7 +27,6 @@ if (typeof window !== 'undefined') {
 }
 
 export default function HeroVideoParallax() {
-  // All refs
   const sectionRef = useRef(null);
   const videoRef = useRef(null);
   const video2Ref = useRef(null);
@@ -43,14 +42,11 @@ export default function HeroVideoParallax() {
   const eleganceRef = useRef(null);
   const goldDividerRef = useRef(null);
 
-  // Defer mobile vs desktop until after mount so SSR + first client paint match,
-  // then branch once — avoids swapping the entire tree after effects touch video nodes.
   const [ready, setReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const videos = HERO_VIDEOS;
 
   useLayoutEffect(() => {
-    /* Touch-first viewports: dedicated hero (no ScrollTrigger pin / heavy video stack). */
     const mq = window.matchMedia('(max-width: 1023px)');
     const apply = () => setIsMobile(mq.matches);
     apply();
@@ -59,7 +55,7 @@ export default function HeroVideoParallax() {
     return () => mq.removeEventListener('change', apply);
   }, []);
 
-  // Seamless video transition logic (desktop hero only)
+  // ── Desktop: Seamless video transition logic ──
   useEffect(() => {
     if (!ready || isMobile) return;
     const video1 = videoRef.current;
@@ -70,18 +66,12 @@ export default function HeroVideoParallax() {
     let inactiveVideo = video2;
     let activeIndex = 0;
 
-    // Initial setup: active starts at first video, inactive preloads second.
-    // video1.src is already bound via JSX (src={HERO_VIDEOS[0]}) so the
-    // browser can begin buffering it during the initial HTML parse. We
-    // deliberately do NOT reassign/reload it here or we would throw away
-    // those already-buffered bytes and restart the fetch.
     video1.style.opacity = '1';
     video2.style.opacity = '0';
-    
-    // Ensure video1 is properly configured
+
     video1.muted = true;
     video1.playsInline = true;
-    
+
     if (!video2.src || !video2.src.includes(videos[1])) {
       video2.src = videos[1];
       video2.muted = true;
@@ -92,106 +82,52 @@ export default function HeroVideoParallax() {
     const attemptVideoPlay = async (video) => {
       if (!video) return;
       try {
-        // Ensure video is muted before playing (required for autoplay)
         video.muted = true;
         video.playsInline = true;
-        const playPromise = await video.play();
-        console.log('Video playing successfully');
-        return playPromise;
+        await video.play();
       } catch (err) {
-        console.warn('Video autoplay blocked:', err.name, err.message);
-        // If autoplay is blocked, set up click handler to start video
-        if (err.name === 'NotAllowedError' || err.name === 'NotSupportedException') {
-          const playOnInteraction = async () => {
-            try {
-              video.muted = true;
-              await video.play();
-              console.log('Video started after user interaction');
-              document.removeEventListener('click', playOnInteraction);
-              document.removeEventListener('touchstart', playOnInteraction);
-              document.removeEventListener('scroll', playOnInteraction);
-            } catch (retryErr) {
-              console.warn('Video play retry failed:', retryErr.name);
-            }
-          };
-          
-          document.addEventListener('click', playOnInteraction, { once: true });
-          document.addEventListener('touchstart', playOnInteraction, { once: true });
-          document.addEventListener('scroll', playOnInteraction, { once: true });
-        }
+        console.warn('Desktop video autoplay blocked:', err.name);
       }
     };
 
     const handleVideoEnd = async (event) => {
-      // Ignore end events from non-active layer to prevent odd mid-transition jumps.
       if (event?.target !== activeVideo) return;
 
-      // Determine next active video and the one to preload after transition
       const nextActiveIndex = (activeIndex + 1) % videos.length;
       const nextPreloadIndex = (nextActiveIndex + 1) % videos.length;
 
-      // Ensure inactive layer points to next active source
       if (inactiveVideo.src !== `${window.location.origin}${videos[nextActiveIndex]}`) {
         inactiveVideo.src = videos[nextActiveIndex];
         inactiveVideo.load();
       }
 
-      // Always start next clip from the beginning.
       inactiveVideo.currentTime = 0;
       await attemptVideoPlay(inactiveVideo);
 
-      // Elegant crossfade transition between video layers
       gsap.to(activeVideo, { opacity: 0, duration: 1.2, ease: 'power2.inOut' });
       gsap.to(inactiveVideo, { opacity: 1, duration: 1.2, ease: 'power2.inOut' });
 
-      // Swap layers: inactive becomes active
       [activeVideo, inactiveVideo] = [inactiveVideo, activeVideo];
       activeIndex = nextActiveIndex;
 
-      // Preload the following video into the now-inactive layer
       inactiveVideo.pause();
       inactiveVideo.currentTime = 0;
       inactiveVideo.src = videos[nextPreloadIndex];
       inactiveVideo.load();
     };
 
-    // Handle user interaction to start videos
-    const handleUserInteraction = async () => {
-      if (video1 && video1.paused) {
-        await attemptVideoPlay(video1);
-      }
-      if (video2 && video2.paused && video2.src) {
-        video2.muted = true;
-        video2.load();
-      }
-    };
-
     video1.addEventListener('ended', handleVideoEnd);
     video2.addEventListener('ended', handleVideoEnd);
-
-    // Add multiple interaction listeners for better coverage
-    const interactionEvents = ['click', 'touchstart', 'scroll', 'mousemove'];
-    interactionEvents.forEach(event => {
-      document.addEventListener(event, handleUserInteraction, { once: true, passive: true });
-    });
-
-    // Attempt to start first video immediately
     attemptVideoPlay(video1);
 
     return () => {
       gsap.killTweensOf([video1, video2]);
       video1.removeEventListener('ended', handleVideoEnd);
       video2.removeEventListener('ended', handleVideoEnd);
-      // Clean up all interaction listeners
-      const interactionEvents = ['click', 'touchstart', 'scroll', 'mousemove'];
-      interactionEvents.forEach(event => {
-        document.removeEventListener(event, handleUserInteraction);
-      });
     };
   }, [ready, isMobile]);
 
-  // GSAP animations — desktop only. Avoid ScrollTrigger `pin` (it reparents DOM and races React 19
-  // commitDeletion). Sticky wrapper below keeps the hero in view for ~400vh while we scrub.
+  // ── Desktop: GSAP ScrollTrigger (UNCHANGED from original) ──
   useLayoutEffect(() => {
     if (!ready || isMobile || typeof window === 'undefined' || !sectionRef.current) return;
     gsap.registerPlugin(ScrollTrigger);
@@ -206,17 +142,14 @@ export default function HeroVideoParallax() {
         },
       });
 
-      // 0. Scroll indicator fades out fast
       if (scrollIndicatorRef.current) {
         tl.to(scrollIndicatorRef.current, { opacity: 0, y: -24, duration: 0.3, ease: 'power2.in' }, 0);
       }
 
-      // 1. Initial Overlay fades out
       if (overlayRef.current) {
         tl.to(overlayRef.current, { opacity: 0, y: '-10%', scale: 0.95, duration: 0.8, ease: 'power2.inOut' }, 0);
       }
 
-      // 2. Video container transforms to side panel
       if (videoContainerRef.current) {
         tl.to(videoContainerRef.current, {
           width: '45vw',
@@ -230,56 +163,45 @@ export default function HeroVideoParallax() {
         }, 0);
       }
 
-      // 3. Anchor line grows
       if (anchorLineRef.current) {
         tl.fromTo(anchorLineRef.current, { scaleY: 0, opacity: 0 }, { scaleY: 1, opacity: 1, duration: 0.6, ease: 'power2.out' }, 0.4);
       }
 
-      // 4. Luxury label appears
       if (luxuryLabelRef.current) {
         tl.fromTo(luxuryLabelRef.current, { x: -40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: 'power2.out' }, 0.4);
       }
 
-      // 5. Content reveal sequence
       if (revealRef.current) {
         tl.to(revealRef.current, { opacity: 1, duration: 0.1 }, 0.6);
       }
 
-      // "PREMIER REAL ESTATE CONSULTANCY" label appears FIRST
       if (visionLabelRef.current) {
         tl.fromTo(visionLabelRef.current, { opacity: 0, y: 20, filter: 'blur(4px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.5, ease: 'power2.out' }, 0.7);
       }
 
-      // "Aspirations into" word appears SECOND
       if (timelessRef.current) {
         tl.fromTo(timelessRef.current, { opacity: 0, y: 50, clipPath: 'inset(0 0 100% 0)' }, { opacity: 1, y: 0, clipPath: 'inset(0 0 0 0)', duration: 1.2, ease: 'power2.out' }, 0.8);
       }
 
-      // "Foundations" word appears THIRD
       if (eleganceRef.current) {
         tl.fromTo(eleganceRef.current, { opacity: 0, y: 50, clipPath: 'inset(0 0 100% 0)' }, { opacity: 1, y: 0, clipPath: 'inset(0 0 0 0)', duration: 1.2, ease: 'power2.out' }, 1.1);
       }
 
-      // Divider appears
       if (goldDividerRef.current) {
         tl.fromTo(goldDividerRef.current, { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.6, ease: 'power2.out' }, 1.2);
       }
 
-      // Description text appears FOURTH
       if (revealSubRef.current) {
         tl.fromTo(revealSubRef.current, { opacity: 0, y: 30, filter: 'blur(4px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.7, ease: 'power2.out' }, 1.4);
       }
 
-      // 6. Ensure visibility
       if (revealRef.current) tl.to(revealRef.current, { opacity: 1, duration: 0.01 }, 1.5);
       if (timelessRef.current) tl.to(timelessRef.current, { opacity: 1, duration: 0.01 }, 1.5);
       if (eleganceRef.current) tl.to(eleganceRef.current, { opacity: 1, duration: 0.01 }, 1.5);
       if (revealSubRef.current) tl.to(revealSubRef.current, { opacity: 1, duration: 0.01 }, 1.5);
 
-      // 7. Subtle parallax
       if (revealRef.current) tl.to(revealRef.current, { y: '-5%', duration: 1, ease: 'none' }, 2.0);
       if (videoContainerRef.current) tl.to(videoContainerRef.current, { y: '2%', scale: 0.98, duration: 1, ease: 'none' }, 2.0);
-
     }, sectionRef);
 
     return () => {
@@ -289,9 +211,6 @@ export default function HeroVideoParallax() {
   }, [ready, isMobile]);
 
   if (!ready) {
-    /* First-paint skeleton. Shows the cinematic poster immediately with a dark
-       overlay so the hero never renders as a flat black block while we decide
-       mobile vs desktop and React hydrates. */
     return (
       <div
         className="relative min-h-screen w-full overflow-hidden"
@@ -320,10 +239,6 @@ export default function HeroVideoParallax() {
         <>
           <div ref={videoContainerRef} className="absolute z-20 overflow-hidden bg-black/20 w-full h-full right-0 top-0 rounded-none shadow-none pointer-events-auto">
             <div className="relative h-full w-full overflow-hidden z-10 bg-black">
-              {/* Primary hero clip — src, poster and preload="auto" baked into
-                  the JSX so the browser's preload scanner picks it up from the
-                  initial HTML, before React hydrates. This is the single most
-                  impactful change for time-to-first-frame. */}
               <video
                 ref={videoRef}
                 className="h-full w-full object-cover absolute inset-0"
@@ -414,10 +329,8 @@ export default function HeroVideoParallax() {
             </div>
           </div>
 
-          {/* Seamless Gradient to Next Section */}
           <div className="absolute bottom-0 left-0 right-0 h-56 z-25 pointer-events-none" style={{ background: 'linear-gradient(to bottom, transparent, rgba(10, 10, 10, 0.4), #0A0A0A)' }} />
 
-          {/* Initial Full Screen Overlay - LEFT ALIGNED */}
           <div ref={overlayRef} className="absolute inset-0 z-40 flex flex-col items-start justify-center pointer-events-none pb-12 md:pb-16 pl-[5%] md:pl-[10%]">
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2), transparent)' }} />
             <div className="text-left px-4 relative z-10 w-full">
