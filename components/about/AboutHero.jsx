@@ -172,22 +172,7 @@ export default function AboutHero() {
         <div className="absolute bottom-0 right-0 h-8 w-8 border-b border-r border-[#C5A880]/55 sm:h-10 sm:w-10" />
       </div>
 
-      {/* 5) Top rail — brand chip */}
-      <div className="pointer-events-none absolute left-0 right-0 top-0 z-[5] flex items-start justify-between gap-4 px-6 pt-[max(5rem,calc(env(safe-area-inset-top,0px)+4.25rem))] sm:px-10 lg:px-14">
-        <div className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-white/[0.14] bg-black/40 px-3 py-1.5 backdrop-blur-md">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#C5A880] shadow-[0_0_10px_rgba(197,168,128,0.6)]" />
-          <span className="font-[family-name:var(--font-manrope)] text-[9px] font-semibold uppercase tracking-[0.32em] text-white/70">
-            ThePlotSale · Est. 1998
-          </span>
-        </div>
-        <div className="pointer-events-auto hidden items-center gap-2 rounded-full border border-white/[0.14] bg-black/40 px-3 py-1.5 backdrop-blur-md sm:inline-flex">
-          <span className="font-[family-name:var(--font-manrope)] text-[9px] font-semibold uppercase tracking-[0.32em] text-[#C5A880]">
-            Cinematic Brief · 2026
-          </span>
-        </div>
-      </div>
-
-      {/* 6) Editorial masthead */}
+      {/* 5) Editorial masthead */}
       <div className="absolute inset-0 z-[5] flex h-full flex-col items-center justify-center px-6 text-center md:px-12">
         <p className="about-hero-stagger-1 font-[family-name:var(--font-manrope)] text-[10px] font-medium uppercase tracking-[0.42em] text-[#C5A880] md:text-[11px]">
           Premier Real Estate Consultancy
@@ -214,7 +199,7 @@ export default function AboutHero() {
         </p>
       </div>
 
-      {/* 7) Bottom rail — all badges centered at bottom in a single horizontal bar.
+      {/* 6) Bottom rail — all badges centered at bottom in a single horizontal bar.
              This keeps the logo (top-left) and CTA (top-right) clean with no corner clutter. */}
       <div className="absolute bottom-0 left-0 right-0 z-[6] flex items-center justify-center gap-3 px-5 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+1rem))] sm:gap-4 sm:px-10 sm:pb-8 lg:gap-6 lg:px-14 lg:pb-10">
         {/* Scroll hint */}
