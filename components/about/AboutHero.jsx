@@ -214,11 +214,42 @@ export default function AboutHero() {
         </p>
       </div>
 
-      {/* 7) Bottom rail — video controls + scroll hint.
-             On mobile the controls stack above the centered scroll hint so
-             nothing overlaps on portrait viewports. */}
-      <div className="absolute bottom-0 left-0 right-0 z-[6] flex flex-col items-center gap-3 px-5 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+1rem))] sm:flex-row sm:items-end sm:justify-between sm:gap-4 sm:px-10 sm:pb-8 lg:px-14 lg:pb-10">
-        <div className="pointer-events-auto flex items-center gap-2 self-start sm:self-auto">
+      {/* 7) Bottom rail — scroll hint (left) + video controls (right).
+             Swapped positions to create diagonal balance: Logo (top-left) ↔ Controls (bottom-right)
+             and CTA (top-right) ↔ Scroll hint (bottom-left). On mobile, controls stack above scroll hint. */}
+      <div className="absolute bottom-0 left-0 right-0 z-[6] flex flex-col-reverse items-center gap-3 px-5 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+1rem))] sm:flex-row sm:items-end sm:justify-between sm:gap-4 sm:px-10 sm:pb-8 lg:px-14 lg:pb-10">
+        {/* Scroll hint — now on the LEFT (bottom-left corner) */}
+        <div
+          className="pointer-events-none flex flex-col items-center transition-opacity duration-500 sm:items-start"
+          style={{ opacity: isMobile ? 1 : scrollHintOpacity }}
+        >
+          <div className="about-hero-chevron motion-reduce:animate-none">
+            <svg
+              className="h-5 w-5 text-[#C5A880] sm:h-6 sm:w-6"
+              fill="none"
+              strokeWidth="1"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <p className="mt-1.5 font-[family-name:var(--font-manrope)] text-[9px] font-semibold uppercase tracking-[0.42em] text-[#C5A880] sm:mt-2">
+            Scroll to Discover
+          </p>
+        </div>
+
+        {/* Video controls — now on the RIGHT (bottom-right corner) */}
+        <div className="pointer-events-auto flex items-center gap-2 self-end sm:self-auto">
+          <div className="mr-3 hidden flex-col gap-0.5 sm:flex">
+            <span className="font-[family-name:var(--font-manrope)] text-[9px] font-semibold uppercase tracking-[0.3em] text-[#C5A880]">
+              Opening Reel
+            </span>
+            <span className="font-[family-name:var(--font-manrope)] text-[9px] font-light tracking-[0.2em] text-white/45">
+              A ThePlotSale Production
+            </span>
+          </div>
           <button
             type="button"
             onClick={togglePlay}
@@ -239,35 +270,6 @@ export default function AboutHero() {
           >
             {isMuted ? <VolumeX className="h-4 w-4" strokeWidth={1.5} /> : <Volume2 className="h-4 w-4" strokeWidth={1.5} />}
           </button>
-          <div className="ml-3 hidden flex-col gap-0.5 sm:flex">
-            <span className="font-[family-name:var(--font-manrope)] text-[9px] font-semibold uppercase tracking-[0.3em] text-[#C5A880]">
-              Opening Reel
-            </span>
-            <span className="font-[family-name:var(--font-manrope)] text-[9px] font-light tracking-[0.2em] text-white/45">
-              A ThePlotSale Production
-            </span>
-          </div>
-        </div>
-
-        <div
-          className="pointer-events-none flex flex-col items-center transition-opacity duration-500 sm:items-end"
-          style={{ opacity: isMobile ? 1 : scrollHintOpacity }}
-        >
-          <div className="about-hero-chevron motion-reduce:animate-none">
-            <svg
-              className="h-5 w-5 text-[#C5A880] sm:h-6 sm:w-6"
-              fill="none"
-              strokeWidth="1"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-          <p className="mt-1.5 font-[family-name:var(--font-manrope)] text-[9px] font-semibold uppercase tracking-[0.42em] text-[#C5A880] sm:mt-2">
-            Scroll to Discover
-          </p>
         </div>
       </div>
     </section>
