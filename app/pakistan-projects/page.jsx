@@ -17,7 +17,7 @@ export default function PakistanProjectsPage() {
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout for initial DB connection
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout (allows for reconnection)
 
     async function fetchProjects() {
       try {
@@ -26,16 +26,16 @@ export default function PakistanProjectsPage() {
           cache: 'no-store',
           signal: controller.signal 
         });
-        
+
         console.log('2. Got response:', response.status);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
-        
+
         const data = await response.json();
         console.log('3. Got data:', data);
-        
+
         if (isMounted) {
           if (response.ok && data.success) {
             setProjects(data.data);
@@ -60,14 +60,14 @@ export default function PakistanProjectsPage() {
 
     fetchProjects();
 
-    // Emergency fallback - force exit loading after 35s
+    // Emergency fallback - force exit loading after 50s
     const emergencyTimeout = setTimeout(() => {
-      console.warn('⏰ EMERGENCY: Forcing loading false after 35s');
+      console.warn('⏰ EMERGENCY: Forcing loading false after 50s');
       if (isMounted) {
         setLoading(false);
         setError('Request timed out');
       }
-    }, 35000);
+    }, 50000); // Increased to 50s to match new timeouts
 
     return () => {
       isMounted = false;

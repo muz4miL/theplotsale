@@ -7,9 +7,9 @@ import Project from '@/models/Project';
  * Fetches all projects or filters by status query parameter
  */
 export async function GET(request) {
-  // Set up timeout for database query (increased to 25s to account for connection time)
+  // Set up timeout for database query (increased to 40s to account for reconnection time)
   const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error('Database query timeout')), 25000);
+    setTimeout(() => reject(new Error('Database query timeout')), 40000); // Increased to 40s for reconnection time
   });
 
   try {
@@ -17,7 +17,7 @@ export async function GET(request) {
     const result = await Promise.race([
       (async () => {
         await connectDB();
-        
+
         const { searchParams } = new URL(request.url);
         const status = searchParams.get('status');
 
@@ -39,7 +39,7 @@ export async function GET(request) {
 
   } catch (error) {
     console.error('Error fetching projects:', error);
-    
+
     // Handle timeout specifically
     if (error.message === 'Database query timeout') {
       return NextResponse.json({
