@@ -214,13 +214,12 @@ export default function AboutHero() {
         </p>
       </div>
 
-      {/* 7) Bottom rail — scroll hint (left) + video controls (right).
-             Swapped positions to create diagonal balance: Logo (top-left) ↔ Controls (bottom-right)
-             and CTA (top-right) ↔ Scroll hint (bottom-left). On mobile, controls stack above scroll hint. */}
-      <div className="absolute bottom-0 left-0 right-0 z-[6] flex flex-col-reverse items-center gap-3 px-5 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+1rem))] sm:flex-row sm:items-end sm:justify-between sm:gap-4 sm:px-10 sm:pb-8 lg:px-14 lg:pb-10">
-        {/* Scroll hint — now on the LEFT (bottom-left corner) */}
+      {/* 7) Bottom rail — all badges centered at bottom in a single horizontal bar.
+             This keeps the logo (top-left) and CTA (top-right) clean with no corner clutter. */}
+      <div className="absolute bottom-0 left-0 right-0 z-[6] flex items-center justify-center gap-3 px-5 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+1rem))] sm:gap-4 sm:px-10 sm:pb-8 lg:gap-6 lg:px-14 lg:pb-10">
+        {/* Scroll hint */}
         <div
-          className="pointer-events-none flex flex-col items-center transition-opacity duration-500 sm:items-start"
+          className="pointer-events-none flex flex-col items-center transition-opacity duration-500"
           style={{ opacity: isMobile ? 1 : scrollHintOpacity }}
         >
           <div className="about-hero-chevron motion-reduce:animate-none">
@@ -240,16 +239,24 @@ export default function AboutHero() {
           </p>
         </div>
 
-        {/* Video controls — now on the RIGHT (bottom-right corner) */}
-        <div className="pointer-events-auto flex items-center gap-2 self-end sm:self-auto">
-          <div className="mr-3 hidden flex-col gap-0.5 sm:flex">
-            <span className="font-[family-name:var(--font-manrope)] text-[9px] font-semibold uppercase tracking-[0.3em] text-[#C5A880]">
-              Opening Reel
-            </span>
-            <span className="font-[family-name:var(--font-manrope)] text-[9px] font-light tracking-[0.2em] text-white/45">
-              A ThePlotSale Production
-            </span>
-          </div>
+        {/* Separator dot */}
+        <span className="hidden h-1 w-1 rounded-full bg-[#C5A880]/40 sm:block" aria-hidden />
+
+        {/* Opening Reel label */}
+        <div className="hidden flex-col gap-0.5 sm:flex">
+          <span className="font-[family-name:var(--font-manrope)] text-[9px] font-semibold uppercase tracking-[0.3em] text-[#C5A880]">
+            Opening Reel
+          </span>
+          <span className="font-[family-name:var(--font-manrope)] text-[9px] font-light tracking-[0.2em] text-white/45">
+            A ThePlotSale Production
+          </span>
+        </div>
+
+        {/* Separator dot */}
+        <span className="hidden h-1 w-1 rounded-full bg-[#C5A880]/40 sm:block" aria-hidden />
+
+        {/* Video controls */}
+        <div className="pointer-events-auto flex items-center gap-2">
           <button
             type="button"
             onClick={togglePlay}
