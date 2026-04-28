@@ -267,21 +267,41 @@ export default function Navbar() {
           paddingRight: '1.5rem',
         }}
       >
-        <div className="flex items-center justify-between border-b border-white/[0.06] pb-5">
-          <div>
-            <p className="font-playfair text-lg tracking-wide text-white">Menu</p>
-            <p className="mt-0.5 font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.3em] text-[#C5A880]/80">
-              The Plot Sale
-            </p>
-          </div>
+        {/* Close button - isolated top-right */}
+        <div className="absolute top-5 right-5 z-10">
           <button
             type="button"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-white/80 transition-colors hover:border-[#C5A880]/50 hover:text-[#C5A880]"
+            className="flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-black/30 text-white/80 shadow-lg transition-all duration-300 hover:border-[#C5A880]/50 hover:bg-[#C5A880]/10 hover:text-[#C5A880] active:scale-95"
             aria-label="Close menu"
             onClick={closeDrawer}
           >
-            <X size={18} strokeWidth={1.75} />
+            <X size={22} strokeWidth={1.75} />
           </button>
+        </div>
+
+        {/* Logo section - centered with breathing room */}
+        <div className="flex flex-col items-center pb-6 pt-2">
+          <Image
+            src="/newLogo2.png"
+            alt="ThePlotSale"
+            width={120}
+            height={120}
+            className="h-auto w-28 object-contain"
+          />
+          <div className="mt-6 text-center">
+            <p className="font-playfair text-2xl tracking-wide text-white">Menu</p>
+            <p className="mt-1.5 font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.3em] text-[#C5A880]/70">
+              The Plot Sale
+            </p>
+          </div>
+        </div>
+
+        {/* Currency toggle - elegant separator */}
+        <div className="flex items-center justify-between border-y border-white/[0.06] py-4 px-2">
+          <span className="font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.3em] text-white/50">
+            Currency
+          </span>
+          <CurrencyToggle />
         </div>
 
         <nav className="flex flex-1 flex-col overflow-y-auto overscroll-contain py-2" aria-label="Mobile primary">
@@ -336,11 +356,11 @@ export default function Navbar() {
           <Link
             href="/contact"
             onClick={closeDrawer}
-            className="lux-button flex w-full items-center justify-center rounded-full border border-[#C5A880] bg-[#C5A880] py-3.5 font-[family-name:var(--font-manrope)] text-[11px] font-semibold uppercase tracking-[0.22em] text-[#111111] hover:bg-[#d4b896]"
+            className="lux-button flex w-full items-center justify-center rounded-full border border-[#C5A880] bg-[#C5A880] py-3.5 font-[family-name:var(--font-manrope)] text-[11px] font-semibold uppercase tracking-[0.22em] text-[#111111] transition-all duration-300 hover:bg-[#d4b896] active:scale-[0.98]"
           >
             Book appointment
           </Link>
-          <p className="mt-3 text-center font-[family-name:var(--font-manrope)] text-[10px] text-white/35">
+          <p className="mt-4 text-center font-[family-name:var(--font-manrope)] text-[10px] uppercase tracking-[0.3em] text-white/35">
             London · Lahore
           </p>
         </div>
