@@ -244,7 +244,7 @@ export default function Navbar() {
       </header>
 
       <div
-        className={`fixed inset-0 z-[90] bg-black/55 transition-[opacity,backdrop-filter] duration-300 supports-[backdrop-filter]:backdrop-blur-sm ${
+        className={`fixed inset-0 z-[10000] bg-black/55 transition-[opacity,backdrop-filter] duration-300 supports-[backdrop-filter]:backdrop-blur-sm ${
           isDrawerOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
         }`}
         onClick={closeDrawer}
@@ -257,7 +257,7 @@ export default function Navbar() {
         aria-modal="true"
         aria-label="Site navigation"
         aria-hidden={!isDrawerOpen}
-        className={`fixed top-0 right-0 z-[95] flex h-[100dvh] max-h-[100dvh] w-[min(400px,92vw)] flex-col border-l border-[#C5A880]/20 bg-[#030706]/95 text-[#f5f5f5] shadow-[-24px_0_60px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] supports-[backdrop-filter]:backdrop-blur-2xl ${
+        className={`fixed top-0 right-0 z-[10001] flex h-[100dvh] max-h-[100dvh] w-[min(400px,92vw)] flex-col border-l border-[#C5A880]/20 bg-[#030706]/95 text-[#f5f5f5] shadow-[-24px_0_60px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] supports-[backdrop-filter]:backdrop-blur-2xl ${
           isDrawerOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         style={{
